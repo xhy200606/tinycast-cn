@@ -167,7 +167,7 @@ enum FileSearchActionsMenu {
                     shortcut: "⇧⌘C"
                 ) { coordinator.copyFile(result) },
                 PopoverMenuItem(
-                    title: target.map { "Paste File to \($0.name)" } ?? "Paste File",
+                    title: target.map { String(localized: "Paste File to \($0.name)") } ?? "Paste File",
                     icon: .paste(target, fallback: "doc.on.clipboard"), shortcut: "⇧⌘V"
                 ) { coordinator.pasteFile(result) },
                 PopoverMenuItem(
