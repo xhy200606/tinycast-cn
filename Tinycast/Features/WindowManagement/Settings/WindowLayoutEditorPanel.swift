@@ -57,7 +57,7 @@ struct WindowLayoutEditorPanel: View {
 
     private var previewColumn: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
-            Text(title)
+            Text(title.localizedUI)
                 .font(Theme.Typography.panelTitle)
             WindowLayoutPreview(draft: draft, screens: screens, gap: previewGap)
         }
@@ -82,7 +82,7 @@ struct WindowLayoutEditorPanel: View {
     private var footer: some View {
         HStack(spacing: Theme.Spacing.xl) {
             if let errorMessage {
-                Text(errorMessage)
+                Text(errorMessage.localizedUI)
                     .font(.caption)
                     .foregroundStyle(.orange)
                     .lineLimit(2)

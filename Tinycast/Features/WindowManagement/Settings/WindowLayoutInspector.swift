@@ -148,9 +148,9 @@ struct WindowLayoutInspector: View {
     ) -> some View {
         HStack(alignment: .top, spacing: Theme.Spacing.xl) {
             VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
-                Text(title)
+                Text(title.localizedUI)
                     .font(.callout.weight(.medium))
-                Text(detail)
+                Text(detail.localizedUI)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -165,7 +165,7 @@ struct WindowLayoutInspector: View {
     }
 
     private func sectionLabel(_ title: String) -> some View {
-        Text(title)
+        Text(title.localizedUI)
             .font(.callout.weight(.medium))
     }
 
