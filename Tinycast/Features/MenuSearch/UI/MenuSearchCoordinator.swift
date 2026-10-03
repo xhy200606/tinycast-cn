@@ -39,15 +39,6 @@ final class MenuSearchCoordinator {
             Task { await self.reportPermissionFailure() }
             return
         }
-        paletteCoordinator.togglePalette(mode: .menuSearch)
-    }
-
-    /// Every open walks anew, a restore included: hiding dropped the last snapshot.
-    func load() {
-        guard Permissions.ensureAccessibility() else {
-            Task { await self.reportPermissionFailure() }
-            return
-        }
         let app = paletteCoordinator.targetApp
         frozenApp = app
         if let url = app?.bundleURL {
@@ -75,6 +66,7 @@ final class MenuSearchCoordinator {
         case .excluded, .selfTarget, .menuLess, .noApplication:
             session.present(target: target, snapshot: [])
         }
+        paletteCoordinator.togglePalette(mode: .menuSearch)
     }
 
     func activate(_ item: MenuSearchItem) {
@@ -113,14 +105,14 @@ final class MenuSearchCoordinator {
     private func reportGone(targetName: String?) async {
         await core.showNotice(
             title: "Couldn't Activate Menu Item",
-            message: targetName.map { "\($0) is no longer running." }
+            message: targetName.map { String(localized: "\($0) is no longer running.") }
                 ?? "The application is no longer running.",
             symbol: "menubar.rectangle", tone: .danger)
     }
 
     private func reportPressFailure(item: MenuSearchItem) async {
         await core.showNotice(
-            title: "Couldn't Activate “\(item.title)”",
+            title: String(localized: "Couldn't Activate “\(item.title)”"),
             message: "Its menu changed before the press landed. Search again and retry.",
             symbol: "menubar.rectangle", tone: .danger)
     }

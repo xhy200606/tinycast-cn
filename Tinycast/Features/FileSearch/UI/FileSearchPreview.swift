@@ -98,7 +98,7 @@ private struct FileSearchInfoSection: View {
                 ForEach(rows) { row in
                     if row.id != rows.first?.id { Divider() }
                     HStack(spacing: metrics.spacing.sm) {
-                        Text(row.label).foregroundStyle(.secondary)
+                        Text(row.label.localizedUI).foregroundStyle(.secondary)
                         Spacer(minLength: metrics.spacing.lg)
                         Text(row.value).lineLimit(1).truncationMode(.middle)
                     }
@@ -117,7 +117,7 @@ private struct FileSearchInfoSection: View {
             InfoRow(label: "Where", value: result.parentPath),
             InfoRow(
                 label: "Type",
-                value: details.typeName ?? (result.isDirectory ? "Folder" : "File"))
+                value: details.typeName ?? (result.isDirectory ? "Folder" : "File").localizedUI)
         ]
         if let bytes = details.bytes {
             rows.append(

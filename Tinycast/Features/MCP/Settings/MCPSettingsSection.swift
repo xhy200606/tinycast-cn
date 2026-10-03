@@ -2,12 +2,11 @@ import SwiftUI
 
 /// Settings → AI's MCP half: the switch, the servers, and what each one is doing right now.
 struct MCPSettingsSection: View {
-    @Environment(MCPCoordinator.self) private var coordinator
+    @Environment(AppCore.self) private var core
     @Environment(AppSettings.self) private var appSettings
     @Environment(MCPSettingsStore.self) private var store
     @State private var editor: MCPServerEditorTarget?
     @State private var pendingRemoval: MCPServer?
-    @State private var removalError: String?
 
     var body: some View {
         @Bindable var appSettings = appSettings
@@ -22,7 +21,7 @@ struct MCPSettingsSection: View {
                 } else {
                     ForEach(store.servers) { server in
                         MCPServerRow(
-                            server: server, status: coordinator.status(of: server.id),
+                            server: server, status: core.mcp.status(of: server.id),
                             onEdit: { editor = MCPServerEditorTarget(server: server, isNew: false) },
                             onRemove: { pendingRemoval = server })
                     }
@@ -34,15 +33,10 @@ struct MCPSettingsSection: View {
                         SettingsRowTitle(.aiMCPServers, "Add MCP Server")
                     } icon: {
                         Image(systemName: "plus")
-                            .foregroundStyle(.primary)
                     }
                 }
             }
             .settingsEnabled(appSettings.mcpEnabled)
-            if let removalError {
-                Label(removalError, systemImage: "exclamationmark.triangle")
-                    .foregroundStyle(.orange)
-            }
         } header: {
             SettingsSectionHeader(.aiMCPServers)
         } footer: {
@@ -70,23 +64,21 @@ struct MCPSettingsSection: View {
     /// A returned message is shown in the panel; nil closes it.
     private func save(_ server: MCPServer, _ secrets: MCPSecretStore.Secrets) -> String? {
         do {
-            try coordinator.save(server, secrets: secrets)
+            try MCPSecretStore().save(secrets, for: server.id)
         } catch {
             return "The credentials could not be saved to your login Keychain."
         }
+        store.save(server)
         editor = nil
+        core.mcpCoordinator.applyEnabled()
         return nil
     }
 
     private func remove(_ server: MCPServer) {
+        try? MCPSecretStore().remove(for: server.id)
+        store.remove(id: server.id)
         pendingRemoval = nil
-        do {
-            try coordinator.remove(server.id)
-            removalError = nil
-        } catch {
-            removalError =
-                "\(server.title) was kept: its credentials could not be removed from your login Keychain."
-        }
+        core.mcpCoordinator.applyEnabled()
     }
 }
 
@@ -99,7 +91,7 @@ private struct MCPServerRow: View {
     var body: some View {
         SettingsRow(title: server.title, subtitle: subtitle) {
             Image(systemName: "wrench.and.screwdriver")
-                .foregroundStyle(.primary)
+                .foregroundStyle(server.isEnabled ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
         } trailing: {
             Button(action: onEdit) { Image(systemName: "pencil") }
                 .buttonStyle(.plain)
@@ -116,7 +108,7 @@ private struct MCPServerRow: View {
 
     /// The slug leads, because it is the half a reader has to type into the composer.
     private var subtitle: String {
-        let state = server.isEnabled ? status.label : "Disabled"
+        let state = server.isEnabled ? status.label : "Disabled".localizedUI
         return "@\(server.slug) · \(state) · \(server.transport.summary)"
     }
 }
