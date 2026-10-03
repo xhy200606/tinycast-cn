@@ -15,7 +15,7 @@ final class CodexAppServerClient {
                 return "Install the Codex CLI to use your Codex account."
             case .launchFailed(let detail): return "Codex could not start: \(detail)"
             case .processExited(let detail), .requestFailed(let detail): return detail
-            case .timedOut: return "Codex did not respond in time."
+            case .timedOut: return String(localized: "Codex did not respond in time.")
             }
         }
     }
@@ -154,7 +154,8 @@ final class CodexAppServerClient {
             try FileManager.default.setAttributes(
                 [.posixPermissions: 0o700], ofItemAtPath: workspace.path)
         } catch {
-            throw ClientError.launchFailed("Its private support folder could not be prepared.")
+            throw ClientError.launchFailed(
+                String(localized: "Its private support folder could not be prepared."))
         }
 
         // Unread, the reader's servers would start inside the chat; so Codex does not start either.
@@ -306,7 +307,9 @@ final class CodexAppServerClient {
     }
 
     private func send(_ data: Data) throws {
-        guard let input else { throw ClientError.processExited("Codex is not running.") }
+        guard let input else {
+            throw ClientError.processExited(String(localized: "Codex is not running."))
+        }
         try input.write(contentsOf: data)
     }
 
@@ -320,7 +323,9 @@ final class CodexAppServerClient {
         }
         // An unterminated multi-megabyte line means whatever is talking is not the app server.
         guard outputBuffer.count > Self.outputLimit else { return }
-        let message = "Codex sent an unterminated oversized response and was disconnected."
+        let message = String(
+            localized:
+                "Codex sent an unterminated oversized response and was disconnected.")
         onExit?(message)
         stop(error: ClientError.processExited(message))
     }
@@ -375,7 +380,7 @@ final class CodexAppServerClient {
         default:
             try? send(
                 CodexAppServerProtocol.errorResponse(
-                    id: id, message: "Tinycast does not expose Codex tools."))
+                    id: id, message: String(localized: "Tinycast does not expose Codex tools.")))
             return
         }
         try? send(CodexAppServerProtocol.response(id: id, result: result))
@@ -401,7 +406,9 @@ final class CodexAppServerClient {
         guard exited == processID else { return }
         let detail = String(decoding: stderrBuffer, as: UTF8.self)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        let message = detail.isEmpty ? "Codex exited with status \(status)." : detail
+        let message =
+            detail.isEmpty
+            ? String(localized: "Codex exited with status \(Int(status)).") : detail
         onExit?(message)
         cleanup(error: ClientError.processExited(message))
     }

@@ -52,7 +52,7 @@ enum AIProviderFactory {
             return try installedAI.provider(kind: .cursor, model: model, effort: effort)
         case .api(let connectionID, let model, let effort):
             guard let connection = settings.connection(id: connectionID) else {
-                throw AIProviderError.unavailable("Choose an API connection in Settings.")
+                throw AIProviderError.unavailable(String(localized: "Choose an API connection in Settings."))
             }
             guard settings.isRouteEnabled(.api(connectionID)) else {
                 throw AIProviderError.unavailable("\(connection.title) is disabled in AI Settings.")
@@ -67,10 +67,11 @@ enum AIProviderFactory {
             do {
                 key = try keyStore.secret(for: connection.id) ?? ""
             } catch {
-                throw AIProviderError.unavailable("The API key could not be read from Keychain.")
+                throw AIProviderError.unavailable(
+                    String(localized: "The API key could not be read from Keychain."))
             }
             guard AIEndpointPolicy.isLoopback(connection.baseURL) || !key.isEmpty else {
-                throw AIProviderError.unavailable("Add an API key in Settings.")
+                throw AIProviderError.unavailable(String(localized: "Add an API key in Settings."))
             }
             return HTTPAIProvider(
                 configuration: AIHTTPConfiguration(

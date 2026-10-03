@@ -409,7 +409,7 @@ private final class InstalledCLITurnRunner {
         while let newline = outputBuffer.firstIndex(of: 0x0A) {
             let line = outputBuffer[..<newline]
             if line.count > Self.maximumPartialLineBytes {
-                fail(kind.title + " returned an oversized response.")
+                fail(String(localized: "\(kind.title) returned an oversized response."))
                 return
             }
             outputBuffer.removeSubrange(...newline)
@@ -419,7 +419,7 @@ private final class InstalledCLITurnRunner {
                     Data(line), kind: kind, servers: activeServers), token: token)
         }
         if outputBuffer.count > Self.maximumPartialLineBytes {
-            fail(kind.title + " returned an oversized response.")
+            fail(String(localized: "\(kind.title) returned an oversized response."))
         }
     }
 

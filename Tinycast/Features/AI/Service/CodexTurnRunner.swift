@@ -149,7 +149,8 @@ final class CodexTurnRunner {
                             ?? "Codex could not finish the response."))
             default:
                 continuation.finish(
-                    throwing: AIProviderError.responseFailed("The response was interrupted."))
+                    throwing: AIProviderError.responseFailed(
+                        String(localized: "The response was interrupted.")))
             }
             clear(key)
         case "error":
@@ -236,7 +237,8 @@ final class CodexTurnRunner {
             })
         else {
             continuation.finish(
-                throwing: AIProviderError.unavailable("There is no user message to send."))
+                throwing: AIProviderError.unavailable(
+                    String(localized: "There is no user message to send.")))
             return
         }
         let key = ObjectIdentifier(token)
@@ -278,7 +280,7 @@ final class CodexTurnRunner {
                 let threadID = thread["id"]?.stringValue
             else {
                 throw CodexAppServerClient.ClientError.requestFailed(
-                    "Codex returned no generation thread.")
+                    String(localized: "Codex returned no generation thread."))
             }
             // A thread claimed after Stop would route events to a stream nobody reads.
             guard turns[key] === turn, !Task.isCancelled else { return }
