@@ -7,7 +7,7 @@ struct AboutView: View {
     private static var version: String {
         let short = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "—"
-        return "Version \(short) (\(build))"
+        return String(format: "Version %@ (%@)".localizedUI, short, build)
     }
 
     // Cached, and read from the bundle: the app icon is generic until LaunchServices registers.
@@ -176,7 +176,7 @@ private struct AboutLinkRow: View {
         } label: {
             LabeledContent {
                 HStack(spacing: Theme.Spacing.sm) {
-                    Text(link.detail)
+                    Text(link.detail.localizedUI)
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
                     Image(systemName: "arrow.up.right")
@@ -185,7 +185,7 @@ private struct AboutLinkRow: View {
                 }
             } label: {
                 Label {
-                    Text(link.title)
+                    Text(link.title.localizedUI)
                 } icon: {
                     glyph
                 }

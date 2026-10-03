@@ -79,29 +79,21 @@ struct RootPaletteView: View {
                 session: menuSearch, core: core, vm: vm, openActions: openActions)
         case .switchWindows:
             return WindowSwitchScreen(session: windowSwitch, core: core)
-        case .rooms:
-            return RoomsScreen(coordinator: core.roomCoordinator, session: core.roomSession, vm: vm)
-        case .roomWindows:
-            return RoomPickerScreen(
-                coordinator: core.roomCoordinator, session: core.roomSession, vm: vm)
         case .schedule:
             return ScheduleScreen(
                 store: calendarStore, clock: meetingClock, core: core, vm: vm,
                 openActions: openActions)
-        case .meetingDetails:
-            return MeetingDetailsScreen(store: calendarStore, core: core)
         case .clipboard:
             return ClipboardScreen(
                 store: store, core: core, vm: vm, openActions: openActions,
                 scrollToFollow: { scroll = ScrollIntent(kind: .follow) })
         case .ai:
             return AIScreen(
-                vm: vm, metrics: metrics, chat: quickAI,
-                coordinator: core.quickAICoordinator, chatCoordinator: core.aiChatCoordinator,
-                openAttachments: toggleAIAttachments)
+                vm: vm, metrics: metrics, chat: core.aiChat, settings: core.aiSettings,
+                coordinator: core.aiChatCoordinator)
         case .aiHistory:
             return ChatHistoryScreen(
-                history: core.chatHistory, chat: quickAI, coordinator: core.quickAICoordinator,
+                history: core.chatHistory, chat: core.aiChat, coordinator: core.aiChatCoordinator,
                 vm: vm, openActions: openActions, metrics: metrics)
         case .dictionary:
             return DictionaryScreen(session: dictionary, core: core, vm: vm)
@@ -243,18 +235,12 @@ struct RootPaletteView: View {
             return headerMenu(emojiCategoryContent, width: metrics.size.emojiCategoryMenuWidth)
         case .aiModel:
             return headerMenu(
-                AIModelMenu.models(coordinator: core.aiChatCoordinator, chat: quickAI),
+                AIModelMenu.models(coordinator: core.aiChatCoordinator),
                 width: metrics.size.menuWidth)
         case .aiReasoning:
             return headerMenu(
                 AIModelMenu.reasoning(
-                    coordinator: core.aiChatCoordinator, chat: quickAI),
-                width: metrics.size.menuWidth)
-        case .aiAttachments:
-            guard !quickAI.pendingAttachments.isEmpty else { return nil }
-            return headerMenu(
-                AIModelMenu.attachments(
-                    coordinator: core.aiChatCoordinator, chat: quickAI),
+                    coordinator: core.aiChatCoordinator, settings: core.aiSettings),
                 width: metrics.size.menuWidth)
         case .argumentOptions:
             guard let field = argumentOptionsField,
@@ -300,6 +286,9 @@ struct RootPaletteView: View {
                 }
                 // The panel has no title bar, so this thin top margin is the only place left to grab it.
                 .overlay(alignment: .top) { topDragStrip }
+                .modifier(
+                    ExtensionToastOverlay(extensions: extensions, showing: vm.mode == .extensionCommand)
+                )
                 // Never conditionally mounted: unmounting strands SwiftUI's hover target and eats clicks.
                 .overlay {
                     Color.black.opacity(0.001)
@@ -318,8 +307,7 @@ struct RootPaletteView: View {
                 )
                 // The window's frame is the size source, so the glass and clip stay matched.
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .background(Theme.Colors.panelScrim)
-                .background(GlassEffectView())
+                .background(PaletteBackground(window: hostWindow))
                 .overlay {
                     Theme.Colors.dialogDimming
                         .opacity(core.isDimmingPaletteForDialog ? 1 : 0)
@@ -339,13 +327,11 @@ struct RootPaletteView: View {
     @ViewBuilder
     private func emojiObservers(_ content: some View) -> some View {
         content
-            .onChange(of: vm.emojiCategoryFilter) { land() }
-            .onChange(of: core.pinnedEmoji.revision) { emojiGridChanged() }
-            .onChange(of: (screen as? EmojiScreen)?.frequentlyUsed) { old, new in
-                guard let old, let new else { return }
-                (screen as? EmojiScreen)?.frequentlyUsedChanged(from: old, to: new)
-                emojiGridChanged()
+            .onChange(of: vm.emojiCategoryFilter) {
+                vm.selection = 0
+                scroll = ScrollIntent(kind: .top)
             }
+            .onChange(of: core.pinnedEmoji.revision) { emojiGridChanged() }
             .onChange(of: vm.emojiGridColumnsOverride) { emojiGridChanged() }
             .onChange(of: settings.emojiGridColumns) { emojiGridChanged() }
             // ⌘0 / ⌘+ / ⌘- arrive as a token, like ⌘. does. See `PaletteState.emojiGridZoomToken`.
@@ -371,10 +357,13 @@ struct RootPaletteView: View {
                 searchFocused = !screen.hidesSearchField
             }
             // A preserved screen re-summons as it was left, so a menu must end with the palette.
-            .modifier(PaletteHideObserver { if menuOpen { closeMenus() } })
+            .onChange(of: vm.isVisible) {
+                if !vm.isVisible, menuOpen { closeMenus() }
+            }
             .onChange(of: vm.query) {
                 if vm.collapseQueryLineBreaks() { return }
-                land()
+                vm.selection = 0
+                scroll = ScrollIntent(kind: .top)
                 if vm.mode == .fileSearch { fileSearch.search(vm.query, filter: vm.fileSearchFilter) }
                 if vm.mode == .dictionary { dictionary.lookUp(vm.query) }
                 if vm.mode == .menuSearch { menuSearch.filter(vm.query) }
@@ -391,20 +380,25 @@ struct RootPaletteView: View {
             }
             .modifier(ExtensionSelectionForwarder(screen: extensionScreen, selection: vm.selection))
             // A narrower list means the old index points at a different row, or at none.
-            .onChange(of: vm.clipboardFilter) { land() }
+            .onChange(of: vm.clipboardFilter) {
+                vm.selection = 0
+                scroll = ScrollIntent(kind: .top)
+            }
             // The filter is part of the query, so narrowing re-runs it rather than thinning rows.
             .onChange(of: vm.fileSearchFilter) {
-                land()
+                vm.selection = 0
+                scroll = ScrollIntent(kind: .top)
                 fileSearch.search(vm.query, filter: vm.fileSearchFilter)
             }
             .onChange(of: vm.mode) {
+                vm.selection = 0
                 vm.clipboardFilter = .all
                 vm.fileSearchFilter = .all
                 vm.emojiCategoryFilter = .all
                 vm.emojiGridColumnsOverride = nil
                 vm.fileSearchQuickLook = false
                 if menuOpen { closeMenus() }
-                land()
+                scroll = ScrollIntent(kind: .top)
                 searchFocused = !screen.hidesSearchField
                 // Every way out of the Uninstall screen: back chevron, bare backspace, a fresh summon.
                 if vm.mode != .uninstall { uninstall.cancel() }
@@ -421,17 +415,15 @@ struct RootPaletteView: View {
                 }
                 if vm.mode != .menuSearch { menuSearch.reset() }
                 if vm.mode != .switchWindows { windowSwitch.reset() }
-                if vm.mode != .meetingDetails { calendarStore.clearDetails() }
-                if vm.mode != .rooms, vm.mode != .roomWindows { core.roomCoordinator.screensDidClose() }
                 // Leaving the screen any other way than Escape still ends the command's session.
                 if vm.mode != .extensionCommand, extensions.running != nil, !extensions.isAuthorizing {
                     Task { await extensions.stop() }
                 }
             }
-            // `prepare` may change nothing else, so this still lands the list as freshly opened.
+            // `prepare` may change nothing, so this intent still snaps the scroll to the origin.
             .onChange(of: vm.resetToken) {
                 if menuOpen { closeMenus() }
-                land()
+                scroll = ScrollIntent(kind: .top)
             }
             // ⌘. arrives as a token rather than a key press. See `PaletteState.pinChordToken`.
             .onChange(of: vm.pinChordToken) { performShortcut(.pin) }
@@ -451,11 +443,7 @@ struct RootPaletteView: View {
                 menuPanel.hide()
                 (hostWindow as? PalettePanel)?.onHeaderFieldBoundaryArrow = nil
             }
-            // The first show builds this view after `prepare`, so no handler saw that reset.
-            .onAppear {
-                searchFocused = !screen.hidesSearchField
-                land()
-            }
+            .onAppear { searchFocused = !screen.hidesSearchField }
             .modifier(SearchFieldHiding(hidden: hidesSearchField, apply: applySearchFieldHiding))
             // Several paths flip `paletteIsCollapsed`, so resize the window to match.
             .onChange(of: core.paletteCoordinator.paletteIsCollapsed) {
@@ -524,14 +512,6 @@ struct RootPaletteView: View {
                     return .handled
                 }
                 let selection = selection(in: screen)
-                if command, press.modifiers.contains(.control), screen.tertiary(at: selection) {
-                    return .handled
-                }
-                if command, press.modifiers.contains(.shift),
-                    screen.perform(.copyCalculation, at: selection)
-                {
-                    return .handled
-                }
                 if command { return screen.secondary(at: selection) ? .handled : .ignored }
                 return screen.pasteKeepingWindowOpen(at: selection) ? .handled : .ignored
             }
@@ -656,20 +636,17 @@ struct RootPaletteView: View {
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.secondary)
                     .frame(width: metrics.size.headerIconSlot)
-                    .windowDraggable(settings.paletteDraggable, onBegan: beginDrag, onEnded: endDrag)
             }
-            // slot + xl equals a row's icon + lg, so the query starts where the row titles do.
-            headerGutter(width: metrics.spacing.xl)
+            headerGutter(width: metrics.spacing.md)
             // One structural position: a field inside a branch loses first responder when it flips.
             headerField
             if let accessory = headerAccessory {
                 accessory.view
-                // Given room last: at the default priority it would split it with the field.
-                Spacer(minLength: 0).layoutPriority(-1)
+                Spacer(minLength: 0)
             }
             if tabOpensChat {
                 headerGutter(width: metrics.spacing.md)
-                quickAITabHint
+                aiChatTabHint
             }
             // Keyed off the mode, which says which screen is up; the field just flexes narrower.
             if !isCollapsed, vm.mode == .clipboard {
@@ -697,14 +674,14 @@ struct RootPaletteView: View {
             if !isCollapsed, vm.mode == .ai {
                 headerGutter(width: metrics.spacing.md)
                 AIModelButton(
-                    title: core.aiChatCoordinator.selectedModelTitle(for: quickAI),
-                    icon: core.aiChatCoordinator.selectedModelIcon(for: quickAI),
+                    title: core.aiChatCoordinator.selectedModelTitle,
+                    icon: core.aiChatCoordinator.selectedModelIcon,
                     isOpen: openMenu == .aiModel,
                     action: toggleAIModel)
-                if !core.aiChatCoordinator.reasoningEfforts(for: quickAI).isEmpty {
+                if !core.aiChatCoordinator.reasoningEfforts.isEmpty {
                     headerGutter(width: metrics.spacing.md)
                     AIReasoningButton(
-                        title: core.aiChatCoordinator.selectedReasoningTitle(for: quickAI),
+                        title: core.aiChatCoordinator.selectedReasoningTitle,
                         isOpen: openMenu == .aiReasoning,
                         action: toggleAIReasoning)
                 }
@@ -740,8 +717,6 @@ struct RootPaletteView: View {
         .frame(maxWidth: .infinity)
         // Set after the show, so the field it names is focused rather than the search field.
         .onChange(of: vm.pendingArgumentEntryID) { focusPendingArgument() }
-        .onChange(of: argumentFocused) { _, field in vm.noteEditingField(field != nil) }
-        .onChange(of: quickAI.pendingAttachments.map(\.id)) { refreshAttachmentsMenu() }
     }
 
     /// Mode-gated ahead of the cast, which would otherwise cost every other mode a list build.
@@ -758,16 +733,16 @@ struct RootPaletteView: View {
     }
 
     /// Nothing else advertises Tab, so the launcher says where it goes.
-    private var quickAITabHint: some View {
+    private var aiChatTabHint: some View {
         BarButton(chrome: .rounded, action: cycleMode) {
             HStack(spacing: metrics.spacing.sm) {
-                Text("Quick AI")
+                Text("AI Chat")
                     .font(metrics.typography.bar)
                     .foregroundStyle(Theme.Colors.textSecondary)
                 KeyCapChip(text: "⇥", style: .outline)
             }
         }
-        .help("Ask Quick AI what you typed  ⇥")
+        .help("Ask AI Chat what you typed  ⇥")
     }
 
     /// Resolved through `PaletteTabAction`, so the hint cannot promise the wrong destination.
@@ -784,8 +759,7 @@ struct RootPaletteView: View {
     /// The field, kept mounted and hidden rather than swapped: a branch would tear its editor down.
     private var headerField: some View {
         searchField
-            // A ceiling, not a size, so the row squeezes a long query before the strip overruns.
-            .frame(minWidth: searchFieldFloor, maxWidth: searchFieldWidth)
+            .frame(width: searchFieldWidth)
             .opacity(hidesSearchField ? 0 : 1)
             .allowsHitTesting(!hidesSearchField)
             .accessibilityHidden(hidesSearchField)
@@ -801,22 +775,17 @@ struct RootPaletteView: View {
         return headerAccessory.map(searchFieldWidth)
     }
 
-    private var searchFieldFloor: CGFloat? {
-        searchFieldWidth.map { min($0, metrics.size.searchFieldMinWidth) }
-    }
-
     /// The field's own text, floored for the caret and capped so the strip stays on screen.
     /// Empty, that is the prompt where one is drawn — which is what seats the strip right after it.
     private func searchFieldWidth(for accessory: PaletteHeaderAccessory) -> CGFloat {
         let font = metrics.typography.searchFieldNSFont
         let text = vm.query.isEmpty ? searchPrompt : vm.query
         let typed = (text as NSString).size(withAttributes: [.font: font]).width
-        let chrome = metrics.size.headerIconSlot + metrics.spacing.md * 3 + metrics.spacing.xl
-        let room = metrics.size.panelWidth - accessory.width - chrome
+        let chrome = metrics.size.headerIconSlot + metrics.spacing.md * 4
         // +3pt so the caret sits after the last glyph rather than on top of it.
         return min(
             max(typed + metrics.scaled(3), metrics.scaled(18)),
-            max(room, metrics.size.searchFieldMinWidth))
+            max(metrics.size.panelWidth - accessory.width - chrome, metrics.scaled(60)))
     }
 
     private var searchPrompt: String {
@@ -883,7 +852,6 @@ struct RootPaletteView: View {
         // Floating controls, no bar; the edge dissolve ghosts the rows passing beneath.
         HStack(spacing: 0) {
             appMenuButton
-                .modifier(ExtensionToastSlot(extensions: extensions, showing: vm.mode == .extensionCommand))
             Spacer()
             if showActionGroup {
                 actionGroup(
@@ -909,7 +877,7 @@ struct RootPaletteView: View {
         HStack(spacing: 2) {
             BarButton(action: activateSelection) {
                 HStack(spacing: metrics.spacing.sm) {
-                    Text(pillLabel)
+                    Text(pillLabel.localizedUI)
                         .font(metrics.typography.bar)
                         .foregroundStyle(pillTint)
                     if formPrimaryShortcut {
@@ -983,7 +951,6 @@ struct RootPaletteView: View {
         case .clipboardFilter: toggleClipboardFilter()
         case .fileSearchFilter: toggleFileSearchFilter()
         case .emojiCategory: toggleEmojiCategory()
-        case .aiModel: toggleAIModel()
         case .ignored: return false
         }
         return true
@@ -1025,18 +992,8 @@ struct RootPaletteView: View {
         }
     }
 
-    private var quickAI: AIChatState { core.aiChats.quickAI }
-
     private var aiModelHighlight: Int {
-        AIModelMenu.modelHighlight(coordinator: core.aiChatCoordinator, chat: quickAI)
-    }
-
-    private func toggleAIAttachments() {
-        if openMenu == .aiAttachments {
-            closeMenus()
-            return
-        }
-        open(.aiAttachments, highlighting: 0)
+        AIModelMenu.modelHighlight(coordinator: core.aiChatCoordinator, settings: core.aiSettings)
     }
 
     private func toggleAIReasoning() {
@@ -1047,7 +1004,7 @@ struct RootPaletteView: View {
         open(
             .aiReasoning,
             highlighting: AIModelMenu.reasoningHighlight(
-                coordinator: core.aiChatCoordinator, chat: quickAI))
+                coordinator: core.aiChatCoordinator, settings: core.aiSettings))
     }
 
     /// Every header menu states its own width, so resizing one never moves another.
@@ -1127,7 +1084,6 @@ struct RootPaletteView: View {
         case .some(.carriageReturn), .some(.enter):
             let screen = screen
             let selection = selection(in: screen)
-            if modifiers.contains([.command, .control]), screen.tertiary(at: selection) { return true }
             if modifiers.contains(.command) { return screen.secondary(at: selection) }
             if modifiers.contains(.option) {
                 return screen.pasteKeepingWindowOpen(at: selection)
@@ -1195,37 +1151,19 @@ struct RootPaletteView: View {
         syncMenuPanel(presenting: false)
     }
 
-    /// A row is addressed by index, so a file staged or dropped under the open menu re-lays it.
-    private func refreshAttachmentsMenu() {
-        guard openMenu == .aiAttachments else { return }
-        guard let content = menuContent else {
-            closeMenus()
-            return
-        }
-        menuSelection = min(menuSelection, max(content.rowCount - 1, 0))
-        syncMenuPanel(presenting: false)
-    }
-
     private var menuCorner: MenuPanelCorner? {
         switch openMenu {
         case .app: .bottomLeading
         case .actions: .bottomTrailing
         case .argumentOptions: .belowHeaderTrailing
         case .clipboardFilter, .fileSearchFilter, .emojiCategory, .aiModel, .aiReasoning,
-            .aiAttachments, .extensionAccessory:
+            .extensionAccessory:
             .belowHeaderTrailing
         case nil: nil
         }
     }
 
     // MARK: - Actions
-
-    /// Every reset lands here, so handlers that fire together agree in whatever order they run.
-    private func land() {
-        let landing = screen.landingSelection
-        vm.selection = landing
-        scroll = ScrollIntent(kind: landing == 0 ? .top : .center)
-    }
 
     private func move(_ delta: Int, in screen: any PaletteScreen) {
         let count = screen.rows.count
@@ -1318,14 +1256,13 @@ struct RootPaletteView: View {
             vm.resetNavigation()
         case .carryQuery(let mode): vm.pushCarryingQuery(mode: mode)
         case .freshScreen(let mode): vm.push(mode: mode)
-        case .ask: core.quickAICoordinator.ask(vm.query)
+        case .ask: core.aiChatCoordinator.ask(vm.query)
         }
     }
 
     /// Tab walks a screen's own fields first, then the inline arguments, then rings the modes.
     private func advanceTabFocus(backwards: Bool) {
         let screen = screen
-        if screen.tab(at: selection(in: screen), backwards: backwards) { return }
         if let next = screen.tabTarget(from: selection(in: screen), backwards: backwards) {
             vm.selection = next
             scroll = ScrollIntent(kind: .follow)
@@ -1430,19 +1367,6 @@ private enum OpenMenu {
     case emojiCategory
     case aiModel
     case aiReasoning
-    case aiAttachments
-}
-
-/// Reads visibility in its own body, so a summon never re-renders the palette's.
-private struct PaletteHideObserver: ViewModifier {
-    @Environment(PaletteState.self) private var vm
-    let onHide: () -> Void
-
-    func body(content: Content) -> some View {
-        content.onChange(of: vm.isVisible) { _, visible in
-            if !visible { onHide() }
-        }
-    }
 }
 
 /// Its own modifier: the palette's body is already at the type-checker's limit.
