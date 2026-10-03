@@ -195,7 +195,7 @@ private struct EmojiSectionHeader: View {
 
     var body: some View {
         HStack(spacing: metrics.spacing.sm) {
-            Text(title)
+            Text(title.localizedUI)
                 .foregroundStyle(Theme.Colors.textSecondary)
             Text(count, format: .number)
                 .foregroundStyle(Theme.Colors.textTertiary)
