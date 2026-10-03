@@ -58,7 +58,7 @@ struct CustomWindowSizeEditorPanel: View {
             }
 
             if let errorMessage {
-                Text(errorMessage)
+                Text(errorMessage.localizedUI)
                     .font(.callout)
                     .foregroundStyle(Theme.Colors.destructive)
             }
@@ -80,7 +80,7 @@ struct CustomWindowSizeEditorPanel: View {
 
     private func field(_ title: String, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            Text(title)
+            Text(title.localizedUI)
                 .font(.callout.weight(.medium))
             content()
         }
@@ -97,7 +97,7 @@ struct CustomWindowSizeEditorPanel: View {
                 value: dimension.wrappedValue.value,
                 onCommit: { dimension.wrappedValue = .init($0, unit) })
             Picker(
-                "\(name) unit",
+                "\(name.localizedUI) unit",
                 selection: Binding(
                     get: { unit },
                     set: {

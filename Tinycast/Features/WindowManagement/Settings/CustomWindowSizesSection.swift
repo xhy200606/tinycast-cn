@@ -39,7 +39,7 @@ private struct CustomWindowSizeRow: View {
     @Environment(VisibilityStore.self) private var visibility
 
     var body: some View {
-        SettingsRow(title: size.name, subtitle: size.summary) {
+        SettingsRow(title: size.name, subtitle: summary) {
             Image(systemName: CustomWindowSize.sfSymbol)
         } trailing: {
             ShortcutRecorder(action: .customWindowSize(id: size.id))
@@ -65,6 +65,13 @@ private struct CustomWindowSizeRow: View {
                 .launcherVisibilityHelp()
                 .accessibilityLabel("Show \(size.name) in launcher")
         }
+    }
+
+    private var summary: String {
+        let base = "\(size.width.label) × \(size.height.label) · \(size.anchor.title.localizedUI)"
+        guard size.offset != .zero else { return base }
+        let offset = String(localized: "Offset \(size.offset.x), \(size.offset.y) pt")
+        return "\(base) · \(offset)"
     }
 
     private var visibilityBinding: Binding<Bool> {
