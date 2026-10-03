@@ -5,18 +5,6 @@ import Observation
 @MainActor
 @Observable
 final class QuickActionCoordinator {
-    private struct NoteSelection {
-        let editor: NoteTextView
-        let document: NoteEditorInput
-        let range: NSRange
-        let text: String
-    }
-
-    private enum Target {
-        case external(NSRunningApplication?)
-        case note(NoteSelection)
-    }
-
     private let settings: AppSettings
     private let store: QuickActionSettingsStore
     private let customActions: CustomQuickActionStore
@@ -36,8 +24,6 @@ final class QuickActionCoordinator {
     /// One at a time: two runs race for one selection, and the second overwrites the first's work.
     @ObservationIgnored private var running: Task<Void, Never>?
     @ObservationIgnored private var generation = 0
-    /// Cancellation is cooperative, so a cancelled run must not hide the pill a newer run showed.
-    @ObservationIgnored private var progressOwner: Int?
 
     init(
         settings: AppSettings, store: QuickActionSettingsStore,
@@ -89,9 +75,9 @@ final class QuickActionCoordinator {
                 await core.confirm(
                     title: "Enable Quick Actions?",
                     message:
-                        "Tinycast needs the Accessibility permission to read the text you have "
-                        + "selected in other apps and replace it. Nothing is read until you press "
-                        + "a shortcut.",
+                        "Tinycast needs the Accessibility permission to read the text you have ".localizedUI
+                        + "selected in other apps and replace it. Nothing is read until you press ".localizedUI
+                        + "a shortcut.".localizedUI,
                     symbol: "wand.and.sparkles", confirmTitle: "Continue", tone: .neutral,
                     confirmRole: .standard)
             else { return }
@@ -174,23 +160,8 @@ final class QuickActionCoordinator {
 
     func run(_ action: QuickAction) {
         guard settings.quickActionsEnabled, running == nil else { return }
-        let source =
-            paletteCoordinator.isVisible
-            ? InjectionTarget.behindPalette(
-                ownWindow: paletteCoordinator.previousOwnWindow, app: paletteCoordinator.targetApp)
-            : InjectionTarget.current()
-        let target: Target
-        if let editor = source?.ownEditor as? NoteTextView {
-            target = .note(
-                NoteSelection(
-                    editor: editor, document: core.notesCoordinator.editorInput,
-                    range: editor.selectedRange(), text: editor.injectableSelection))
-        } else {
-            target = .external(paletteCoordinator.targetApp)
-        }
-        if paletteCoordinator.isVisible {
-            paletteCoordinator.hidePalette(restoreFocus: source?.ownEditor is NoteTextView)
-        }
+        let target = paletteCoordinator.targetApp
+        if paletteCoordinator.isVisible { paletteCoordinator.hidePalette(restoreFocus: false) }
         start { [weak self] in await self?.begin(action, target: target) }
     }
 
@@ -198,7 +169,6 @@ final class QuickActionCoordinator {
         generation += 1
         running?.cancel()
         running = nil
-        hideProgress(ownedBy: progressOwner)
         panels.dismiss()
     }
 
@@ -214,15 +184,10 @@ final class QuickActionCoordinator {
         }
     }
 
-    private func begin(_ action: QuickAction, target: Target) async {
+    private func begin(_ action: QuickAction, target: NSRunningApplication?) async {
         let selection: String
         do {
-            switch target {
-            case .external(let app):
-                selection = try await QuickActionRunner.selection(in: app, using: injector)
-            case .note(let note):
-                selection = try QuickActionRunner.accepted(note.text)
-            }
+            selection = try await QuickActionRunner.selection(in: target, using: injector)
         } catch let failure as QuickActionFailure {
             reportRefusal(failure)
             return
@@ -249,9 +214,9 @@ final class QuickActionCoordinator {
                 await core.reportFailure(
                     title: "Quick Actions can't read your selection",
                     message:
-                        "Tinycast needs the Accessibility permission to read the text you have "
-                        + "selected and replace it. If Tinycast is already listed, switch it off "
-                        + "and on again — a rebuilt app keeps a stale entry.",
+                        "Tinycast needs the Accessibility permission to read the text you have ".localizedUI
+                        + "selected and replace it. If Tinycast is already listed, switch it off ".localizedUI
+                        + "and on again — a rebuilt app keeps a stale entry.".localizedUI,
                     symbol: "wand.and.sparkles", recovery: "Open System Settings")
             else { return }
             Permissions.openAccessibilitySettings()
@@ -259,7 +224,7 @@ final class QuickActionCoordinator {
     }
 
     private func perform(
-        _ state: QuickActionPanelState, target: Target, previewing: Bool
+        _ state: QuickActionPanelState, target: NSRunningApplication?, previewing: Bool
     ) async {
         do {
             let text = try await produce(state, previewing: previewing)
@@ -283,17 +248,9 @@ final class QuickActionCoordinator {
         _ state: QuickActionPanelState, previewing: Bool
     ) async throws -> String {
         guard !previewing else { return try await generate(state, streaming: true) }
-        let mine = generation
-        progressOwner = mine
-        core.showProgress(state.action.progressTitle, onCancel: { [weak self] in self?.cancel() })
-        defer { hideProgress(ownedBy: mine) }
+        core.showProgress(state.action.progressTitle)
+        defer { core.hideProgress() }
         return try await generate(state, streaming: false)
-    }
-
-    private func hideProgress(ownedBy owner: Int?) {
-        guard let owner, progressOwner == owner else { return }
-        progressOwner = nil
-        core.hideProgress()
     }
 
     private func generate(
@@ -313,28 +270,19 @@ final class QuickActionCoordinator {
     }
 
     /// A replacement that never lands would otherwise lose the reply, so the clipboard keeps it.
-    private func deliver(_ text: String, to target: Target, action: QuickAction) {
-        let onDelivered: @MainActor @Sendable () -> Void = { [weak self] in
-            self?.core.showMessage("\(action.title) applied")
-        }
-        let onFailed: @MainActor @Sendable () -> Void = { [weak self] in
-            Paster.copyPlainText(text)
-            self?.core.showMessage(
-                "\(action.title) couldn't replace the selection — copied instead",
-                tone: .danger)
-        }
-        switch target {
-        case .external(let app):
-            injector.replaceSelection(
-                with: text, in: app, onDelivered: onDelivered, onFailed: onFailed)
-        case .note(let note):
-            guard core.notesCoordinator.editorInput == note.document,
-                note.editor.window?.isVisible == true,
-                note.editor.replaceUnchangedSelection(
-                    with: text, source: note.document.source, range: note.range)
-            else { onFailed(); return }
-            onDelivered()
-        }
+    private func deliver(_ text: String, to target: NSRunningApplication?, action: QuickAction) {
+        injector.replaceSelection(
+            with: text, in: target,
+            onDelivered: { [weak self] in self?.core.showMessage(String(localized: "\(action.title.localizedUI) applied")) },
+            onFailed: { [weak self] in
+                Paster.copyPlainText(text)
+                self?.core.showMessage(
+                    String(
+                        localized:
+                            "\(action.title.localizedUI) couldn’t replace the selection — copied instead"
+                    ),
+                    tone: .danger)
+            })
     }
 
     /// A failure the reader cannot see is a hotkey that silently did nothing.
@@ -346,7 +294,7 @@ final class QuickActionCoordinator {
         state.fail(error.localizedDescription)
     }
 
-    private func present(_ state: QuickActionPanelState, target: Target) {
+    private func present(_ state: QuickActionPanelState, target: NSRunningApplication?) {
         panels.present(
             state,
             metrics: settings.interfaceSize.metrics,
@@ -360,7 +308,7 @@ final class QuickActionCoordinator {
             })
     }
 
-    private func rerun(_ state: QuickActionPanelState, target: Target) {
+    private func rerun(_ state: QuickActionPanelState, target: NSRunningApplication?) {
         state.restart()
         start { [weak self] in await self?.perform(state, target: target, previewing: true) }
     }

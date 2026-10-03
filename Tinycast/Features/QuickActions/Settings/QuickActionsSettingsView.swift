@@ -20,24 +20,19 @@ struct QuickActionsSettingsView: View {
         Form {
             Section {
                 Toggle(isOn: enabledBinding) {
-                    SettingsFeatureToggleLabel(
-                        anchor: .quickActionsQuickActions, title: "Enable Quick Actions",
-                        subtitle: "Act on selected text. Nothing is read until you press a shortcut.")
+                    SettingsRowTitle(.quickActionsQuickActions, "Enable Quick Actions")
+                    Text("Act on selected text. Nothing is read until you press a shortcut.")
                 }
                 if appSettings.quickActionsEnabled, !isTrusted {
                     // Every shortcut fails without it; better said here than found one press later.
-                    HStack(alignment: .center, spacing: Theme.Spacing.lg) {
+                    SettingsRow(
+                        title: "Accessibility permission required",
+                        subtitle: "Needed to read your selection."
+                    ) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Theme.Colors.destructive)
                             .frame(width: Theme.Size.settingsRowIcon)
-                        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
-                            Text("Accessibility permission required")
-                                .foregroundStyle(.orange)
-                            Text("Needed to read your selection.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer(minLength: Theme.Spacing.lg)
+                    } trailing: {
                         Button("Open System Settings") { Permissions.openAccessibilitySettings() }
                     }
                 }
@@ -142,8 +137,8 @@ struct QuickActionsSettingsView: View {
             SymbolImage(name: "pencil", size: Theme.Size.quickActionHeaderIcon)
         }
         .buttonStyle(.plain)
-        .help("Edit \(title)")
-        .accessibilityLabel("Edit \(title)")
+        .help("Edit \(title.localizedUI)")
+        .accessibilityLabel("Edit \(title.localizedUI)")
     }
 
     private func resultPicker(title: String, selection: Binding<Bool>) -> some View {
@@ -153,7 +148,7 @@ struct QuickActionsSettingsView: View {
         }
         .labelsHidden()
         .fixedSize()
-        .accessibilityLabel("What \(title) does with its result")
+        .accessibilityLabel("What \(title.localizedUI) does with its result")
     }
 
     private func launcherToggle(title: String, entry: AppEntry) -> some View {
@@ -161,7 +156,7 @@ struct QuickActionsSettingsView: View {
             .labelsHidden()
             .toggleStyle(.checkbox)
             .launcherVisibilityHelp()
-            .accessibilityLabel("Show \(title) in launcher")
+            .accessibilityLabel("Show \(title.localizedUI) in launcher")
     }
 
     private var modelSection: some View {
@@ -309,8 +304,10 @@ struct QuickActionsSettingsView: View {
         var body: some View {
             VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                 SettingsEditorHeader(
-                    title: "Customize \(action.title)",
-                    subtitle: "Tell Tinycast how you want \(action.title) to handle your selected text."
+                    title: String(localized: "Customize \(action.title.localizedUI)"),
+                    subtitle: String(
+                        localized: "Tell Tinycast how you want \(action.title.localizedUI) to handle your selected text."
+                    )
                 )
 
                 TextEditor(text: $instructions)
