@@ -186,7 +186,7 @@ enum InstalledAIStreamDecoder {
             let trimmed = result.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmed.isEmpty { return trimmed }
         }
-        return "Grok could not finish the response."
+        return String(localized: "Grok could not finish the response.")
     }
 
     private static func cursor(

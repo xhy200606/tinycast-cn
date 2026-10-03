@@ -139,9 +139,9 @@ struct WindowLayoutPreviewCanvas: View {
     }
 
     private var accessibilityDescription: String {
-        guard let screen else { return "Preview, display not connected" }
+        guard let screen else { return String(localized: "Preview, display not connected") }
         let count = draft.entries(onDisplay: screen.display.uuid).count
         let windows = count == 1 ? "1 window" : "\(count) windows"
-        return "Preview of \(screen.display.name), \(windows)"
+        return String(localized: "Preview of \(screen.display.name), \(windows)")
     }
 }

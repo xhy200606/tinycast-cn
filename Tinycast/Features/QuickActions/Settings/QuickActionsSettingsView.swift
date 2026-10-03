@@ -20,19 +20,24 @@ struct QuickActionsSettingsView: View {
         Form {
             Section {
                 Toggle(isOn: enabledBinding) {
-                    SettingsRowTitle(.quickActionsQuickActions, "Enable Quick Actions")
-                    Text("Act on selected text. Nothing is read until you press a shortcut.")
+                    SettingsFeatureToggleLabel(
+                        anchor: .quickActionsQuickActions, title: "Enable Quick Actions",
+                        subtitle: "Act on selected text. Nothing is read until you press a shortcut.")
                 }
                 if appSettings.quickActionsEnabled, !isTrusted {
                     // Every shortcut fails without it; better said here than found one press later.
-                    SettingsRow(
-                        title: "Accessibility permission required",
-                        subtitle: "Needed to read your selection."
-                    ) {
+                    HStack(alignment: .center, spacing: Theme.Spacing.lg) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(Theme.Colors.destructive)
+                            .foregroundStyle(.orange)
                             .frame(width: Theme.Size.settingsRowIcon)
-                    } trailing: {
+                        VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+                            Text("Accessibility permission required")
+                                .foregroundStyle(.orange)
+                            Text("Needed to read your selection.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer(minLength: Theme.Spacing.lg)
                         Button("Open System Settings") { Permissions.openAccessibilitySettings() }
                     }
                 }
@@ -137,8 +142,8 @@ struct QuickActionsSettingsView: View {
             SymbolImage(name: "pencil", size: Theme.Size.quickActionHeaderIcon)
         }
         .buttonStyle(.plain)
-        .help("Edit \(title.localizedUI)")
-        .accessibilityLabel("Edit \(title.localizedUI)")
+        .help(String(localized: "Edit \(title.localizedUI)"))
+        .accessibilityLabel(String(localized: "Edit \(title.localizedUI)"))
     }
 
     private func resultPicker(title: String, selection: Binding<Bool>) -> some View {
@@ -148,7 +153,7 @@ struct QuickActionsSettingsView: View {
         }
         .labelsHidden()
         .fixedSize()
-        .accessibilityLabel("What \(title.localizedUI) does with its result")
+        .accessibilityLabel(String(localized: "What \(title.localizedUI) does with its result"))
     }
 
     private func launcherToggle(title: String, entry: AppEntry) -> some View {
@@ -156,7 +161,7 @@ struct QuickActionsSettingsView: View {
             .labelsHidden()
             .toggleStyle(.checkbox)
             .launcherVisibilityHelp()
-            .accessibilityLabel("Show \(title.localizedUI) in launcher")
+            .accessibilityLabel(String(localized: "Show \(title.localizedUI) in launcher"))
     }
 
     private var modelSection: some View {
@@ -202,7 +207,7 @@ struct QuickActionsSettingsView: View {
 
     private func subtitle(for action: QuickAction) -> String? {
         let details = [
-            action.alwaysPreviews ? "Always shown in a panel" : nil,
+            action.alwaysPreviews ? String(localized: "Always shown in a panel") : nil,
             store.modelOverride(for: action).map(routeTitle)
         ].compactMap(\.self)
         return details.isEmpty ? nil : details.joined(separator: " · ")
@@ -304,10 +309,12 @@ struct QuickActionsSettingsView: View {
         var body: some View {
             VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
                 SettingsEditorHeader(
-                    title: String(localized: "Customize \(action.title.localizedUI)"),
-                    subtitle: String(
-                        localized: "Tell Tinycast how you want \(action.title.localizedUI) to handle your selected text."
-                    )
+                    title: String(localized: "Customize \(action.title)"),
+                    subtitle:
+                        String(
+                            localized:
+                                "Tell Tinycast how you want \(action.title.localizedUI) to handle your selected text."
+                        )
                 )
 
                 TextEditor(text: $instructions)

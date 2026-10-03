@@ -339,7 +339,9 @@ struct OnboardingView: View {
             Image(
                 systemName: accessibilityTrusted
                     ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-            Text((accessibilityTrusted ? "Granted" : "Not granted").localizedUI)
+            Text(
+                (accessibilityTrusted ? String(localized: "Granted") : String(localized: "Not granted"))
+                    .localizedUI)
         }
         .font(.caption.weight(.semibold))
         .foregroundStyle(accessibilityTrusted ? Color.green : Color.orange)

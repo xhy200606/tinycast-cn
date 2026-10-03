@@ -27,7 +27,7 @@ struct CustomWindowSizeEditorPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
             SettingsEditorHeader(
-                title: isNew ? "New Custom Size" : "Edit Custom Size",
+                title: isNew ? String(localized: "New Custom Size") : String(localized: "Edit Custom Size"),
                 subtitle: "Resizes the window you were last in, on the display it is already on.")
 
             field("Name") {

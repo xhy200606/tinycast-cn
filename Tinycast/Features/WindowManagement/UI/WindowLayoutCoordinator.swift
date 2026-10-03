@@ -135,7 +135,7 @@ final class WindowLayoutCoordinator {
         if outcome.isBlockedOnPermission {
             let openSettings = await core.reportFailure(
                 title: "Tinycast Needs Accessibility Access",
-                message: "Arranging windows uses the same permission as pasting.",
+                message: String(localized: "Arranging windows uses the same permission as pasting."),
                 symbol: layout.symbol, recovery: "Open Settings")
             if openSettings { Permissions.openAccessibilitySettings() }
             return
@@ -144,7 +144,8 @@ final class WindowLayoutCoordinator {
         guard let detail = detail(for: outcome) else { return }
         guard outcome.didAnything else {
             await core.showNotice(
-                title: "Couldn't Run “\(layout.name)”", message: detail, symbol: layout.symbol,
+                title: String(localized: "Couldn't Run “\(layout.name)”"), message: detail,
+                symbol: layout.symbol,
                 tone: .danger)
             return
         }
@@ -170,7 +171,7 @@ final class WindowLayoutCoordinator {
 
     private func report(failure: WindowLayoutValidationError) async {
         await core.showNotice(
-            title: "Couldn't Save the Layout",
+            title: String(localized: "Couldn't Save the Layout"),
             message: failure.errorDescription ?? "The layout could not be saved.",
             symbol: WindowLayout.sfSymbol, tone: .danger)
     }

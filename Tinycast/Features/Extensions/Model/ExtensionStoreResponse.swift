@@ -100,7 +100,7 @@ enum ExtensionStoreError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .malformedResponse:
-            return "The server answered with something this version doesn't understand."
+            return String(localized: "The server answered with something this version doesn't understand.")
         case .rejected(let message):
             return message
         case .downloadFailed(let reason):

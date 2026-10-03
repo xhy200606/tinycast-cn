@@ -137,7 +137,7 @@ struct ExtensionToastPill: View {
                         // The wider word holds the width, so the pill never twitches on copy.
                         ZStack {
                             Text("Copied").hidden()
-                            Text(copiedAt == nil ? "Copy" : "Copied")
+                            Text(copiedAt == nil ? String(localized: "Copy") : String(localized: "Copied"))
                         }
                     }
                 } else if let action = toast.primaryAction {

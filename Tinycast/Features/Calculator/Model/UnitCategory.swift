@@ -24,15 +24,15 @@ enum UnitCategory: String, CaseIterable, Sendable {
         case .energy: return "Energy"
         case .power: return "Power"
         case .frequency: return "Frequency"
-        case .electricCurrent: return "Electric Current"
+        case .electricCurrent: return String(localized: "Electric Current")
         case .voltage: return "Voltage"
         case .resistance: return "Resistance"
-        case .electricCharge: return "Electric Charge"
-        case .volumeFlow: return "Volume Flow Rate"
-        case .compound: return "Compound Units"
+        case .electricCharge: return String(localized: "Electric Charge")
+        case .volumeFlow: return String(localized: "Volume Flow Rate")
+        case .compound: return String(localized: "Compound Units")
         case .pixels: return "Pixels"
-        case .pixelArea: return "Pixel Area"
-        case .pixelDensity: return "Pixel Density"
+        case .pixelArea: return String(localized: "Pixel Area")
+        case .pixelDensity: return String(localized: "Pixel Density")
         }
     }
 

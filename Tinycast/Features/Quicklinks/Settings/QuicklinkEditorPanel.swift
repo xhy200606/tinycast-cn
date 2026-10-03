@@ -36,7 +36,12 @@ struct QuicklinkEditorPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
-            SettingsEditorHeader(title: quicklink == nil ? "Add Quicklink" : "Edit Quicklink")
+            SettingsEditorHeader(
+                title: quicklink == nil
+                    ? String(
+                        localized: "Add Quicklink")
+                    : String(
+                        localized: "Edit Quicklink"))
 
             VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
                 Text("Name")

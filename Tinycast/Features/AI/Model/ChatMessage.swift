@@ -138,7 +138,7 @@ extension Array where Element == ChatToolUse {
     var completedLabel: String {
         let label = "Called \(count) tools"
         let failures = failedCount
-        return failures == 0 ? label : "\(label) · \(failures) failed"
+        return failures == 0 ? label : String(localized: "\(label) · \(failures) failed")
     }
 }
 

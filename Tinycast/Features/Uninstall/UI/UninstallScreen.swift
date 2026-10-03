@@ -64,7 +64,8 @@ struct UninstallScreen: PaletteScreen {
             if rows.isEmpty {
                 EmptyResults(
                     text: vm.query.trimmingCharacters(in: .whitespaces).isEmpty
-                        ? "Nothing left to remove" : "No matching files")
+                        ? String(localized: "Nothing left to remove") : String(localized: "No matching files")
+                )
             } else {
                 UninstallList(
                     results: rows,
@@ -103,7 +104,7 @@ enum UninstallActionsMenu {
             let checked = session.selection?.isChecked(candidate.id) ?? false
             items.append(
                 PopoverMenuItem(
-                    title: checked ? "Unselect File" : "Select File",
+                    title: checked ? String(localized: "Unselect File") : String(localized: "Select File"),
                     systemImage: checked ? "circle" : "checkmark.circle", startsSection: true,
                     shortcut: "⌘↵"
                 ) { session.toggle(candidate.id) })

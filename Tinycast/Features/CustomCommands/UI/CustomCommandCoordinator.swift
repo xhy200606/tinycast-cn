@@ -106,7 +106,7 @@ final class CustomCommandCoordinator {
         guard !drafts.isEmpty else {
             await core.showNotice(
                 title: "Nothing to Import",
-                message: "No Raycast script commands were found in this folder.",
+                message: String(localized: "No Raycast script commands were found in this folder."),
                 symbol: CustomCommand.sfSymbol, tone: .neutral)
             return
         }
@@ -116,12 +116,12 @@ final class CustomCommandCoordinator {
         guard added > 0 else {
             await core.showNotice(
                 title: "Nothing to Import",
-                message: "Every script in this folder is already in your library.",
+                message: String(localized: "Every script in this folder is already in your library."),
                 symbol: CustomCommand.sfSymbol, tone: .neutral)
             return
         }
         await core.showNotice(
-            title: "Scripts Imported",
+            title: String(localized: "Scripts Imported"),
             message: importSummary(added: added, offered: drafts.count),
             symbol: CustomCommand.sfSymbol, tone: .success)
     }
@@ -133,7 +133,7 @@ final class CustomCommandCoordinator {
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
         panel.prompt = "Import"
-        panel.message = "Choose a folder of Raycast script commands."
+        panel.message = String(localized: "Choose a folder of Raycast script commands.")
         NSApp.activate(ignoringOtherApps: true)
         guard panel.runModal() == .OK else { return nil }
         return panel.url
@@ -142,17 +142,20 @@ final class CustomCommandCoordinator {
     /// Scripts run arbitrary code, so this warns the way a backup of custom commands does.
     private func confirmScriptImport(count: Int) async -> Bool {
         await core.confirm(
-            title: count == 1 ? "Import 1 script?" : "Import \(count) scripts?",
+            title: count == 1
+                ? String(localized: "Import 1 script?") : String(localized: "Import \(count) scripts?"),
             message:
-                "Imported commands run these files with your user account. Only import scripts you "
-                + "trust.",
+            ("Imported commands run these files with your user account. Only import scripts you "
+                + "trust.").localizedUI,
             symbol: CustomCommand.sfSymbol, confirmTitle: "Import", confirmRole: .standard)
     }
 
     private func importSummary(added: Int, offered: Int) -> String {
-        let imported = added == 1 ? "Imported 1 command." : "Imported \(added) commands."
+        let imported =
+            added == 1
+            ? String(localized: "Imported 1 command.") : String(localized: "Imported \(added) commands.")
         guard offered > added else { return imported }
-        return imported + " Skipped \(offered - added) already in your library."
+        return imported + String(localized: " Skipped \(offered - added) already in your library.")
     }
 
     // MARK: - Running

@@ -13,6 +13,10 @@ test("localization gate rejects missing keys and known rendering regressions", (
   try {
     fs.mkdirSync(path.join(fixture, "Scripts"));
     fs.copyFileSync(path.join(root, "Scripts/check-localization.js"), path.join(fixture, "Scripts/check-localization.js"));
+    for (const name of ["check-localization-source.js", "localization-source.js"]) {
+      fs.copyFileSync(path.join(root, "Scripts", name), path.join(fixture, "Scripts", name));
+    }
+    fs.cpSync(path.join(root, "Tinycast.xcodeproj"), path.join(fixture, "Tinycast.xcodeproj"), { recursive: true });
     fs.cpSync(path.join(root, "Tinycast"), path.join(fixture, "Tinycast"), {
       recursive: true,
       filter: (file) => !file.endsWith(".generated.swift") && !file.includes("Assets.xcassets"),
@@ -26,6 +30,24 @@ test("localization gate rejects missing keys and known rendering regressions", (
       assert.ok(result.stderr.includes(fragment), result.stderr);
     };
     assert.equal(check().status, 0);
+    const sourceCheck = () => spawnSync(process.execPath, [path.join(fixture, "Scripts/check-localization-source.js")], {
+      encoding: "utf8",
+    });
+    assert.equal(sourceCheck().status, 0);
+    const newView = path.join(fixture, "Tinycast/SourceGateFixture.swift");
+    fs.writeFileSync(newView, 'Text("NEW_UNTRANSLATED_UI_SENTENCE")');
+    assert.equal(sourceCheck().status, 1);
+    assert.ok(sourceCheck().stderr.includes("NEW_UNTRANSLATED_UI_SENTENCE"));
+    fs.writeFileSync(newView, 'Text(String(localized: String(localized: "Cancel")))');
+    assert.equal(sourceCheck().status, 1);
+    assert.ok(sourceCheck().stderr.includes("nested String(localized:)"));
+    fs.unlinkSync(newView);
+    const projectPath = path.join(fixture, "Tinycast.xcodeproj/project.pbxproj");
+    const project = fs.readFileSync(projectPath, "utf8");
+    fs.writeFileSync(projectPath, project.replaceAll("Localization.swift in Sources", "Missing.swift in Sources"));
+    assert.equal(sourceCheck().status, 1);
+    assert.ok(sourceCheck().stderr.includes("Xcode project missing Localization.swift"));
+    fs.writeFileSync(projectPath, project);
     const tablePath = path.join(fixture, "Tinycast/zh-Hans.lproj/Localizable.strings");
     const table = fs.readFileSync(tablePath, "utf8");
     for (const key of ["Navigate back or close window", "Larger"]) {

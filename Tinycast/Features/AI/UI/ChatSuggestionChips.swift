@@ -26,8 +26,8 @@ struct ChatSuggestionChips: View {
                 }
                 .buttonStyle(.glass)
                 .buttonBorderShape(.capsule)
-                .help("Reply “\(choice)”")
-                .accessibilityLabel("Reply: \(choice)")
+                .help(String(localized: "Reply “\(choice)”"))
+                .accessibilityLabel(String(localized: "Reply: \(choice)"))
             }
         }
         .accessibilityElement(children: .contain)

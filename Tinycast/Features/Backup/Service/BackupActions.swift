@@ -348,8 +348,10 @@ enum BackupActions {
         let choice = await core.choose(
             title: "Import the existing settings file?",
             message:
-                "\(settingsFilePath) already exists. Import applies its settings here; Replace "
-                + "overwrites it with the current ones.",
+                String(
+                    localized:
+                        "\(settingsFilePath) already exists. Import applies its settings here; Replace overwrites it with the current ones."
+                ),
             symbol: importSymbol,
             options: [
                 DialogAction(title: "Import"),

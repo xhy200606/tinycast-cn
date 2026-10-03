@@ -35,7 +35,8 @@ struct AIConnectionEditorPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             SettingsEditorHeader(
-                title: target.isNew ? "Add API Connection" : "Edit API Connection"
+                title: target.isNew
+                    ? String(localized: "Add API Connection") : String(localized: "Edit API Connection")
             )
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Theme.Spacing.dialogInset)
@@ -263,10 +264,10 @@ struct AIConnectionEditorPanel: View {
 
     private var modelPlaceholder: String {
         switch connection.provider {
-        case .openAI, .openAICompatible: return "Model ID (e.g. gpt-5.4-mini)"
-        case .anthropic: return "Model ID (e.g. claude-sonnet-4-6)"
-        case .gemini: return "Model ID (e.g. gemini-3.7-flash)"
-        case .openRouter: return "Model ID (e.g. openai/gpt-5.4-mini)"
+        case .openAI, .openAICompatible: return String(localized: "Model ID (e.g. gpt-5.4-mini)")
+        case .anthropic: return String(localized: "Model ID (e.g. claude-sonnet-4-6)")
+        case .gemini: return String(localized: "Model ID (e.g. gemini-3.7-flash)")
+        case .openRouter: return String(localized: "Model ID (e.g. openai/gpt-5.4-mini)")
         }
     }
 
@@ -276,14 +277,16 @@ struct AIConnectionEditorPanel: View {
     }
 
     private var apiKeyPlaceholder: String {
-        if storedKeyMatchesTarget { return "Leave blank to keep saved key" }
-        if AIEndpointPolicy.isLoopback(connection.baseURL) { return "Optional for local endpoint" }
-        return "Paste API key"
+        if storedKeyMatchesTarget { return String(localized: "Leave blank to keep saved key") }
+        if AIEndpointPolicy.isLoopback(connection.baseURL) {
+            return String(localized: "Optional for local endpoint")
+        }
+        return String(localized: "Paste API key")
     }
 
     private var modelSearchPlaceholder: String {
         connection.provider == .openRouter
-            ? "Search by model or company" : "Search available models"
+            ? String(localized: "Search by model or company") : String(localized: "Search available models")
     }
 
     private func matchingModels(
@@ -336,7 +339,7 @@ struct AIConnectionEditorPanel: View {
         } catch {
             discovery = .failed(
                 (error as? LocalizedError)?.errorDescription
-                    ?? "Enter a valid provider base URL.",
+                    ?? String(localized: "Enter a valid provider base URL."),
                 allowsManualEntry: false)
             return
         }
@@ -353,7 +356,7 @@ struct AIConnectionEditorPanel: View {
             let catalogError = error as? AIModelDiscovery.DiscoveryError
             discovery = .failed(
                 catalogError?.errorDescription
-                    ?? "The provider could not load models. Enter one manually.",
+                    ?? String(localized: "The provider could not load models. Enter one manually."),
                 allowsManualEntry: catalogError != .rejectedKey)
         }
     }
@@ -401,7 +404,7 @@ struct AIConnectionEditorPanel: View {
         } catch {
             self.error =
                 (error as? LocalizedError)?.errorDescription
-                ?? "Enter a valid provider base URL."
+                ?? String(localized: "Enter a valid provider base URL.")
             return
         }
         error = onSave(connection, key, target.isNew)

@@ -24,7 +24,11 @@ enum AppActionsMenu {
         if isPersistent {
             items.append(
                 PopoverMenuItem(
-                    title: favorites.isFavorite ? "Remove from Favorites" : "Add to Favorites",
+                    title: favorites.isFavorite
+                        ? String(
+                            localized: "Remove from Favorites")
+                        : String(
+                            localized: "Add to Favorites"),
                     systemImage: favorites.isFavorite ? "star.slash" : "star", startsSection: true,
                     shortcut: "⇧⌘F", action: favorites.toggle))
         }
@@ -72,7 +76,8 @@ enum AppActionsMenu {
                 })
             items.append(
                 PopoverMenuItem(
-                    title: "Force Quit Application", systemImage: "xmark.circle", shortcut: "⌃⌥⇧Q"
+                    title: String(localized: "Force Quit Application"), systemImage: "xmark.circle",
+                    shortcut: "⌃⌥⇧Q"
                 ) {
                     core.launcherCoordinator.quit(app, force: true)
                 })
@@ -98,7 +103,9 @@ enum AppActionsMenu {
                     })
                 if enabled {
                     items.append(
-                        PopoverMenuItem(title: "Refresh Now", systemImage: "arrow.clockwise") {
+                        PopoverMenuItem(
+                            title: String(localized: "Refresh Now"), systemImage: "arrow.clockwise"
+                        ) {
                             core.extensions.refreshNow(app)
                         })
                 }

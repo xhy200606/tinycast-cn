@@ -17,7 +17,9 @@ struct AIScreen: PaletteScreen {
     let rows = [Row()]
 
     /// One footer pill for Return's two jobs: Send, or Stop while a response streams.
-    var primaryActionTitle: String { chat.isStreaming ? "Stop" : "Send" }
+    var primaryActionTitle: String {
+        chat.isStreaming ? String(localized: "Stop") : String(localized: "Send")
+    }
 
     func actions(at selection: Int) -> PopoverMenuContent? {
         var items: [PopoverMenuItem] = []
@@ -29,7 +31,8 @@ struct AIScreen: PaletteScreen {
         }
         items.append(
             PopoverMenuItem(
-                title: chat.session.messages.isEmpty ? "Open AI Chat" : "Continue in AI Chat",
+                title: chat.session.messages.isEmpty
+                    ? "Open AI Chat" : String(localized: "Continue in AI Chat"),
                 systemImage: "bubble.left.and.bubble.right", shortcut: "⌘J"
             ) {
                 coordinator.continueInChat()
@@ -41,7 +44,8 @@ struct AIScreen: PaletteScreen {
         if canRegenerate {
             items.append(
                 PopoverMenuItem(
-                    title: "Regenerate Response", systemImage: "arrow.clockwise", shortcut: "⌘R"
+                    title: String(localized: "Regenerate Response"), systemImage: "arrow.clockwise",
+                    shortcut: "⌘R"
                 ) {
                     coordinator.regenerate()
                 })
@@ -219,7 +223,8 @@ private struct AttachmentsPill: View {
         .tooltip(attachments.map(\.name).joined(separator: "\n"), edge: .bottom)
         .accessibilityLabel(
             attachments.count == 1
-                ? "Attached \(attachments[0].name)" : "\(attachments.count) files attached")
+                ? String(localized: "Attached \(attachments[0].name)")
+                : String(localized: "\(attachments.count) files attached"))
     }
 }
 

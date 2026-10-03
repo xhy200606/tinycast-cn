@@ -89,7 +89,12 @@ struct QuicklinkListScreen: PaletteScreen {
     private func content(selection: Int, scroll: ScrollIntent) -> some View {
         let rows = rows
         if rows.isEmpty {
-            EmptyResults(text: store.enabled.isEmpty ? "No quicklinks yet" : "No matching quicklinks")
+            EmptyResults(
+                text: store.enabled.isEmpty
+                    ? String(
+                        localized: "No quicklinks yet")
+                    : String(
+                        localized: "No matching quicklinks"))
         } else {
             let selected = quicklink(at: selection)
             HStack(spacing: 0) {

@@ -104,10 +104,12 @@ final class CalendarCoordinator {
         Task {
             guard
                 await core.confirm(
-                    title: "Enable calendar?",
+                    title: String(localized: "Enable calendar?"),
                     message:
-                        "Tinycast reads \(settings.calendarSpan.possessivePhrase) events "
-                        + "to find join links. Nothing leaves this Mac.",
+                        String(
+                            localized:
+                                "Tinycast reads \(settings.calendarSpan.possessivePhrase) events to find join links. Nothing leaves this Mac."
+                        ),
                     symbol: "calendar", confirmTitle: "Continue", tone: .neutral,
                     confirmRole: .standard)
             else { return }
@@ -288,7 +290,7 @@ final class CalendarCoordinator {
 
     func openNextMeetingInCalendar() {
         guard let meeting = window.joinable(from: store.events, now: Date()) ?? agenda.first else {
-            report("Nothing scheduled \(settings.calendarSpan.orPhrase)")
+            report(String(localized: "Nothing scheduled \(settings.calendarSpan.orPhrase)"))
             return
         }
         openInCalendar(meeting)
@@ -333,7 +335,7 @@ final class CalendarCoordinator {
             NSApp.activate(ignoringOtherApps: true)
             guard
                 await core.confirm(
-                    title: "Join \(meeting.title)?",
+                    title: String(localized: "Join \(meeting.title)?"),
                     message: UpcomingWindow.countdown(to: meeting.start, now: Date()),
                     symbol: link.provider.sfSymbol, confirmTitle: "Join", tone: .neutral,
                     confirmRole: .standard, dismissTitle: "Not Now")
@@ -344,7 +346,7 @@ final class CalendarCoordinator {
         }
         _ = await core.reportFailure(
             title: "Couldn't open the meeting link",
-            message: "Nothing on this Mac would open \(link.url.absoluteString).",
+            message: String(localized: "Nothing on this Mac would open \(link.url.absoluteString)."),
             symbol: "video.slash", recovery: nil)
     }
 

@@ -57,7 +57,7 @@ private struct RoomSettingsRow: View {
             }
             .buttonStyle(.plain)
             .help("Enter this room")
-            .accessibilityLabel("Enter \(room.name)")
+            .accessibilityLabel(String(localized: "Enter \(room.name)"))
 
             Button {
                 coordinator.editWindows(of: room)
@@ -66,7 +66,7 @@ private struct RoomSettingsRow: View {
             }
             .buttonStyle(.plain)
             .help("Choose its windows")
-            .accessibilityLabel("Choose windows for \(room.name)")
+            .accessibilityLabel(String(localized: "Choose windows for \(room.name)"))
 
             Button {
                 coordinator.deleteRoom(room)

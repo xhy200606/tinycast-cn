@@ -4,7 +4,7 @@ import Foundation
 enum Fallback: Hashable, Sendable {
     /// The shipped destinations, in the order a fresh install offers them.
     enum Builtin: String, CaseIterable, Sendable {
-        case aiChat
+        case quickAI
         case searchFiles
         case runShellCommand
         case define
@@ -12,7 +12,7 @@ enum Fallback: Hashable, Sendable {
         /// Where its name and glyph come from, so a fallback row reads like the command it runs.
         var command: CommandID {
             switch self {
-            case .aiChat: return .aiChat
+            case .quickAI: return .quickAI
             case .searchFiles: return .searchFiles
             case .runShellCommand: return .runShellCommand
             case .define: return .define
@@ -46,7 +46,7 @@ enum Fallback: Hashable, Sendable {
     /// The footer pill's verb: what ↵ does, in the destination's own words.
     var openVerb: String {
         switch self {
-        case .builtin(.aiChat): return "Ask AI Chat"
+        case .builtin(.quickAI): return "Ask Quick AI"
         case .builtin(.searchFiles): return "Search Files"
         case .builtin(.runShellCommand): return "Run Shell Command"
         case .builtin(.define): return "Define Word"
@@ -63,7 +63,6 @@ enum Fallback: Hashable, Sendable {
 
     /// The section header. A long query is elided in the middle, so “with…” always survives.
     static func sectionTitle(query: String, limit: Int = 72) -> String {
-        // One key for both branches: the ellipsis is applied to the query, never to the sentence.
         let shown =
             query.count > limit
             ? "\(query.prefix(limit / 2))…\(query.suffix(limit - limit / 2 - 1))" : query

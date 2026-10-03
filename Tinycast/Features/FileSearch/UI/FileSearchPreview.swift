@@ -117,7 +117,12 @@ private struct FileSearchInfoSection: View {
             InfoRow(label: "Where", value: result.parentPath),
             InfoRow(
                 label: "Type",
-                value: details.typeName ?? (result.isDirectory ? "Folder" : "File").localizedUI)
+                value: details.typeName
+                    ?? (result.isDirectory
+                    ? String(
+                        localized: "Folder")
+                    : String(
+                        localized: "File")).localizedUI)
         ]
         if let bytes = details.bytes {
             rows.append(

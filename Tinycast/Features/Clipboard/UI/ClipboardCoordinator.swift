@@ -155,7 +155,9 @@ final class ClipboardCoordinator {
         guard
             await core.confirm(
                 title: "Delete All Entries",
-                message: "Are you sure you want to proceed with deleting all clipboard history entries?",
+                message: String(
+                    localized: "Are you sure you want to proceed with deleting all clipboard history entries?"
+                ),
                 symbol: PaletteMode.clipboard.systemImage, confirmTitle: "Delete All")
         else { return }
         clearHistory()
@@ -228,9 +230,12 @@ final class ClipboardCoordinator {
                         : core.showMessage("That image is no longer available.", tone: .danger)
                 }
                 let text = try await ClipboardTextWorker.extract(item)
-                guard !text.isEmpty else { return core.showMessage("No text found", tone: .neutral) }
+                guard !text.isEmpty else {
+                    return core.showMessage(String(localized: "No text found"), tone: .neutral)
+                }
                 guard NSPasteboard.general.changeCount == changeCount else {
-                    return core.showMessage("Clipboard changed, text not copied", tone: .neutral)
+                    return core.showMessage(
+                        String(localized: "Clipboard changed, text not copied"), tone: .neutral)
                 }
                 Paster.copyPlainText(text)
                 core.showMessage("Copied text")

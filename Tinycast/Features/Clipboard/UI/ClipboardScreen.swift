@@ -205,7 +205,7 @@ enum ClipboardActionsMenu {
         if item.offersTextExtraction {
             items.append(
                 PopoverMenuItem(
-                    title: "Copy Text", systemImage: "doc.text.viewfinder",
+                    title: String(localized: "Copy Text"), systemImage: "doc.text.viewfinder",
                     startsSection: true, shortcut: "⇧⌘T"
                 ) {
                     core.clipboardCoordinator.copyImageText(item)
@@ -222,7 +222,7 @@ enum ClipboardActionsMenu {
         }
         if item.kind == .file {
             items.append(
-                PopoverMenuItem(title: "Open", systemImage: "arrow.up.forward.app") {
+                PopoverMenuItem(title: String(localized: "Open"), systemImage: "arrow.up.forward.app") {
                     core.clipboardCoordinator.openClip(item)
                 })
             items.append(
@@ -264,8 +264,8 @@ enum ClipboardActionsMenu {
             let oneLine = (item.text ?? "").split(whereSeparator: \.isWhitespace).joined(
                 separator: " ")
             return String(oneLine.prefix(40))
-        case .image: return "Image"
-        case .file: return (item.filePath as NSString?)?.lastPathComponent ?? "File"
+        case .image: return String(localized: "Image")
+        case .file: return (item.filePath as NSString?)?.lastPathComponent ?? String(localized: "File")
         }
     }
 }
@@ -274,6 +274,6 @@ extension ClipboardDefaultAction {
     /// A paste names the app it lands in, in the footer pill and the ⌘K menu alike.
     func title(pastingInto target: PasteTarget?) -> String {
         guard let target, self != .copy else { return title }
-        return "\(title) to \(target.name)"
+        return String(localized: "\(title) to \(target.name)")
     }
 }

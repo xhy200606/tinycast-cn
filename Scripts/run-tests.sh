@@ -85,6 +85,7 @@ run() {
     done
     local name=$1
     shift
+    set -- Tinycast/Platform/Localization.swift "$@"
     if [ -n "$only" ] && [ "$name" != "$only" ]; then return 0; fi
     if [ "$index_only" -eq 1 ] && [ "$emit_db" -eq 0 ]; then return 0; fi
     ran=$((ran + 1))
@@ -114,6 +115,8 @@ run() {
 }
 
 L=Tinycast/Features/Launcher/Model
+run localization-test
+run pinyin-test            Tinycast/Platform/Pinyin.swift
 run slow -O fuzz-test      $L/SearchRelevance.swift $L/ScriptRomanization.swift \
                            $L/LauncherMatch.swift $L/EntryNaming.swift $L/LauncherOrder.swift \
                            $L/LauncherRankingStore.swift $L/LauncherSuggestions.swift

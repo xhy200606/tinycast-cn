@@ -70,10 +70,10 @@ struct ShortcutRecorderPopover: View {
             let secondPress = capture.heldGlobe
             return State(
                 caps: secondPress ? HotKeyBinding.doubleGlobe.keycaps : HotKeyBinding.globe.keycaps,
-                label: secondPress ? "Release Globe" : "Press Globe again")
+                label: secondPress ? String(localized: "Release Globe") : "Press Globe again")
         }
         if capture.heldGlobe && capture.heldModifiers.isEmpty {
-            return State(caps: HotKeyBinding.globe.keycaps, label: "Release Globe")
+            return State(caps: HotKeyBinding.globe.keycaps, label: String(localized: "Release Globe"))
         }
         let flags =
             capture.heldGlobe

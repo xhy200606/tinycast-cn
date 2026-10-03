@@ -128,10 +128,10 @@ final class MCPHTTPTransport: MCPTransport {
     private static func networkMessage(_ code: URLError.Code) -> String {
         switch code {
         case .notConnectedToInternet: return "No internet connection."
-        case .timedOut: return "The server took too long to respond."
+        case .timedOut: return String(localized: "The server took too long to respond.")
         case .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed:
-            return "The server could not be reached."
-        default: return "The request to the server failed."
+            return String(localized: "The server could not be reached.")
+        default: return String(localized: "The request to the server failed.")
         }
     }
 }

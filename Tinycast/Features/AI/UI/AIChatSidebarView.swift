@@ -115,7 +115,7 @@ struct AIChatSidebarView: View {
 
     @ViewBuilder private func menu(for conversation: ChatConversation) -> some View {
         Button(
-            conversation.isPinned ? "Unpin Chat" : "Pin Chat",
+            conversation.isPinned ? String(localized: "Unpin Chat") : String(localized: "Pin Chat"),
             systemImage: conversation.isPinned ? "pin.slash" : "pin"
         ) {
             coordinator.togglePin(id: conversation.id)

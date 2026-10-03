@@ -19,7 +19,8 @@ struct ExtensionStorePanel: View {
         VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
             ExtensionSettingsEditorHeader(
                 title: "Search Extensions",
-                subtitle: "The Raycast Store's extensions arrive built, so they install as they are.")
+                subtitle: String(
+                    localized: "The Raycast Store's extensions arrive built, so they install as they are."))
             // The same borderless field the panes use, rather than a bordered capsule of its own.
             SettingsFilterField(prompt: "Search extensions…", query: $query)
             GeometryReader { _ in

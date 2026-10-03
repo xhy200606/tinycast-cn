@@ -163,6 +163,6 @@ enum CommandDuration {
         if seconds < 10 { return String(format: "%.1fs", seconds) }
         if seconds < 60 { return "\(Int(seconds))s" }
         let whole = Int(seconds)
-        return "\(whole / 60)m \(whole % 60)s"
+        return String(localized: "\(whole / 60)m \(whole % 60)s")
     }
 }

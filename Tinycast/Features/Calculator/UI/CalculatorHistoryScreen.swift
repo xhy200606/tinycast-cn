@@ -119,7 +119,8 @@ struct CalculatorHistoryScreen: PaletteScreen {
         if rows.isEmpty {
             EmptyResults(
                 text: vm.query.trimmingCharacters(in: .whitespaces).isEmpty
-                    ? "No calculations yet" : "No matching calculations")
+                    ? String(localized: "No calculations yet") : String(localized: "No matching calculations")
+            )
         } else {
             CalculatorHistoryList(
                 results: entries,

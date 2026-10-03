@@ -1,0 +1,13 @@
+{
+  "language": "zh-Hans",
+  "upstream_repository": "abue-ammar/tinycast",
+  "upstream_tag": "v0.11.12",
+  "upstream_commit": "fa1c2bb2849dd826abc43b9343abad835607bdcf",
+  "localization_start_commit": "0d4645d6fdfbd85b3610033996988a87455afe1a",
+  "maintenance_branch": "cn-localization-v0.11.12",
+  "build_workflow": ".github/workflows/release.yml",
+  "build_requires_manual_confirmation": true,
+  "bundle_identifier": "com.tinycast.app.cn",
+  "distribution": "ad-hoc-artifacts",
+  "automatic_updates": false
+}

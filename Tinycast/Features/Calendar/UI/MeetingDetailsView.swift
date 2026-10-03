@@ -131,7 +131,7 @@ private extension MeetingDetails.Attendee.Response {
         case .accepted: "Accepted"
         case .tentative: "Maybe"
         case .declined: "Declined"
-        case .pending: "No response"
+        case .pending: String(localized: "No response")
         }
     }
 }

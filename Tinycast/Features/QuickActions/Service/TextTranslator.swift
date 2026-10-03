@@ -17,7 +17,7 @@ enum TextTranslator {
             case .unsupported:
                 return "Apple's translator does not support this language pair."
             case .notInstalled(let language):
-                return "\(language) needs to be downloaded before it can be used."
+                return String(localized: "\(language) needs to be downloaded before it can be used.")
             case .failed:
                 return "The text could not be translated."
             }

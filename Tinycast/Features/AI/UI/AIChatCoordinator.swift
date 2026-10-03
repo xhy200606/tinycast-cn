@@ -168,7 +168,10 @@ final class AIChatCoordinator {
         let title = core.chatHistory.conversation(id: id)?.displayTitle ?? "This chat"
         guard
             await core.confirm(
-                title: "Delete chat?", message: "“\(title)” will be removed. This can't be undone.",
+                title: String(
+                    localized: "Delete chat?"),
+                message: String(
+                    localized: "“\(title)” will be removed. This can't be undone."),
                 symbol: "trash", confirmTitle: "Delete")
         else { return }
         chats.delete(id: id)
@@ -177,9 +180,9 @@ final class AIChatCoordinator {
     func deleteAllChats() async {
         guard
             await core.confirm(
-                title: "Delete all chats?",
-                message: "Every saved conversation except pinned ones will be removed. "
-                    + "This can't be undone.",
+                title: String(localized: "Delete all chats?"),
+                message: ("Every saved conversation except pinned ones will be removed. "
+                    + "This can't be undone.").localizedUI,
                 symbol: "trash", confirmTitle: "Delete All")
         else { return }
         chats.deleteAll()
@@ -579,7 +582,7 @@ final class AIChatCoordinator {
 
     /// Shortened here, not by layout: a flexible label would take the row from the search field.
     func modelTitle(of selected: AIModelSelection?, among options: [AIModelOption]) -> String {
-        guard let selected else { return "Choose Model" }
+        guard let selected else { return String(localized: "Choose Model") }
         let title = options.first { $0.matches(selected) }?.title ?? selected.model
         guard title.count > Self.maxModelTitleLength else { return title }
         let keep = Self.maxModelTitleLength / 2
@@ -699,6 +702,6 @@ struct ChatContextReport: Equatable {
 
     var accessibilitySummary: String {
         let percent = fill.formatted(.percent.precision(.fractionLength(0)))
-        return "Context \(percent), \(sentMessages) of \(totalMessages) messages sent"
+        return String(localized: "Context \(percent), \(sentMessages) of \(totalMessages) messages sent")
     }
 }

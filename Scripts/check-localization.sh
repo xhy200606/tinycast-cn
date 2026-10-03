@@ -3,7 +3,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 verify() {
   node Scripts/check-localization.js "$@"
-  node --test Tests/localization-check-test.js
+  node Scripts/check-localization-source.js
+  node --test Tests/localization-check-test.js Tests/localization-source-test.js
 }
 case "${1:-}" in
   "") verify ;;

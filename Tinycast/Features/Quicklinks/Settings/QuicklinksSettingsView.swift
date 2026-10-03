@@ -15,8 +15,11 @@ struct QuicklinksSettingsView: View {
             FeatureSwitchSection(
                 anchor: .quicklinksQuicklinks,
                 enableTitle: "Enable quicklinks",
+                enableSubtitle: "Open saved links and searches from the launcher.",
                 isEnabled: $settings.quicklinksEnabled,
-                showsInLauncher: $settings.quicklinksShowInLauncher)
+                showsInLauncher: $settings.quicklinksShowInLauncher,
+                showsIcon: true,
+                showsHeader: false)
 
             Group {
                 if !store.isAvailable { storageNotice }
@@ -39,7 +42,7 @@ struct QuicklinksSettingsView: View {
         }
         .alert(item: $pendingDeletion) { quicklink in
             Alert(
-                title: Text("Delete “\(quicklink.name)”?"),
+                title: Text(String(localized: "Delete “\(quicklink.name)”?")),
                 message: Text("Its global shortcut and launcher references will also be removed."),
                 primaryButton: .destructive(Text("Delete")) {
                     Task {
@@ -159,7 +162,11 @@ private struct QuicklinkSettingsRow: View {
 
     var body: some View {
         SettingsRow(title: quicklink.name, subtitle: quicklink.link) {
-            SymbolImage(name: quicklink.symbol, size: 13)
+            SymbolImage(
+                name: quicklink.symbol,
+                size: Theme.Size.settingsRowIcon - Theme.Spacing.xs
+            )
+            .frame(width: SettingsListMetrics.iconSize, height: SettingsListMetrics.iconSize)
         } trailing: {
             if quicklink.isPinned {
                 Image(systemName: "pin.fill")
@@ -185,7 +192,7 @@ private struct QuicklinkSettingsRow: View {
             }
             .buttonStyle(.plain)
             .help("Edit Quicklink")
-            .accessibilityLabel("Edit \(quicklink.name)")
+            .accessibilityLabel(String(localized: "Edit \(quicklink.name)"))
 
             Button(action: onDelete) {
                 Image(systemName: "trash")
@@ -193,13 +200,13 @@ private struct QuicklinkSettingsRow: View {
             }
             .buttonStyle(.plain)
             .help("Delete Quicklink")
-            .accessibilityLabel("Delete \(quicklink.name)")
+            .accessibilityLabel(String(localized: "Delete \(quicklink.name)"))
 
             Toggle("", isOn: $isEnabled)
                 .labelsHidden()
                 .toggleStyle(.checkbox)
                 .help("Enabled")
-                .accessibilityLabel("Enable \(quicklink.name)")
+                .accessibilityLabel(String(localized: "Enable \(quicklink.name)"))
         }
     }
 }

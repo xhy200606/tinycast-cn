@@ -212,7 +212,8 @@ final class QuicklinkCoordinator {
                 await core.confirm(
                     title: "Delete “\(quicklink.name)”?",
                     message: "Its shortcut, favorite slot and learned ranking go with it.",
-                    symbol: quicklink.iconSymbol ?? Quicklink.sfSymbol, confirmTitle: "Delete")
+                    symbol: quicklink.iconSymbol ?? Quicklink.sfSymbol,
+                    confirmTitle: String(localized: "Delete"))
             else { return }
         }
         // Unwound only once the row is gone: a failed delete must not strand its references.

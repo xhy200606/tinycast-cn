@@ -38,7 +38,7 @@ struct EmojiScreen: PaletteScreen {
     /// Flat grid order across sections — what the selection indexes.
     var rows: [EmojiEntry] { sections.flatMap(\.entries) }
 
-    var primaryActionTitle: String { vm.pasteTarget?.pasteTitle ?? "Paste" }
+    var primaryActionTitle: String { vm.pasteTarget?.pasteTitle ?? String(localized: "Paste") }
 
     private func entry(at selection: Int) -> EmojiEntry? {
         let rows = rows
@@ -189,7 +189,7 @@ enum EmojiActionsMenu {
         let noun = entry.category.itemTitle.localizedUI
         var items = [
             PopoverMenuItem(
-                title: target?.pasteTitle ?? "Paste",
+                title: target?.pasteTitle ?? String(localized: "Paste"),
                 icon: .paste(target, fallback: "doc.on.clipboard"), shortcut: "↵"
             ) {
                 core.emojiCoordinator.pasteEmoji(entry)

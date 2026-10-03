@@ -15,8 +15,8 @@ struct FileSearchScreen: PaletteScreen {
     }
 
     var primaryActionTitle: String {
-        guard let result = result(at: vm.selection) else { return "Open File" }
-        return result.isDirectory ? "Open Folder" : "Open File"
+        guard let result = result(at: vm.selection) else { return String(localized: "Open File") }
+        return result.isDirectory ? String(localized: "Open Folder") : String(localized: "Open File")
     }
 
     private func result(at selection: Int) -> FileSearchResult? {
@@ -94,7 +94,8 @@ struct FileSearchScreen: PaletteScreen {
             let selected = result(at: selection)
             HStack(spacing: 0) {
                 FileSearchList(
-                    title: isShowingRecents ? "Recently Used" : "Results",
+                    title: isShowingRecents
+                        ? String(localized: "Recently Used") : String(localized: "Results"),
                     results: rows,
                     selectedID: selected?.id,
                     scroll: scroll,
@@ -150,7 +151,8 @@ enum FileSearchActionsMenu {
             header: result.name,
             items: [
                 PopoverMenuItem(
-                    title: result.isDirectory ? "Open Folder" : "Open File",
+                    title: result.isDirectory
+                        ? String(localized: "Open Folder") : String(localized: "Open File"),
                     systemImage: result.isDirectory ? "folder" : "doc", shortcut: "↵"
                 ) { coordinator.open(result) },
                 PopoverMenuItem(
@@ -159,7 +161,7 @@ enum FileSearchActionsMenu {
                 PopoverMenuItem(title: "Quick Look", systemImage: "eye", shortcut: "⌘Y") {
                     vm.fileSearchQuickLook = true
                 },
-                PopoverMenuItem(title: "Share…", systemImage: "square.and.arrow.up") {
+                PopoverMenuItem(title: String(localized: "Share…"), systemImage: "square.and.arrow.up") {
                     coordinator.share(result)
                 },
                 PopoverMenuItem(
@@ -167,7 +169,8 @@ enum FileSearchActionsMenu {
                     shortcut: "⇧⌘C"
                 ) { coordinator.copyFile(result) },
                 PopoverMenuItem(
-                    title: target.map { String(localized: "Paste File to \($0.name)") } ?? "Paste File",
+                    title: target.map { String(localized: "Paste File to \($0.name)") }
+                        ?? String(localized: "Paste File"),
                     icon: .paste(target, fallback: "doc.on.clipboard"), shortcut: "⇧⌘V"
                 ) { coordinator.pasteFile(result) },
                 PopoverMenuItem(

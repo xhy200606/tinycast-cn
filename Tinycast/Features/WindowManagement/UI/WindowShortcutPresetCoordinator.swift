@@ -84,6 +84,7 @@ final class WindowShortcutPresetCoordinator {
         let names = ids.compactMap { WindowCommandCatalog.command(id: $0)?.name }
         let listed = names.prefix(3).joined(separator: ", ")
         let rest = names.count > 3 ? " and \(names.count - 3) more" : ""
-        return "\(listed)\(rest) will use the \(preset.title) keys instead of the ones you set."
+        return String(
+            localized: "\(listed)\(rest) will use the \(preset.title) keys instead of the ones you set.")
     }
 }

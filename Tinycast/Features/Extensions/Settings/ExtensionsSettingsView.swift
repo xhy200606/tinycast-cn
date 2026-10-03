@@ -86,7 +86,10 @@ struct ExtensionsSettingsView: View {
             SettingsRow(
                 title: "What works",
                 subtitle:
-                    "List, detail, form, grid, no-view and menu-bar commands, plus preferences, storage and OAuth.",
+                    String(
+                        localized:
+                            "List, detail, form, grid, no-view and menu-bar commands, plus preferences, storage and OAuth."
+                    ),
                 subtitleLineLimit: 2
             ) {
                 ExtensionSettingsIcon(systemName: "checkmark.circle")
@@ -95,7 +98,8 @@ struct ExtensionsSettingsView: View {
             }
             SettingsRow(
                 title: "What doesn't, yet",
-                subtitle: "Raycast's OAuth proxy, and its AI, browser and window services.",
+                subtitle: String(
+                    localized: "Raycast's OAuth proxy, and its AI, browser and window services."),
                 subtitleLineLimit: 2
             ) {
                 ExtensionSettingsIcon(systemName: "xmark.circle")
@@ -144,7 +148,8 @@ struct ExtensionsSettingsView: View {
             SettingsSectionHeader(anchor: .extensionsInstalled) {
                 Text(
                     core.extensions.installed.isEmpty
-                        ? "Installed" : "Installed (\(core.extensions.installed.count))")
+                        ? String(localized: "Installed")
+                        : String(localized: "Installed (\(core.extensions.installed.count))"))
             }
         } footer: {
             if let updateError {
@@ -158,7 +163,7 @@ struct ExtensionsSettingsView: View {
     /// Above the list as well as on each row, so a batch is one press.
     private var updatesRow: some View {
         SettingsRow(
-            title: "Updates available",
+            title: String(localized: "Updates available"),
             subtitle: listed(core.extensions.updates.values.map(\.title)) + "."
         ) {
             ExtensionSettingsIcon(systemName: "arrow.down.circle")
@@ -193,7 +198,8 @@ struct ExtensionsSettingsView: View {
     private var install: some View {
         Section {
             SettingsRow(
-                title: "Search extensions", subtitle: "Ready-built from the Raycast Store.",
+                title: "Search extensions",
+                subtitle: String(localized: "Ready-built from the Raycast Store."),
                 anchor: .extensionsInstall
             ) {
                 ExtensionSettingsIcon(systemName: "magnifyingglass")
@@ -202,7 +208,7 @@ struct ExtensionsSettingsView: View {
             }
             SettingsRow(
                 title: "Install from GitHub",
-                subtitle: "Builds from source with your package manager.",
+                subtitle: String(localized: "Builds from source with your package manager."),
                 anchor: .extensionsInstall
             ) {
                 ExtensionSettingsIcon(systemName: "hammer")
@@ -295,12 +301,12 @@ struct ExtensionsSettingsView: View {
         }
         if let importSummary { return importSummary }
         guard raycastAvailable else {
-            return "No Raycast install found in ~/.config."
+            return String(localized: "No Raycast install found in ~/.config.")
         }
         guard !pending.isEmpty else {
-            return "Copies what Raycast has already built."
+            return String(localized: "Copies what Raycast has already built.")
         }
-        return "\(pending.count) not here yet — \(listed(pending.map(\.installed.title)))."
+        return String(localized: "\(pending.count) not here yet — \(listed(pending.map(\.installed.title))).")
     }
 
     /// The first three in list order, then a count, so a long batch still fits one subtitle.
@@ -309,7 +315,7 @@ struct ExtensionsSettingsView: View {
             $0.sortKey.localizedCaseInsensitiveCompare($1.sortKey) == .orderedAscending
         }
         let names = sorted.prefix(3).joined(separator: ", ")
-        return sorted.count > 3 ? "\(names) and \(sorted.count - 3) more" : names
+        return sorted.count > 3 ? String(localized: "\(names) and \(sorted.count - 3) more") : names
     }
 
     private var raycastAvailable: Bool {
@@ -423,7 +429,7 @@ private struct ExtensionDisclosure: View {
             }
             .buttonStyle(.plain)
             .help("Uninstall")
-            .accessibilityLabel("Uninstall \(installed.title)")
+            .accessibilityLabel(String(localized: "Uninstall \(installed.title)"))
             Image(systemName: "chevron.down")
                 .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 .foregroundStyle(.secondary)
@@ -434,7 +440,9 @@ private struct ExtensionDisclosure: View {
         .onTapGesture(perform: onToggle)
         .accessibilityAddTraits(.isButton)
         .accessibilityLabel(
-            isExpanded ? "Hide \(installed.title) settings" : "Configure \(installed.title)"
+            isExpanded
+                ? String(localized: "Hide \(installed.title) settings")
+                : String(localized: "Configure \(installed.title)")
         )
         .id(SettingsTarget.row(.extensionsInstalled, installed.manifest.name))
     }
@@ -462,7 +470,9 @@ private struct ExtensionDisclosure: View {
             }
 
             rule
-            heading(installed.manifest.commands.count == 1 ? "Command" : "Commands")
+            heading(
+                installed.manifest.commands.count == 1
+                    ? String(localized: "Command") : String(localized: "Commands"))
             ForEach(Array(installed.manifest.commands.enumerated()), id: \.element.id) {
                 index, command in
                 if index > 0 { rule }
@@ -559,7 +569,7 @@ private struct CommandRows: View {
     @Environment(VisibilityStore.self) private var visibility
 
     /// A fact about the command, so it sits by the name as a badge rather than a warning colour.
-    private var badge: String? { command.mode == .menuBar ? "Menu Bar" : nil }
+    private var badge: String? { command.mode == .menuBar ? String(localized: "Menu Bar") : nil }
 
     private var reference: ExtensionCommandRef {
         ExtensionCommandRef(extensionName: installed.manifest.name, commandName: command.name)
@@ -901,7 +911,10 @@ private struct ExtensionImportPanel: View {
 
             HStack {
                 // Reads against what is selected, so it is never a button that does nothing.
-                Button((allChosen ? "Deselect All" : "Select All").localizedUI) {
+                Button(
+                    (allChosen ? String(localized: "Deselect All") : String(localized: "Select All"))
+                        .localizedUI
+                ) {
                     chosen = allChosen ? [] : Set(candidates.map(\.installed.manifest.name))
                 }
                 .buttonStyle(

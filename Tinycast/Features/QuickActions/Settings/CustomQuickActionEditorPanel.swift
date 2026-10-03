@@ -40,7 +40,11 @@ struct CustomQuickActionEditorPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
             SettingsEditorHeader(
-                title: existing == nil ? String(localized: "New Quick Action") : String(localized: "Edit \(existing?.name ?? "")"),
+                title: existing == nil
+                    ? String(
+                        localized: "New Quick Action")
+                    : String(
+                        localized: "Edit \(existing?.name ?? "")"),
                 subtitle: "Tinycast sends your selected text to the model with these instructions."
             )
 
@@ -100,7 +104,10 @@ struct CustomQuickActionEditorPanel: View {
             } label: {
                 HStack(spacing: Theme.Spacing.sm) {
                     SymbolImage(name: iconSymbol ?? CustomQuickAction.sfSymbol, size: 14)
-                    Text((iconSymbol == nil ? "Automatic" : "Custom").localizedUI)
+                    Text(
+                        (iconSymbol == nil ? String(localized: "Automatic") : String(localized: "Custom"))
+                            .localizedUI
+                    )
                         .lineLimit(1)
                     Spacer(minLength: 0)
                 }

@@ -6,6 +6,7 @@ struct WindowManagementSettingsView: View {
     @State private var editor: WindowLayoutEditRequest?
     @State private var pendingDeletion: WindowLayout?
     @State private var customSizeEdit: CustomWindowSizeEditRequest?
+    @State private var chosenPreset: WindowShortcutPreset?
 
     var body: some View {
         @Bindable var settings = settings
@@ -15,13 +16,16 @@ struct WindowManagementSettingsView: View {
                 enableTitle: "Enable window management",
                 enableSubtitle: "Moves the last window you used. Needs Accessibility.",
                 isEnabled: $settings.windowManagementEnabled,
-                showsInLauncher: $settings.windowManagementShowInLauncher)
+                showsInLauncher: $settings.windowManagementShowInLauncher,
+                showsIcon: true,
+                showsHeader: false)
 
             Group {
                 options
                 WindowLayoutsSection(
                     onEdit: { editor = WindowLayoutEditRequest(layout: $0) },
                     onDelete: { pendingDeletion = $0 })
+                RoomsSection()
                 FeatureCommandsSection(
                     owner: .windowManagement, anchor: .windowManagementLayoutCommands)
                 CustomWindowSizesSection(onEdit: {
@@ -46,7 +50,7 @@ struct WindowManagementSettingsView: View {
         }
         .alert(item: $pendingDeletion) { layout in
             Alert(
-                title: Text("Delete \u{201C}\(layout.name)\u{201D}?"),
+                title: Text(String(localized: "Delete \u{201C}\(layout.name)\u{201D}?")),
                 message: Text("Its global shortcut and launcher references go with it."),
                 primaryButton: .destructive(Text("Delete")) {
                     core.windowLayoutCoordinator.deleteWindowLayout(id: layout.id)
@@ -69,15 +73,42 @@ struct WindowManagementSettingsView: View {
 
             LabeledContent {
                 HStack(spacing: Theme.Spacing.sm) {
-                    Text("\(settings.windowGap) pt")
+                    Text(String(localized: "\(settings.windowGap) pt"))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
-                    Stepper("Gap between windows", value: $settings.windowGap, in: 0...64, step: 2)
-                        .labelsHidden()
+                    Stepper(
+                        "Gap between windows", value: $settings.windowGap,
+                        in: WindowPlacementEngine.gapRange, step: 2
+                    )
+                    .labelsHidden()
                 }
             } label: {
                 SettingsRowTitle(.windowManagementOptions, "Gap between windows")
                 Text("Between tiled windows and screen edges.")
+            }
+
+            LabeledContent {
+                HStack(spacing: Theme.Spacing.sm) {
+                    Picker("Shortcut preset", selection: $chosenPreset) {
+                        Text("Choose…").tag(WindowShortcutPreset?.none)
+                        ForEach(WindowShortcutPreset.allCases) { preset in
+                            Text(preset.title).tag(Optional(preset))
+                        }
+                    }
+                    .labelsHidden()
+                    .fixedSize()
+                    Button("Apply") {
+                        guard let chosenPreset else { return }
+                        Task { await core.windowShortcutPresetCoordinator.apply(chosenPreset) }
+                    }
+                    // Live bindings decide, so one edit to an applied preset re-enables it.
+                    .disabled(
+                        chosenPreset == nil
+                            || chosenPreset == core.windowShortcutPresetCoordinator.matchingPreset)
+                }
+            } label: {
+                SettingsRowTitle(.windowManagementOptions, "Shortcut preset")
+                Text("Fills in another app's shortcuts. Others stay as they are.")
             }
         } header: {
             SettingsSectionHeader(.windowManagementOptions)
@@ -113,7 +144,7 @@ private struct WindowCommandSettingsRow: View {
                 .labelsHidden()
                 .toggleStyle(.checkbox)
                 .launcherVisibilityHelp()
-                .accessibilityLabel("Show \(command.name) in launcher")
+                .accessibilityLabel(String(localized: "Show \(command.name) in launcher"))
         }
     }
 

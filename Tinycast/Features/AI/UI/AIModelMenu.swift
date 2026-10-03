@@ -56,7 +56,7 @@ enum AIModelMenu {
         if items.count > 1 {
             items.append(
                 PopoverMenuItem(
-                    title: "Remove All", systemImage: "xmark.circle", startsSection: true
+                    title: String(localized: "Remove All"), systemImage: "xmark.circle", startsSection: true
                 ) {
                     coordinator.clearAttachments(in: chat)
                 })

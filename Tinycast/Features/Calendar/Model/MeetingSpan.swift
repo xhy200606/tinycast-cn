@@ -10,9 +10,9 @@ enum MeetingSpan: Int, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .today: return "Today"
-        case .todayAndTomorrow: return "Today and Tomorrow"
-        case .nextSevenDays: return "Next 7 Days"
+        case .today: return String(localized: "Today")
+        case .todayAndTomorrow: return String(localized: "Today and Tomorrow")
+        case .nextSevenDays: return String(localized: "Next 7 Days")
         }
     }
 
@@ -27,18 +27,18 @@ enum MeetingSpan: Int, CaseIterable, Identifiable, Sendable {
     /// "today's and tomorrow's", for a sentence naming the events that are read.
     var possessivePhrase: String {
         switch self {
-        case .today: return "today's"
-        case .todayAndTomorrow: return "today's and tomorrow's"
-        case .nextSevenDays: return "the next 7 days'"
+        case .today: return String(localized: "today's")
+        case .todayAndTomorrow: return String(localized: "today's and tomorrow's")
+        case .nextSevenDays: return String(localized: "the next 7 days'")
         }
     }
 
     /// "today or tomorrow", for a sentence where "and" would read wrong.
     var orPhrase: String {
         switch self {
-        case .today: return "today"
-        case .todayAndTomorrow: return "today or tomorrow"
-        case .nextSevenDays: return "in the next 7 days"
+        case .today: return String(localized: "today")
+        case .todayAndTomorrow: return String(localized: "today or tomorrow")
+        case .nextSevenDays: return String(localized: "in the next 7 days")
         }
     }
 }

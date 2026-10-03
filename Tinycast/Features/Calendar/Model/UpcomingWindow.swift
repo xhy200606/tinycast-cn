@@ -29,7 +29,7 @@ struct UpcomingWindow: Sendable {
 
     static func countdown(to start: Date, now: Date) -> String {
         let delta = start.timeIntervalSince(now)
-        if delta > 0 { return "in \(duration(delta, rounding: .up))" }
+        if delta > 0 { return String(localized: "in \(duration(delta, rounding: .up))") }
         return "Now"
     }
 
@@ -58,7 +58,9 @@ struct UpcomingWindow: Sendable {
     static func menuBarCountdown(for event: MeetingEvent, now: Date) -> String {
         if now < event.start { return countdown(to: event.start, now: now) }
         if now < event.start.addingTimeInterval(5 * 60) { return "Now" }
-        if now < event.end { return "\(duration(event.end.timeIntervalSince(now), rounding: .down)) left" }
+        if now < event.end {
+            return String(localized: "\(duration(event.end.timeIntervalSince(now), rounding: .down)) left")
+        }
         return "Now"
     }
 

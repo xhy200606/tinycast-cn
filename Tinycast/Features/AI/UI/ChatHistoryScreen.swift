@@ -65,7 +65,8 @@ struct ChatHistoryScreen: PaletteScreen {
         if rows.isEmpty {
             EmptyResults(
                 text: history.isAvailable
-                    ? history.conversations.isEmpty ? "No chats yet" : "No matching chats"
+                    ? history.conversations.isEmpty
+                        ? String(localized: "No chats yet") : String(localized: "No matching chats")
                     : "Chat history is unavailable")
         } else {
             let selected = conversation(at: selection)
@@ -103,7 +104,8 @@ enum ChatHistoryActionsMenu {
                     coordinator.openChat(id: conversation.id)
                 },
                 PopoverMenuItem(
-                    title: "Continue in AI Chat", systemImage: "bubble.left.and.bubble.right",
+                    title: String(localized: "Continue in AI Chat"),
+                    systemImage: "bubble.left.and.bubble.right",
                     shortcut: "⌘J"
                 ) {
                     coordinator.continueInChat(id: conversation.id)

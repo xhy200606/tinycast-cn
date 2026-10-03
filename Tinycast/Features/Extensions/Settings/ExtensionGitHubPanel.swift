@@ -17,7 +17,7 @@ struct ExtensionGitHubPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
             ExtensionSettingsEditorHeader(
-                title: "Install from GitHub",
+                title: String(localized: "Install from GitHub"),
                 subtitle: "Builds an extension from source on this Mac. Only the build is kept — "
                     + "the source and its dependencies are deleted once it installs.")
 
@@ -26,8 +26,8 @@ struct ExtensionGitHubPanel: View {
                 .disabled(isInstalling)
 
             Text(
-                "Installing runs your package manager and the extension's own build script. "
-                    + "Install only from someone you trust."
+                ("Installing runs your package manager and the extension's own build script. "
+                    + "Install only from someone you trust.").localizedUI
             )
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -36,7 +36,10 @@ struct ExtensionGitHubPanel: View {
             status
 
             HStack(spacing: Theme.Spacing.md) {
-                Button(installedTitle == nil ? "Cancel" : "Done", action: onClose)
+                Button(
+                    installedTitle == nil ? String(localized: "Cancel") : String(localized: "Done"),
+                    action: onClose
+                )
                     .buttonStyle(ExtensionSettingsEditorButtonStyle(role: .cancel))
                     .keyboardShortcut(.cancelAction)
                 Button("Install", action: install)
@@ -64,7 +67,7 @@ struct ExtensionGitHubPanel: View {
                 .pointerStyle(.horizontalText)
                 .disabled(isInstalling)
             if let source {
-                Text("Builds \(source.summary).")
+                Text(String(localized: "Builds \(source.summary)."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else if !repository.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -89,7 +92,7 @@ struct ExtensionGitHubPanel: View {
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
         } else if let installedTitle {
-            Label("Installed \(installedTitle).", systemImage: "checkmark.circle.fill")
+            Label(String(localized: "Installed \(installedTitle)."), systemImage: "checkmark.circle.fill")
                 .font(.caption)
                 .foregroundStyle(.green)
         }

@@ -47,7 +47,8 @@ struct ExtensionGitHubSource: Hashable, Sendable {
 
     var summary: String {
         let location = [owner, repository, path].filter { !$0.isEmpty }.joined(separator: "/")
-        return ref == Self.defaultRef ? "\(location) on its default branch" : "\(location) at \(ref)"
+        return ref == Self.defaultRef
+            ? String(localized: "\(location) on its default branch") : "\(location) at \(ref)"
     }
 
     /// Trees, not contents: contents caps a directory at 1000 and costs a call per level.

@@ -71,7 +71,7 @@ struct SnippetsScreen: PaletteScreen {
 
     /// An empty library and an over-narrow filter are different problems with different answers.
     private var emptyMessage: String {
-        if store.state == .loading { return "Loading snippets…" }
+        if store.state == .loading { return String(localized: "Loading snippets…") }
         return store.snippets.contains(where: { $0.snippet.isEnabled })
             ? "No matching snippets" : "No snippets yet"
     }

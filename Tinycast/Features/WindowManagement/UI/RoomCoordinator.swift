@@ -471,7 +471,7 @@ final class RoomCoordinator {
             guard let self else { return }
             let confirmed = await self.core.confirm(
                 title: "Delete “\(room.name)”?",
-                message: "Its windows stay open. Its shortcut goes with it.",
+                message: String(localized: "Its windows stay open. Its shortcut goes with it."),
                 symbol: Room.sfSymbol, confirmTitle: "Delete")
             guard confirmed, let removed = self.store.remove(id: room.id) else { return }
             if self.currentRoomID == removed.id { self.currentRoomID = nil }
@@ -521,8 +521,9 @@ final class RoomCoordinator {
         if outcome.isBlockedOnPermission { return await reportPermissionFailure() }
         guard outcome.placed > 0 else {
             await core.showNotice(
-                title: "Couldn't Enter “\(room.name)”",
-                message: "None of its windows are open. Open them, then choose them again.",
+                title: String(localized: "Couldn't Enter “\(room.name)”"),
+                message: String(
+                    localized: "None of its windows are open. Open them, then choose them again."),
                 symbol: Room.sfSymbol, tone: .danger)
             return
         }
@@ -535,7 +536,7 @@ final class RoomCoordinator {
     private func reportPermissionFailure() async {
         let openSettings = await core.reportFailure(
             title: "Tinycast Needs Accessibility Access",
-            message: "Rooms move and hide other apps' windows.",
+            message: String(localized: "Rooms move and hide other apps' windows."),
             symbol: Room.sfSymbol, recovery: "Open Settings")
         if openSettings { Permissions.openAccessibilitySettings() }
     }

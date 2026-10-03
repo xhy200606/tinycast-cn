@@ -39,6 +39,8 @@ struct SystemAction: Identifiable, Hashable, Sendable {
     enum Confirmation: Hashable, Sendable {
         case none
         case required(title: String, message: String)
+        /// Asks only while Finder's own "Show warning before emptying the Trash" is on.
+        case followsFinder(title: String, message: String)
         /// Quit All alone counts its targets before asking, so its copy is built at call time.
         case computed
     }
@@ -140,22 +142,19 @@ enum SystemActionCatalog {
         }
     }
 
-    private static let sessionEndingMessage = String(
-        localized: "Applications with unsaved changes may ask you to save.")
+    private static let sessionEndingMessage =
+        String(localized: "Applications with unsaved changes may ask you to save.")
 
     private static func confirmation(for id: SystemAction.ID) -> SystemAction.Confirmation {
         switch id {
         case .restart:
-            return .required(
-                title: String(localized: "Restart your Mac?"), message: sessionEndingMessage)
+            return .required(title: String(localized: "Restart your Mac?"), message: sessionEndingMessage)
         case .shutDown:
-            return .required(
-                title: String(localized: "Shut down your Mac?"), message: sessionEndingMessage)
+            return .required(title: String(localized: "Shut down your Mac?"), message: sessionEndingMessage)
         case .logOut:
-            return .required(
-                title: String(localized: "Log out now?"), message: sessionEndingMessage)
+            return .required(title: String(localized: "Log out now?"), message: sessionEndingMessage)
         case .emptyTrash:
-            return .required(
+            return .followsFinder(
                 title: String(localized: "Empty Trash?"),
                 message: String(localized: "The items in the Trash will be permanently deleted."))
         case .quitAllApps:

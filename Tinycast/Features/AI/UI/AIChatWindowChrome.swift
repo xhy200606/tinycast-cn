@@ -88,7 +88,8 @@ final class AIChatWindowChrome: NSObject, WindowChrome, NSToolbarDelegate, NSSea
         switch identifier {
         case Self.sidebar:
             return button(
-                identifier, symbol: "sidebar.left", label: "Sidebar", toolTip: "Show or Hide Sidebar",
+                identifier, symbol: "sidebar.left", label: String(localized: "Sidebar"),
+                toolTip: "Show or Hide Sidebar",
                 action: #selector(toggleSidebar))
         case Self.newChat:
             return button(
@@ -235,7 +236,8 @@ enum AIChatActionsMenu {
             })
         if canRegenerate(chat) {
             menu.addItem(
-                ClosureMenuItem("Regenerate Response", symbol: "arrow.clockwise", key: "r") {
+                ClosureMenuItem(String(localized: "Regenerate Response"), symbol: "arrow.clockwise", key: "r")
+                {
                     coordinator.regenerate(in: chat)
                 })
         }
@@ -250,7 +252,7 @@ enum AIChatActionsMenu {
         }
         if saved {
             menu.addItem(
-                ClosureMenuItem("Copy Chat", symbol: "text.bubble") {
+                ClosureMenuItem(String(localized: "Copy Chat"), symbol: "text.bubble") {
                     coordinator.copyChat(id: chat.session.id)
                 })
         }
@@ -268,7 +270,7 @@ enum AIChatActionsMenu {
                     coordinator.togglePin(id: chat.session.id)
                 })
             menu.addItem(
-                ClosureMenuItem("Delete Chat…", symbol: "trash") {
+                ClosureMenuItem(String(localized: "Delete Chat…"), symbol: "trash") {
                     Task { await coordinator.deleteChat(id: chat.session.id) }
                 })
         }

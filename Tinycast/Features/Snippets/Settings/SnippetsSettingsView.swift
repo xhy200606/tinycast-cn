@@ -19,19 +19,26 @@ struct SnippetsSettingsView: View {
                 isEnabled: Binding(
                     get: { settings.snippetsEnabled },
                     set: { core.snippetCoordinator.setSnippetsEnabled($0) }),
-                showsInLauncher: $settings.snippetsShowInLauncher)
+                showsInLauncher: $settings.snippetsShowInLauncher,
+                showsIcon: true,
+                showsHeader: false)
 
             if settings.snippetsEnabled, core.snippetListener.status == .needsAccessibility {
                 Section {
                     LabeledContent {
                         Button("Grant Access…") { Permissions.openAccessibilitySettings() }
                     } label: {
-                        Label(
-                            "Keyword expansion needs Accessibility access.",
-                            systemImage: "exclamationmark.triangle"
-                        )
-                        .foregroundStyle(.orange)
-                        Text("Launcher search still works.")
+                        HStack(alignment: .center, spacing: Theme.Spacing.lg) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                                .frame(width: SettingsListMetrics.iconSize)
+                            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
+                                Text("Keyword expansion needs Accessibility access")
+                                    .foregroundStyle(.orange)
+                                Text("Launcher search still works.")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
             }
@@ -55,9 +62,11 @@ struct SnippetsSettingsView: View {
         }
         .alert(item: $pendingDeletion) { record in
             Alert(
-                title: Text("Delete “\(record.snippet.name)”?"),
+                title: Text(String(localized: "Delete “\(record.snippet.name)”?")),
                 message: Text(
-                    "This removes \(record.fileURL.lastPathComponent) from your snippets folder."),
+                    String(
+                        localized:
+                            "This removes \(record.fileURL.lastPathComponent) from your snippets folder.")),
                 primaryButton: .destructive(Text("Delete")) {
                     delete(record)
                 },
@@ -68,7 +77,10 @@ struct SnippetsSettingsView: View {
     private var library: some View {
         Section {
             if sortedSnippets.isEmpty {
-                Text(snippetsStore.state == .loading ? "Loading snippets…" : "No snippets yet.")
+                Text(
+                    snippetsStore.state == .loading
+                        ? String(localized: "Loading snippets…") : String(localized: "No snippets yet.")
+                )
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(sortedSnippets) { record in
@@ -86,11 +98,15 @@ struct SnippetsSettingsView: View {
             }
 
             LabeledContent {
+                if settings.snippetsFolder != nil {
+                    Button("Use Default", action: core.snippetCoordinator.resetSnippetsFolder)
+                }
+                Button("Choose…", action: core.snippetCoordinator.chooseSnippetsFolder)
                 Button("Open Folder", action: core.snippetCoordinator.revealSnippetsInFinder)
-                    .accessibilityHint("Reveals this Tinycast channel’s snippets folder in Finder.")
+                    .accessibilityHint("Reveals the snippets folder in Finder.")
             } label: {
                 SettingsRowTitle(.snippetsLibrary, "Snippets Folder")
-                Text("Plain Markdown files.")
+                Text((snippetsStore.snippetsDirectory.path as NSString).abbreviatingWithTildeInPath)
             }
         } header: {
             SettingsSectionHeader(.snippetsLibrary)
@@ -114,8 +130,7 @@ struct SnippetsSettingsView: View {
         // The editor reports its own failures, so this covers the ones with no panel behind.
         if editor == nil, let operationError = snippetsStore.operationError {
             noticeSection(
-                String(localized: "The snippet operation failed"), operationError, tint: .red,
-                retryHint: nil)
+                String(localized: "The snippet operation failed"), operationError, tint: .red, retryHint: nil)
         }
     }
 
@@ -152,12 +167,14 @@ struct SnippetsSettingsView: View {
 
     private var snippetIssueMessage: String {
         let first = snippetsStore.issues[0]
-        let filename = first.fileURL.lastPathComponent
         if snippetsStore.issues.count == 1 {
-            return String(localized: "\(filename): \(first.message)")
+            return "\(first.fileURL.lastPathComponent): \(first.message)"
         }
-        return String(
-            localized: "\(filename): \(first.message) Plus \(snippetsStore.issues.count - 1) more.")
+        return
+            String(
+                localized:
+                    "\(first.fileURL.lastPathComponent): \(first.message) Plus \(snippetsStore.issues.count - 1) more."
+            )
     }
 
     private func delete(_ record: StoredSnippet) {
@@ -179,13 +196,19 @@ private struct SnippetSettingsRow: View {
     var body: some View {
         SettingsRow(title: record.snippet.name, subtitle: metadata) {
             Image(systemName: "doc.text")
+                .font(.system(size: Theme.Size.settingsRowIcon - Theme.Spacing.xs))
+                .frame(width: SettingsListMetrics.iconSize, height: SettingsListMetrics.iconSize)
         } trailing: {
+            // A disabled snippet's shortcut fires into the funnel's refusal, so it dims too.
+            ShortcutRecorder(action: .snippet(id: record.id))
+                .settingsEnabled(record.snippet.isEnabled)
+
             Button(action: onEdit) {
                 Image(systemName: "pencil")
             }
             .buttonStyle(.plain)
-            .help("Edit Snippet")
-            .accessibilityLabel("Edit \(record.snippet.name)")
+            .help(String(localized: "Edit Snippet"))
+            .accessibilityLabel(String(localized: "Edit \(record.snippet.name)"))
 
             Button(action: onDelete) {
                 Image(systemName: "trash")
@@ -193,7 +216,7 @@ private struct SnippetSettingsRow: View {
             }
             .buttonStyle(.plain)
             .help("Delete Snippet")
-            .accessibilityLabel("Delete \(record.snippet.name)")
+            .accessibilityLabel(String(localized: "Delete \(record.snippet.name)"))
         }
     }
 
@@ -234,7 +257,8 @@ private struct SnippetEditorPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.xl) {
-            SettingsEditorHeader(title: record == nil ? "Add Snippet" : "Edit Snippet")
+            SettingsEditorHeader(
+                title: record == nil ? String(localized: "Add Snippet") : String(localized: "Edit Snippet"))
 
             field(
                 title: "Name", placeholder: "Email Sign-off", text: $name,
@@ -347,7 +371,7 @@ private struct SnippetEditorPanel: View {
                 .font(.callout.weight(.medium))
             TextField(placeholder.localizedUI, text: text)
                 .settingsEditorTextField()
-                .accessibilityLabel("Snippet \(title.localizedUI)")
+                .accessibilityLabel(String(localized: "Snippet \(title.lowercased())"))
                 .accessibilityHint(hint.localizedUI)
         }
     }

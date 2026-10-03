@@ -100,7 +100,9 @@ enum MeetingActionsMenu {
             })
         if offersDetails {
             items.append(
-                PopoverMenuItem(title: "Show Details", systemImage: "info.circle", shortcut: "⌘I") {
+                PopoverMenuItem(
+                    title: String(localized: "Show Details"), systemImage: "info.circle", shortcut: "⌘I"
+                ) {
                     core.calendarCoordinator.showDetails(of: meeting)
                 })
         }

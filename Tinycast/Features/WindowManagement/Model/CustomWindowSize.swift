@@ -111,7 +111,7 @@ struct CustomWindowSize: Codable, Hashable, Identifiable, Sendable {
     /// The settings row's subtitle: what this size does, in one line.
     var summary: String {
         let base = "\(width.label) × \(height.label) · \(anchor.title)"
-        return offset == .zero ? base : "\(base) · Offset \(offset.x), \(offset.y) pt"
+        return offset == .zero ? base : String(localized: "\(base) · Offset \(offset.x), \(offset.y) pt")
     }
 
     static func id(fromEntryID entryID: String) -> UUID? {

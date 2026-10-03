@@ -191,10 +191,10 @@ private struct AIChatComposer: View {
     private var attachHelp: String {
         let can = coordinator.capabilities(for: chat)
         switch (can.images, can.documents) {
-        case (true, true): return "Attach images, PDFs or text files"
-        case (true, false): return "Attach images or text files"
-        case (false, true): return "Attach PDFs or text files"
-        case (false, false): return "Attach text files"
+        case (true, true): return String(localized: "Attach images, PDFs or text files")
+        case (true, false): return String(localized: "Attach images or text files")
+        case (false, true): return String(localized: "Attach PDFs or text files")
+        case (false, false): return String(localized: "Attach text files")
         }
     }
 
@@ -207,8 +207,8 @@ private struct AIChatComposer: View {
         }
         .buttonStyle(.borderless)
         .disabled(!chat.isStreaming && !canSend)
-        .help(chat.isStreaming ? "Stop Response" : "Send  ↵")
-        .accessibilityLabel(chat.isStreaming ? "Stop Response" : "Send")
+        .help(chat.isStreaming ? String(localized: "Stop Response") : String(localized: "Send  ↵"))
+        .accessibilityLabel(chat.isStreaming ? String(localized: "Stop Response") : String(localized: "Send"))
     }
 
     /// Return and the button are one action: Send, or Stop while a reply streams.
@@ -300,14 +300,18 @@ private struct AIReasoningPicker: View {
             }
         } label: {
             Label(
-                efforts.isEmpty ? "Reasoning" : coordinator.selectedReasoningTitle(for: chat),
+                efforts.isEmpty
+                    ? String(localized: "Reasoning") : coordinator.selectedReasoningTitle(for: chat),
                 systemImage: "brain"
             )
             .labelStyle(.titleAndIcon)
         }
         .composerPill()
         .disabled(efforts.isEmpty)
-        .help(efforts.isEmpty ? "This model has no reasoning setting" : "Change reasoning effort")
+        .help(
+            efforts.isEmpty
+                ? String(localized: "This model has no reasoning setting")
+                : String(localized: "Change reasoning effort"))
     }
 }
 
@@ -346,7 +350,8 @@ private struct AIToolsPicker: View {
             Button("MCP Settings…", action: coordinator.showMCPSettings)
         } label: {
             Label(
-                servers.isEmpty || !scope.isEnabled ? "Tools" : "\(active) of \(servers.count)",
+                servers.isEmpty || !scope.isEnabled
+                    ? String(localized: "Tools") : String(localized: "\(active) of \(servers.count)"),
                 systemImage: "wrench.and.screwdriver"
             )
             .labelStyle(.titleAndIcon)
@@ -355,8 +360,8 @@ private struct AIToolsPicker: View {
         .disabled(!takesTools)
         .help(
             takesTools
-                ? "Choose the tools this chat may call"
-                : "This model can't call tools")
+                ? String(localized: "Choose the tools this chat may call")
+                : String(localized: "This model can't call tools"))
     }
 }
 
@@ -368,7 +373,7 @@ private struct FindCounter: View {
 
     var body: some View {
         HStack(spacing: Theme.Spacing.sm) {
-            Text(count == 0 ? "No matches" : "\(position) of \(count)")
+            Text(count == 0 ? String(localized: "No matches") : String(localized: "\(position) of \(count)"))
                 .font(.callout)
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
@@ -405,7 +410,10 @@ private struct WebSearchToggle: View {
         }
         .toggleStyle(.button)
         .buttonStyle(.borderless)
-        .help(settings.webSearchEnabled ? "Web search is on" : "Web search is off")
+        .help(
+            settings.webSearchEnabled
+                ? String(localized: "Web search is on") : String(localized: "Web search is off")
+        )
         .accessibilityLabel("Web search")
     }
 }
@@ -489,16 +497,17 @@ private struct ContextCard: View {
                 }
                 section("Next message")
                 row("Model", report.modelTitle)
-                row("History", "\(bytes(report.historyBytes)) of \(bytes(report.budget))")
-                row("Messages", "\(report.sentMessages) of \(report.totalMessages)")
+                row("History", String(localized: "\(bytes(report.historyBytes)) of \(bytes(report.budget))"))
+                row("Messages", String(localized: "\(report.sentMessages) of \(report.totalMessages)"))
                 if report.stagedFiles > 0 {
                     row("Attached", "\(report.stagedFiles) · \(bytes(report.stagedBytes))")
                 }
-                row("System prompt", report.systemPrompt ? "On" : "Off")
-                row("Web search", report.webSearch ? "On" : "Off")
+                row("System prompt", report.systemPrompt ? String(localized: "On") : String(localized: "Off"))
+                row("Web search", report.webSearch ? String(localized: "On") : String(localized: "Off"))
                 row(
                     "MCP servers",
-                    report.toolServers == 0 ? "None" : "\(report.toolServers) in reach")
+                    report.toolServers == 0
+                        ? String(localized: "None") : String(localized: "\(report.toolServers) in reach"))
             }
             .font(.callout)
         }
@@ -533,19 +542,20 @@ private struct ContextCard: View {
 
     private func tokens(_ count: Int, of window: Int?) -> String {
         guard let window else { return count.formatted() }
-        return "\(count.formatted()) of \(window.formatted(.number.notation(.compactName)))"
+        return String(
+            localized: "\(count.formatted()) of \(window.formatted(.number.notation(.compactName)))")
     }
 
     private func input(_ usage: AIUsage) -> String {
         let prompt = (usage.inputTokens ?? 0) + (usage.cachedInputTokens ?? 0)
         guard let cached = usage.cachedInputTokens, cached > 0 else { return prompt.formatted() }
-        return "\(prompt.formatted()) · \(cached.formatted()) cached"
+        return String(localized: "\(prompt.formatted()) · \(cached.formatted()) cached")
     }
 
     private func output(_ usage: AIUsage) -> String {
         let output = usage.outputTokens ?? 0
         guard let thinking = usage.reasoningTokens, thinking > 0 else { return output.formatted() }
-        return "\(output.formatted()) · \(thinking.formatted()) thinking"
+        return String(localized: "\(output.formatted()) · \(thinking.formatted()) thinking")
     }
 }
 

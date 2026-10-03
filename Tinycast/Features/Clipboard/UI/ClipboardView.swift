@@ -38,7 +38,7 @@ struct ClipboardList: View {
         var currentTitle: String?
         var pinnedSlot = 0
         for item in results {
-            let title = item.isPinned ? "Pinned" : DateBucket(for: item.createdAt).title
+            let title = item.isPinned ? String(localized: "Pinned") : DateBucket(for: item.createdAt).title
             if title != currentTitle {
                 rows.append(.header(title))
                 currentTitle = title
@@ -101,11 +101,11 @@ enum DateBucket: Int {
 
     var title: String {
         switch self {
-        case .today: return "Today"
-        case .yesterday: return "Yesterday"
-        case .thisWeek: return "This Week"
-        case .thisMonth: return "This Month"
-        case .earlier: return "Earlier"
+        case .today: return String(localized: "Today")
+        case .yesterday: return String(localized: "Yesterday")
+        case .thisWeek: return String(localized: "This Week")
+        case .thisMonth: return String(localized: "This Month")
+        case .earlier: return String(localized: "Earlier")
         }
     }
 
@@ -174,11 +174,11 @@ private struct ClipboardRow: View {
         case .text:
             return String((item.text ?? "").prefix(200)).trimmingCharacters(
                 in: .whitespacesAndNewlines)
-        case .image: return "Image"
+        case .image: return String(localized: "Image")
         case .file:
             return item.filePath.map {
                 URL(filePath: $0, directoryHint: .inferFromPath).lastPathComponent
-            } ?? "File"
+            } ?? String(localized: "File")
         }
     }
 
@@ -409,7 +409,9 @@ private struct ClipboardInfoSection: View {
         case .text:
             // What the entry *is*, which is what the type filter files it under.
             let isColor = item.colorValue != nil
-            rows.append(InfoRow(label: "Type", value: isColor ? "Color" : "Text"))
+            rows.append(
+                InfoRow(
+                    label: String(localized: "Type"), value: isColor ? "Color" : String(localized: "Text")))
             // A colour's own notations are the pane above; its length is not what you came for.
             if !isColor {
                 if let characters = details.characters {
@@ -436,7 +438,9 @@ private struct ClipboardInfoSection: View {
                 InfoRow(
                     label: "Type",
                     value: details.typeName ?? ClipboardFileKind.of(path: path).title))
-            rows.append(InfoRow(label: "Path", value: (path as NSString).abbreviatingWithTildeInPath))
+            rows.append(
+                InfoRow(
+                    label: String(localized: "Path"), value: (path as NSString).abbreviatingWithTildeInPath))
             if let bytes = details.fileBytes {
                 rows.append(
                     InfoRow(

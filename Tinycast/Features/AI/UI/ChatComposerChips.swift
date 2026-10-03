@@ -22,7 +22,7 @@ struct ComposerChip: View {
             .padding(.vertical, metrics.spacing.xxs)
             .background(Capsule().fill(Theme.Colors.controlSurface))
             .tooltip("Offers only \(label)'s tools", edge: .bottom)
-            .accessibilityLabel("Addressed to \(label)")
+            .accessibilityLabel(String(localized: "Addressed to \(label)"))
     }
 }
 

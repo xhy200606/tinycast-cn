@@ -33,7 +33,7 @@ struct QuicklinkList: View {
         var rows: [Row] = []
         var currentTitle: String?
         for quicklink in results {
-            let title = quicklink.isPinned ? "Pinned" : "Quicklinks"
+            let title = quicklink.isPinned ? String(localized: "Pinned") : String(localized: "Quicklinks")
             if title != currentTitle {
                 rows.append(.header(title))
                 currentTitle = title
