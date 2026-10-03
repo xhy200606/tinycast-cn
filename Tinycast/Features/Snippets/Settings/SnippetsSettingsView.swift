@@ -19,26 +19,19 @@ struct SnippetsSettingsView: View {
                 isEnabled: Binding(
                     get: { settings.snippetsEnabled },
                     set: { core.snippetCoordinator.setSnippetsEnabled($0) }),
-                showsInLauncher: $settings.snippetsShowInLauncher,
-                showsIcon: true,
-                showsHeader: false)
+                showsInLauncher: $settings.snippetsShowInLauncher)
 
             if settings.snippetsEnabled, core.snippetListener.status == .needsAccessibility {
                 Section {
                     LabeledContent {
                         Button("Grant Access…") { Permissions.openAccessibilitySettings() }
                     } label: {
-                        HStack(alignment: .center, spacing: Theme.Spacing.lg) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.orange)
-                                .frame(width: SettingsListMetrics.iconSize)
-                            VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
-                                Text("Keyword expansion needs Accessibility access")
-                                    .foregroundStyle(.orange)
-                                Text("Launcher search still works.")
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
+                        Label(
+                            "Keyword expansion needs Accessibility access.",
+                            systemImage: "exclamationmark.triangle"
+                        )
+                        .foregroundStyle(.orange)
+                        Text("Launcher search still works.")
                     }
                 }
             }
@@ -93,15 +86,11 @@ struct SnippetsSettingsView: View {
             }
 
             LabeledContent {
-                if settings.snippetsFolder != nil {
-                    Button("Use Default", action: core.snippetCoordinator.resetSnippetsFolder)
-                }
-                Button("Choose…", action: core.snippetCoordinator.chooseSnippetsFolder)
                 Button("Open Folder", action: core.snippetCoordinator.revealSnippetsInFinder)
-                    .accessibilityHint("Reveals the snippets folder in Finder.")
+                    .accessibilityHint("Reveals this Tinycast channel’s snippets folder in Finder.")
             } label: {
                 SettingsRowTitle(.snippetsLibrary, "Snippets Folder")
-                Text((snippetsStore.snippetsDirectory.path as NSString).abbreviatingWithTildeInPath)
+                Text("Plain Markdown files.")
             }
         } header: {
             SettingsSectionHeader(.snippetsLibrary)
@@ -112,7 +101,7 @@ struct SnippetsSettingsView: View {
     private var libraryNotices: some View {
         if case .failed(let message) = snippetsStore.state {
             noticeSection(
-                "Couldn’t load the snippet library", message, tint: .orange,
+                String(localized: "Couldn’t load the snippet library"), message, tint: .orange,
                 retryHint: "Tries to load the snippet library again.")
         }
 
@@ -125,7 +114,8 @@ struct SnippetsSettingsView: View {
         // The editor reports its own failures, so this covers the ones with no panel behind.
         if editor == nil, let operationError = snippetsStore.operationError {
             noticeSection(
-                "The snippet operation failed", operationError, tint: .red, retryHint: nil)
+                String(localized: "The snippet operation failed"), operationError, tint: .red,
+                retryHint: nil)
         }
     }
 
@@ -156,16 +146,18 @@ struct SnippetsSettingsView: View {
     private var snippetIssueTitle: String {
         let count = snippetsStore.issues.count
         return count == 1
-            ? "1 snippet file couldn’t be loaded" : "\(count) snippet files couldn’t be loaded"
+            ? String(localized: "1 snippet file couldn’t be loaded")
+            : String(localized: "\(count) snippet files couldn’t be loaded")
     }
 
     private var snippetIssueMessage: String {
         let first = snippetsStore.issues[0]
+        let filename = first.fileURL.lastPathComponent
         if snippetsStore.issues.count == 1 {
-            return "\(first.fileURL.lastPathComponent): \(first.message)"
+            return String(localized: "\(filename): \(first.message)")
         }
-        return
-            "\(first.fileURL.lastPathComponent): \(first.message) Plus \(snippetsStore.issues.count - 1) more."
+        return String(
+            localized: "\(filename): \(first.message) Plus \(snippetsStore.issues.count - 1) more.")
     }
 
     private func delete(_ record: StoredSnippet) {
@@ -187,13 +179,7 @@ private struct SnippetSettingsRow: View {
     var body: some View {
         SettingsRow(title: record.snippet.name, subtitle: metadata) {
             Image(systemName: "doc.text")
-                .font(.system(size: Theme.Size.settingsRowIcon - Theme.Spacing.xs))
-                .frame(width: SettingsListMetrics.iconSize, height: SettingsListMetrics.iconSize)
         } trailing: {
-            // A disabled snippet's shortcut fires into the funnel's refusal, so it dims too.
-            ShortcutRecorder(action: .snippet(id: record.id))
-                .settingsEnabled(record.snippet.isEnabled)
-
             Button(action: onEdit) {
                 Image(systemName: "pencil")
             }
@@ -357,12 +343,12 @@ private struct SnippetEditorPanel: View {
         title: String, placeholder: String, text: Binding<String>, hint: String
     ) -> some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            Text(title)
+            Text(title.localizedUI)
                 .font(.callout.weight(.medium))
-            TextField(placeholder, text: text)
+            TextField(placeholder.localizedUI, text: text)
                 .settingsEditorTextField()
-                .accessibilityLabel("Snippet \(title.lowercased())")
-                .accessibilityHint(hint)
+                .accessibilityLabel("Snippet \(title.localizedUI)")
+                .accessibilityHint(hint.localizedUI)
         }
     }
 
@@ -371,8 +357,8 @@ private struct SnippetEditorPanel: View {
     ) -> some View {
         Toggle(isOn: isOn) {
             VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
-                Text(title)
-                Text(detail)
+                Text(title.localizedUI)
+                Text(detail.localizedUI)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
