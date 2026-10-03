@@ -41,3 +41,21 @@ test("conditional UI labels check both states without mistaking SF Symbols for t
     "Unpin Chat", "Pin Chat", "Enable", "Disable",
   ]);
 });
+
+test("settings controls cover labels across nested bindings and preserve identifiers", () => {
+  const source = 'SettingsRow(title: "Window mode", subtitle: "Choose how it opens.", anchor: .general) { Image("preview") }\n'
+    + 'SettingsRowTitle(.generalSearch, "Show suggestions")\n'
+    + 'SettingsFeatureToggleLabel(anchor: .system, title: "Enable System Settings", subtitle: "Off hides them.")\n'
+    + 'FeatureSwitchSection(anchor: .ai, enableTitle: "Enable AI", enableSubtitle: "Chat here.", isEnabled: Binding(get: { true }, set: { _ in }))\n'
+    + 'SettingsEditorHeader(title: "Edit", subtitle: "Details")\n'
+    + 'SettingsFilterField(prompt: "Search layouts…", query: $query)\n'
+    + 'HeaderMenuButton(title: "All", systemImage: "gear", isOpen: false, help: "Choose category", action: {})\n'
+    + '.navigationTitle("Settings")\n'
+    + '/* nested /* SettingsRowTitle(.ai, "ignored") */ */\n'
+    + 'let payload = Message(title: "user content", subtitle: "protocol")';
+  assert.deepEqual(localizedLiterals(source).map((item) => item.value), [
+    "Window mode", "Choose how it opens.", "Show suggestions", "Enable System Settings",
+    "Off hides them.", "Enable AI", "Chat here.", "Edit", "Details", "Search layouts…",
+    "All", "Choose category", "Settings",
+  ]);
+});

@@ -16,7 +16,7 @@ struct LauncherCategorySwitchSection: View {
                 )
             ) {
                 SettingsFeatureToggleLabel(
-                    anchor: anchor, title: String(localized: "Enable \(anchor.title)"),
+                    anchor: anchor, title: String(localized: "Enable \(anchor.title.localizedUI)"),
                     subtitle: "Off hides all of them and stops their shortcuts.")
             }
         }

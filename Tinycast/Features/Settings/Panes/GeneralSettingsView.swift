@@ -27,7 +27,7 @@ struct GeneralSettingsView: View {
     /// The missing-permission half is its own row, so it can carry the button that fixes it.
     private var hyperSubtitle: String {
         guard settings.hyperKey != .none else { return String(localized: "Remap one key to \(hyperGlyphs) held together.") }
-        return String(localized: "\(settings.hyperKey.title) sends \(hyperGlyphs), shown as ✦ in shortcuts.")
+        return String(localized: "\(settings.hyperKey.title.localizedUI) sends \(hyperGlyphs), shown as ✦ in shortcuts.")
     }
 
     var body: some View {
@@ -138,7 +138,7 @@ struct GeneralSettingsView: View {
                         Text("Trigger Escape").tag(HyperKeyQuickPress.escape)
                     } label: {
                         SettingsRowTitle(.generalHyperKey, "Quick Press")
-                        Text(String(localized: "When \(settings.hyperKey.title) is pressed alone."))
+                        Text(String(localized: "When \(settings.hyperKey.title.localizedUI) is pressed alone."))
                     }
                 }
 
@@ -172,7 +172,7 @@ struct GeneralSettingsView: View {
                 }
                 Picker(selection: $settings.rootSearchSensitivity) {
                     ForEach(SearchSensitivity.allCases) { sensitivity in
-                        Text(sensitivity.title).tag(sensitivity)
+                        Text(sensitivity.title.localizedUI).tag(sensitivity)
                     }
                 } label: {
                     SettingsRowTitle(.generalSearch, "Search sensitivity")
@@ -230,8 +230,8 @@ private struct WindowModeRow: View {
             subtitleLineLimit: 2, alignment: .top, anchor: .generalAppearance
         ) {
             HStack(spacing: Theme.Spacing.md) {
-                option("Compact", image: "WindowModeCompact", compact: true)
-                option("Expanded", image: "WindowModeExpanded", compact: false)
+                option("Compact".localizedUI, image: "WindowModeCompact", compact: true)
+                option("Expanded".localizedUI, image: "WindowModeExpanded", compact: false)
             }
         }
     }
@@ -250,7 +250,7 @@ private struct WindowModeRow: View {
                         RoundedRectangle(cornerRadius: Theme.Radius.barControl, style: .continuous)
                     )
                     .saturation(selected ? 1 : 0)
-                Text(title)
+                Text(title.localizedUI)
                     .font(.caption)
                     .fontWeight(selected ? .semibold : .regular)
                     .foregroundStyle(selected ? Color.primary : Color.secondary)
@@ -258,7 +258,7 @@ private struct WindowModeRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(WindowModeButtonStyle())
-        .accessibilityLabel(title)
+        .accessibilityLabel(title.localizedUI)
         .accessibilityAddTraits(selected ? [.isSelected] : [])
     }
 }

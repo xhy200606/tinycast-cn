@@ -79,8 +79,69 @@ function swiftStrings(source) {
   return result;
 }
 
+function customUILiterals(source, strings) {
+  const fields = {
+    SettingsRow: ["title", "subtitle"],
+    SettingsFeatureToggleLabel: ["title", "subtitle"],
+    SettingsEditorHeader: ["title", "subtitle"],
+    SettingsEditorField: ["title"],
+    SettingsFilterField: ["prompt"],
+    FeatureSwitchSection: ["enableTitle", "enableSubtitle"],
+    HeaderMenuButton: ["title", "help"],
+    PopoverMenuItem: ["title", "detail"],
+  };
+  const byStart = new Map(strings.map((literal) => [literal.start, literal]));
+  const stack = [];
+  const found = new Set();
+  for (let index = 0; index < source.length; index++) {
+    if (source.startsWith("//", index)) {
+      const end = source.indexOf("\n", index);
+      index = end < 0 ? source.length : end;
+      continue;
+    }
+    if (source.startsWith("/*", index)) {
+      let depth = 1;
+      index += 2;
+      while (index < source.length && depth) {
+        if (source.startsWith("/*", index)) { depth++; index += 2; }
+        else if (source.startsWith("*/", index)) { depth--; index += 2; }
+        else index++;
+      }
+      index--;
+      continue;
+    }
+    const literal = byStart.get(index);
+    if (literal) {
+      const frame = stack.at(-1);
+      if (frame?.delimiter === "(") {
+        const argument = source.slice(frame.argumentStart, index).trim();
+        const field = /^(\w+):\s*$/.exec(argument)?.[1];
+        if (fields[frame.name]?.includes(field)
+          || (frame.name === "SettingsRowTitle" && frame.argumentIndex === 1 && !argument)) {
+          found.add(index);
+        }
+      }
+      index = literal.end - 1;
+      continue;
+    }
+    const character = source[index];
+    if ("([{".includes(character)) {
+      stack.push({ delimiter: character,
+        name: /(\w+)\s*$/.exec(source.slice(Math.max(0, index - 150), index))?.[1],
+        argumentStart: index + 1, argumentIndex: 0 });
+    } else if (")]}".includes(character)) {
+      stack.pop();
+    } else if (character === "," && stack.length) {
+      stack.at(-1).argumentStart = index + 1;
+      stack.at(-1).argumentIndex++;
+    }
+  }
+  return found;
+}
+
 function localizedLiterals(source) {
   const strings = swiftStrings(source);
+  const customUI = customUILiterals(source, strings);
   const joined = [];
   for (let i = 0; i < strings.length; i++) {
     const literal = { ...strings[i] };
@@ -96,9 +157,10 @@ function localizedLiterals(source) {
   return joined.filter((literal) => {
     const prefix = source.slice(Math.max(0, literal.start - 150), literal.start);
     const suffix = source.slice(literal.end, literal.end + 40);
-    return /String\(\s*localized:\s*$/.test(prefix)
+    return customUI.has(literal.start)
+      || /String\(\s*localized:\s*$/.test(prefix)
       || /\b(?:Text|Button|Label|Toggle|Section|Picker|TextField|GroupBox|LabeledContent)\(\s*$/.test(prefix)
-      || /\.(?:help|accessibilityLabel|accessibilityValue)\(\s*$/.test(prefix)
+      || /\.(?:help|accessibilityLabel|accessibilityValue|navigationTitle)\(\s*$/.test(prefix)
       || /(?:\b(?:Text|Button|Label|Toggle|Picker)|\.(?:help|accessibilityLabel|accessibilityValue))\([^;{},]*\?(?:[^;{},]*:)?\s*$/.test(prefix)
       || /^\s*\)?\.localizedUI\b/.test(suffix);
   });

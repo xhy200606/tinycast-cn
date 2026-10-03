@@ -19,12 +19,12 @@ struct SteadySegmentedPicker<Value: Hashable>: NSViewRepresentable {
 
     func makeNSView(context: Context) -> NSSegmentedControl {
         let control = NSSegmentedControl(
-            labels: options.map(\.title), trackingMode: .selectOne,
+            labels: options.map { $0.title.localizedUI }, trackingMode: .selectOne,
             target: context.coordinator, action: #selector(Coordinator.changed(_:)))
-        control.setAccessibilityLabel(title)
+        control.setAccessibilityLabel(title.localizedUI)
         let font = control.font ?? .systemFont(ofSize: NSFont.systemFontSize)
         for (index, option) in options.enumerated() {
-            let label = (option.title as NSString).size(withAttributes: [.font: font]).width
+            let label = (option.title.localizedUI as NSString).size(withAttributes: [.font: font]).width
             control.setWidth(
                 (label + Theme.Size.segmentLabelInset * 2).rounded(.up), forSegment: index)
         }

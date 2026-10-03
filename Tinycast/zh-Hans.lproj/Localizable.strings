@@ -1913,7 +1913,7 @@
 "Conversations stay on this Mac, outside settings backups." = "对话仅保存在本机，不包含在设置备份中。";
 "Default Browser" = "默认浏览器";
 "Drag the strip above the search field." = "拖动搜索栏上方的区域。";
-"Expanded" = "已展开";
+"Expanded" = "展开";
 "Finds the join link for your next meeting." = "查找下一场会议的加入链接。";
 "For links that use {selection}." = "用于包含 {selection} 的链接。";
 "Formats as you type." = "输入时自动格式化。";
@@ -2515,3 +2515,17 @@
 "%@ · %lld failed" = "%@ · %lld 项失败";
 
 "The credentials could not be removed from your login Keychain." = "无法从登录钥匙串中移除凭据。";
+
+"Window mode" = "窗口模式";
+"Choose how the launcher opens." = "选择启动器的打开方式。";
+"Compact" = "紧凑";
+"Show suggestions" = "显示建议";
+"Search sensitivity" = "搜索灵敏度";
+"Filter models" = "筛选模型";
+"Switch AI model  ⌘P" = "切换 AI 模型  ⌘P";
+"Open saved links and searches from the launcher." = "从启动器打开保存的链接与搜索。";
+"Search layouts…" = "搜索布局…";
+"Filter by category  ⌘P" = "按类别筛选  ⌘P";
+"Not available on this Mac." = "此 Mac 不支持。";
+"Checking…" = "正在检查…";
+"Missing" = "缺失";

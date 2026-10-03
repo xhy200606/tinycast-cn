@@ -112,7 +112,7 @@ final class AppWindowController: NSObject, NSWindowDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = title
+        window.title = title.localizedUI
         window.closesOnEscape = closesOnEscape
         // Edge-to-edge under a transparent titlebar, so it reads as one surface.
         window.titlebarAppearsTransparent = true

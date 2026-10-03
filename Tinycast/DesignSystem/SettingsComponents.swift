@@ -40,7 +40,7 @@ struct SettingsFeatureToggleLabel: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
                 SettingsRowTitle(anchor, title)
                     .fontWeight(.semibold)
-                Text(subtitle)
+                Text(subtitle.localizedUI)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -202,10 +202,10 @@ struct SettingsEditorHeader: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.sm) {
-            Text(title)
+            Text(title.localizedUI)
                 .font(Theme.Typography.panelTitle)
             if let subtitle {
-                Text(subtitle)
+                Text(subtitle.localizedUI)
                     .font(Theme.Typography.rowTitle)
                     .foregroundStyle(Theme.Colors.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)

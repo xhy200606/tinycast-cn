@@ -15,7 +15,7 @@ struct PermissionsSettingsView: View {
                         HStack(spacing: Theme.Spacing.xs) {
                             Image(systemName: accessibilityStatus.symbol)
                                 .accessibilityHidden(true)
-                            Text(accessibilityStatus.title)
+                            Text(accessibilityStatus.title.localizedUI)
                         }
                         .foregroundStyle(accessibilityStatus.tint)
                         Button(accessibilityTrusted ? String(localized: "Open…") : String(localized: "Grant Access…")) {
@@ -46,7 +46,7 @@ struct PermissionsSettingsView: View {
                         HStack(spacing: Theme.Spacing.xs) {
                             Image(systemName: calendarStatus.symbol)
                                 .accessibilityHidden(true)
-                            Text(calendarStatus.title)
+                            Text(calendarStatus.title.localizedUI)
                         }
                         .foregroundStyle(calendarStatus.tint)
                         Button(calendarNeedsPrompt ? String(localized: "Grant Access…") : String(localized: "Open…")) {

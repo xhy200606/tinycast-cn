@@ -102,7 +102,8 @@ struct AIProvidersPanel: View {
                 onCancel: { editor = nil })
         }
         .confirmationDialog(
-            pendingRemoval.map { "Remove “\($0.title)”?" } ?? String(localized: "Remove connection?"),
+            pendingRemoval.map { String(localized: "Remove “\($0.title)”?") }
+                ?? String(localized: "Remove connection?"),
             isPresented: removalPresented,
             titleVisibility: .visible
         ) {
@@ -294,7 +295,7 @@ struct AIProvidersPanel: View {
                 Text(
                     available
                         ? String(localized: "Runs on this Mac. Nothing leaves it.")
-                        : AppleIntelligenceProvider.status().message ?? "Not available on this Mac.")
+                        : AppleIntelligenceProvider.status().message ?? String(localized: "Not available on this Mac."))
             }
         } header: {
             Text("Status")
@@ -386,9 +387,9 @@ struct AIProvidersPanel: View {
                 }
             }
             if let limits = subscription.rateLimits {
-                if let primary = limits.primary { usageRow(primary, fallbackTitle: "Primary window") }
+                if let primary = limits.primary { usageRow(primary, fallbackTitle: String(localized: "Primary window")) }
                 if let secondary = limits.secondary {
-                    usageRow(secondary, fallbackTitle: "Secondary window")
+                    usageRow(secondary, fallbackTitle: String(localized: "Secondary window"))
                 }
             }
             if let executable = subscription.executable { commandRow(executable) }
@@ -680,7 +681,7 @@ struct AIProvidersPanel: View {
         case .appleIntelligence:
             guard settings.isRouteEnabled(.appleIntelligence) else { return String(localized: "Off") }
             return settings.isAppleIntelligenceAvailable()
-                ? String(localized: "Ready · Runs on this Mac") : "Unavailable"
+                ? String(localized: "Ready · Runs on this Mac") : String(localized: "Unavailable")
         case .installed(let kind):
             guard settings.enabledInstalledProviders.contains(kind) else { return String(localized: "Off") }
             return kind == .codex ? codexCaption : installedCaption(kind)
@@ -695,7 +696,7 @@ struct AIProvidersPanel: View {
 
     private var codexCaption: String {
         switch subscription.phase {
-        case .idle, .starting: return "Checking…"
+        case .idle, .starting: return String(localized: "Checking…")
         case .signedOut: return String(localized: "Sign in required")
         case .unavailable: return String(localized: "Not installed")
         case .failed: return String(localized: "Check failed")
@@ -711,7 +712,7 @@ struct AIProvidersPanel: View {
     private func installedCaption(_ kind: InstalledAIKind) -> String {
         let status = installedAI.status(for: kind)
         switch status.phase {
-        case .idle, .checking: return "Checking…"
+        case .idle, .checking: return String(localized: "Checking…")
         case .ready: return String(localized: "Ready · ") + modelCount(status.models.count)
         case .signInRequired: return String(localized: "Sign in required")
         case .notInstalled: return String(localized: "Not installed")
@@ -737,7 +738,7 @@ struct AIProvidersPanel: View {
     }
 
     private func modelCount(_ count: Int) -> String {
-        count == 1 ? String(localized: "1 model") : "\(count) models"
+        count == 1 ? String(localized: "1 model") : String(localized: "\(count) models")
     }
 
     // MARK: - Actions
@@ -782,7 +783,7 @@ struct AIProvidersPanel: View {
     private func keyStatus(_ connection: AIConnection) -> String {
         if keyStatuses[connection.id] == true { return String(localized: "Stored in Keychain") }
         return AIEndpointPolicy.isLoopback(connection.baseURL)
-            ? String(localized: "None needed locally") : "Missing"
+            ? String(localized: "None needed locally") : String(localized: "Missing")
     }
 
     private func edit(_ connection: AIConnection) {
@@ -815,7 +816,7 @@ struct AIProvidersPanel: View {
             keyError = true
             return isNew
                 ? String(localized: "The key could not be saved to Keychain.")
-                : "The saved key could not be updated in Keychain."
+                : String(localized: "The saved key could not be updated in Keychain.")
         }
     }
 
@@ -839,9 +840,9 @@ struct AIProvidersPanel: View {
         _ window: ChatGPTSubscription.UsageWindow, fallback: String
     ) -> String {
         guard let minutes = window.durationMinutes else { return fallback }
-        if minutes >= 1_440 { return "\(minutes / 1_440)-day window" }
-        if minutes >= 60 { return "\(minutes / 60)-hour window" }
-        return "\(minutes)-minute window"
+        if minutes >= 1_440 { return String(localized: "\(minutes / 1_440)-day window") }
+        if minutes >= 60 { return String(localized: "\(minutes / 60)-hour window") }
+        return String(localized: "\(minutes)-minute window")
     }
 
     private func loadKeyStatuses() {

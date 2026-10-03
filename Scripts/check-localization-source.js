@@ -12,12 +12,35 @@ const table = JSON.parse(execFileSync("plutil", [
 const known = new Set(Object.keys(table).map(signature));
 const problems = [];
 let checked = 0;
+const runtimeLabels = {
+  "Tinycast/DesignSystem/SettingsComponents.swift": ["title", "subtitle"],
+  "Tinycast/DesignSystem/BarButton.swift": ["title"],
+  "Tinycast/DesignSystem/SteadySegmentedPicker.swift": ["title"],
+  "Tinycast/Features/Settings/Panes/GeneralSettingsView.swift": ["title", "sensitivity.title"],
+  "Tinycast/Features/Settings/Panes/PermissionsSettingsView.swift": ["accessibilityStatus.title", "calendarStatus.title"],
+  "Tinycast/Features/Settings/SettingsRootView.swift": ["navigation.tab.title"],
+};
 function visit(folder) {
   for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
     const file = path.join(folder, entry.name);
     if (entry.isDirectory()) { visit(file); continue; }
     if (!file.endsWith(".swift") || file.endsWith(".generated.swift")) continue;
     const source = fs.readFileSync(file, "utf8");
+    const relative = path.relative(root, file);
+    for (const expression of runtimeLabels[relative] ?? []) {
+      const escaped = expression.replaceAll(".", "\\.");
+      if (new RegExp("(?:Text|navigationTitle|accessibilityLabel|setAccessibilityLabel)\\(\\s*" + escaped + "\\s*\\)").test(source)) {
+        problems.push(`${relative}: runtime UI label ${expression} bypasses localization.`);
+      }
+    }
+    if (relative === "Tinycast/DesignSystem/SteadySegmentedPicker.swift"
+      && source.includes("options.map(\\.title)")) {
+      problems.push(`${relative}: native segment labels bypass localization.`);
+    }
+    if (relative === "Tinycast/Features/Launcher/Settings/LauncherItemsSection.swift"
+      && source.includes('"Enable \\(anchor.title)"')) {
+      problems.push(`${relative}: Enable label interpolates an untranslated feature name.`);
+    }
     if (/String\(\s*localized:\s*String\(\s*localized:/.test(source)) {
       problems.push(`${path.relative(root, file)}: nested String(localized:) uses an already localized value.`);
     }

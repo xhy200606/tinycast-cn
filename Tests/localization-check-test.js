@@ -34,6 +34,21 @@ test("localization gate rejects missing keys and known rendering regressions", (
       encoding: "utf8",
     });
     assert.equal(sourceCheck().status, 0);
+    for (const [name, before, after, expected] of [
+      ["Features/Settings/SettingsRootView.swift", "navigationTitle(navigation.tab.title.localizedUI)", "navigationTitle(navigation.tab.title)", "runtime UI label navigation.tab.title"],
+      ["DesignSystem/SettingsComponents.swift", "Text(subtitle.localizedUI)", "Text(subtitle)", "runtime UI label subtitle"],
+      ["Features/Launcher/Settings/LauncherItemsSection.swift", '"Enable \\(anchor.title.localizedUI)"', '"Enable \\(anchor.title)"', "untranslated feature name"],
+      ["DesignSystem/SteadySegmentedPicker.swift", "options.map { $0.title.localizedUI }", "options.map(\\.title)", "native segment labels"],
+    ]) {
+      const file = path.join(fixture, "Tinycast", name);
+      const original = fs.readFileSync(file, "utf8");
+      assert.ok(original.includes(before), name);
+      fs.writeFileSync(file, original.replace(before, after));
+      const result = sourceCheck();
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.ok(result.stderr.includes(expected), result.stderr);
+      fs.writeFileSync(file, original);
+    }
     const newView = path.join(fixture, "Tinycast/SourceGateFixture.swift");
     fs.writeFileSync(newView, 'Text("NEW_UNTRANSLATED_UI_SENTENCE")');
     assert.equal(sourceCheck().status, 1);
