@@ -86,9 +86,9 @@ struct NoteFormattingBar: View {
                     NoteBarGlyph(name: control.symbol)
                 }
                 .focusable(false)
-                .accessibilityLabel(control.title)
+                .accessibilityLabel(control.title.localizedUI)
                 .accessibilityAddTraits(lit ? .isSelected : [])
-                .tooltip("\(control.title)  \(control.shortcut)")
+                .tooltip("\(control.title.localizedUI)  \(control.shortcut)")
             }
         }
     }
@@ -107,7 +107,7 @@ private struct NoteFormattingToggle: View {
         .accessibilityLabel("Formatting")
         .accessibilityValue(isExpanded ? "Expanded" : "Collapsed")
         // Against the window's trailing edge, so a centred label would run off it.
-        .tooltip("Formatting  ⌥⌘T", alignment: .trailing)
+        .tooltip("\("Formatting".localizedUI)  ⌥⌘T", alignment: .trailing)
     }
 }
 

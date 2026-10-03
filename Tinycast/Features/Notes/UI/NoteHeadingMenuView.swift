@@ -59,7 +59,7 @@ private struct NoteHeadingMenuRow: View {
                     .foregroundStyle(Theme.Colors.menuSymbol)
                     .opacity(isCurrent ? 1 : 0)
                     .frame(width: Theme.Size.menuIcon, height: Theme.Size.menuIcon)
-                Text(title)
+                Text(title.localizedUI)
                     .font(Theme.Typography.menuRow)
                     .lineLimit(1)
                 Spacer(minLength: Theme.Spacing.sm)
@@ -82,7 +82,7 @@ private struct NoteHeadingMenuRow: View {
         .buttonStyle(.plain)
         .focusable(false)
         .onHover { hovered = $0 }
-        .accessibilityLabel(title)
+        .accessibilityLabel(title.localizedUI)
         .accessibilityAddTraits(isCurrent ? .isSelected : [])
     }
 }

@@ -12,13 +12,13 @@ struct NotesRepository: Sendable {
         var errorDescription: String? {
             switch self {
             case .invalidTitle(let title):
-                return "“\(title)” can't be used as a note title."
+                return String(localized: "“\(title)” can't be used as a note title.")
             case .unreadable(let fileURL):
-                return "The note isn't valid UTF-8. (\(fileURL.lastPathComponent))"
+                return String(localized: "The note isn't valid UTF-8. (\(fileURL.lastPathComponent))")
             case .invalidLocation(let fileURL):
-                return "The note file is outside the notes folder. (\(fileURL.path))"
+                return String(localized: "The note file is outside this Tinycast channel. (\(fileURL.path))")
             case .io(let fileURL, let message):
-                return "Could not access \(fileURL.path): \(message)"
+                return String(localized: "Could not access \(fileURL.path): \(message)")
             }
         }
     }
@@ -27,12 +27,13 @@ struct NotesRepository: Sendable {
     private let trashOperation: TrashOperation
 
     init(
-        notesDirectory: URL,
+        applicationSupportDirectory: URL,
         trashOperation: @escaping TrashOperation = { url in
             try FileManager.default.trashItem(at: url, resultingItemURL: nil)
         }
     ) {
-        self.notesDirectory = notesDirectory
+        notesDirectory = applicationSupportDirectory.appendingPathComponent(
+            "Notes", isDirectory: true)
         self.trashOperation = trashOperation
     }
 
@@ -89,7 +90,7 @@ struct NotesRepository: Sendable {
         }
     }
 
-    func create(title: String = "Untitled") throws(Failure) -> NoteDocument {
+    func create(title: String = String(localized: "Untitled")) throws(Failure) -> NoteDocument {
         try mappedError(at: notesDirectory) {
             let url = try claimUniqueURL(base: try validatedTitle(title)) {
                 try writeNewFileAtomically(Data(), to: $0)
