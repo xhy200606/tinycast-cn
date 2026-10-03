@@ -53,7 +53,7 @@ struct AIConnectionEditorPanel: View {
                     editorField("Provider") {
                         Picker("Provider", selection: $connection.provider) {
                             ForEach(AIProviderKind.allCases) { provider in
-                                Text(provider.title).tag(provider)
+                                Text(provider.title.localizedUI).tag(provider)
                             }
                         }
                         .labelsHidden()
@@ -75,15 +75,15 @@ struct AIConnectionEditorPanel: View {
                             .foregroundStyle(.secondary)
                     } else if target.hasStoredKey {
                         Label(
-                            "The saved key stays with the endpoint it was saved for. "
-                                + "Enter a key for this one.",
+                            ("The saved key stays with the endpoint it was saved for. "
+                                + "Enter a key for this one.").localizedUI,
                             systemImage: "exclamationmark.triangle"
                         )
                         .font(.caption)
                         .foregroundStyle(.orange)
                     }
                     if let error {
-                        Text(error).foregroundStyle(.orange)
+                        Text(error.localizedUI).foregroundStyle(.orange)
                     }
                 }
 
@@ -102,8 +102,8 @@ struct AIConnectionEditorPanel: View {
                     }
                 } footer: {
                     Text(
-                        "Search the models available to this key and add one or more. Exact model "
-                            + "IDs remain available when discovery is unsupported."
+                        ("Search the models available to this key and add one or more. Exact model "
+                            + "IDs remain available when discovery is unsupported.").localizedUI
                     )
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -169,7 +169,7 @@ struct AIConnectionEditorPanel: View {
                 editorField("Find a model") {
                     TextField(
                         "Find a model", text: $modelQuery,
-                        prompt: Text(modelSearchPlaceholder)
+                        prompt: Text(modelSearchPlaceholder.localizedUI)
                     )
                     .settingsEditorTextField()
                     .onSubmit { addExactMatch(from: models) }
@@ -180,7 +180,7 @@ struct AIConnectionEditorPanel: View {
             LabeledContent {
                 Button("Try Again") { discoveryRevision += 1 }
             } label: {
-                Label(message, systemImage: "exclamationmark.triangle")
+                Label(message.localizedUI, systemImage: "exclamationmark.triangle")
                     .foregroundStyle(.orange)
             }
             ForEach(connection.models, id: \.self) { model in
@@ -237,7 +237,7 @@ struct AIConnectionEditorPanel: View {
 
     private var manualModelField: some View {
         editorField("Model ID") {
-            TextField("Model ID", text: $modelQuery, prompt: Text(modelPlaceholder))
+            TextField("Model ID", text: $modelQuery, prompt: Text(modelPlaceholder.localizedUI))
                 .settingsEditorTextField()
                 .onSubmit(addManualModel)
         }

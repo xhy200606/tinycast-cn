@@ -79,7 +79,7 @@ struct AISettingsView: View {
         } header: {
             SettingsSectionHeader(.aiDefault)
         } footer: {
-            Text(defaultModelFooter)
+            Text(defaultModelFooter.localizedUI)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -108,7 +108,9 @@ struct AISettingsView: View {
         }
         if !settings.connections.isEmpty {
             let count = settings.connections.count
-            providers.append(count == 1 ? "1 API connection" : "\(count) API connections")
+            providers.append(count == 1
+                ? String(localized: "1 API connection")
+                : String(localized: "\(count) API connections"))
         }
         return providers.isEmpty ? "No external providers ready" : providers.joined(separator: ", ")
     }
@@ -141,19 +143,19 @@ struct AISettingsView: View {
         @Bindable var settings = settings
         return Section {
             Picker(selection: $settings.opensTo) {
-                ForEach(AIOpensTo.allCases) { Text($0.title).tag($0) }
+                ForEach(AIOpensTo.allCases) { Text($0.title.localizedUI).tag($0) }
             } label: {
                 SettingsRowTitle(.aiConversations, "Quick AI opens to")
             }
             if settings.opensTo == .recent {
                 Picker(selection: $settings.newChatAfter) {
-                    ForEach(AINewChatAfter.allCases) { Text($0.title).tag($0) }
+                    ForEach(AINewChatAfter.allCases) { Text($0.title.localizedUI).tag($0) }
                 } label: {
                     SettingsRowTitle(.aiConversations, "Start a new conversation after")
                 }
             }
             Picker(selection: $settings.retention) {
-                ForEach(AIRetention.allCases) { Text($0.title).tag($0) }
+                ForEach(AIRetention.allCases) { Text($0.title.localizedUI).tag($0) }
             } label: {
                 SettingsRowTitle(.aiConversations, "Keep conversations")
                 Text("Older ones are deleted, except pinned chats.")
