@@ -38,7 +38,7 @@ private struct ChoiceRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: metrics.spacing.sm) {
-            Text(label)
+            Text(label.localizedUI)
                 .font(metrics.typography.rowTrailing)
                 .foregroundStyle(Theme.Colors.textSecondary)
                 .fixedSize()

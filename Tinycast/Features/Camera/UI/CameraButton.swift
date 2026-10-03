@@ -14,7 +14,7 @@ struct CameraButton: View {
     let onActivate: () -> Void
 
     var body: some View {
-        Button(title, action: onActivate)
+        Button(title.localizedUI, action: onActivate)
             .buttonStyle(.modalAction(role, fillsWidth: false))
             .tooltip(keyCap: keyCap)
     }

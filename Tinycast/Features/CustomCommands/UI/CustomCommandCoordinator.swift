@@ -203,8 +203,9 @@ final class CustomCommandCoordinator {
                     // Neutral, not destructive: their own command just wants a second tap.
                     await core.confirm(
                         title: command.name,
-                        message: "Are you sure you want to run this command?\n\n\(command.command)",
-                        symbol: command.symbol, confirmTitle: "Run",
+                        message: String(
+                            localized: "Are you sure you want to run this command?\n\n\(command.command)"), 
+                        symbol: command.symbol, confirmTitle: String(localized: "Run"),
                         tone: .neutral, confirmRole: .standard)
                 else { return }
             }
@@ -273,26 +274,29 @@ final class CustomCommandCoordinator {
         guard !result.succeeded else {
             // What the command said beats a bare "it ran"; on finish, so a slow one reports late.
             if command.showsConfirmation {
-                core.showMessage(result.lastOutputLine ?? "Ran \(command.name)")
+                core.showMessage(result.lastOutputLine ?? String(localized: "Ran \(command.name)"))
             }
             return
         }
         let hint = shellEnvironmentHint(command: command, result: result)
         guard
             await core.reportFailure(
-                title: "“\(command.name)” Failed",
+                title: String(localized: "“\(command.name)” Failed"),
                 message: failureMessage(command: command, result: result),
-                symbol: command.symbol, recovery: hint == nil ? nil : "Open Settings…")
+                symbol: command.symbol,
+                recovery: hint == nil ? nil : String(localized: "Open Settings…"))
         else { return }
         settingsCoordinator.showSettings(tab: .commands)
     }
 
     private func summary(of result: ShellCommandResult) -> String {
         switch result.termination {
-        case .launchFailed: return "The shell could not be started."
-        case .stopped: return "Stopped"
+        case .launchFailed: return String(localized: "The shell could not be started.")
+        case .stopped: return String(localized: "Stopped")
         case .exited(let status):
-            return status == 0 ? "Finished successfully." : "The command exited with status \(status)."
+            return status == 0
+                ? String(localized: "Finished successfully.")
+                : String(localized: "The command exited with status \(status).")
         }
     }
 
@@ -311,6 +315,9 @@ final class CustomCommandCoordinator {
         guard case .exited(status: 127) = result.termination, !command.loadsShellEnvironment else {
             return nil
         }
-        return "If this is a shell alias or function, turn on Load Shell Environment for this command."
+        return String(
+            localized:
+                "If this is a shell alias or function, turn on Load Shell Environment for this command."
+        )
     }
 }

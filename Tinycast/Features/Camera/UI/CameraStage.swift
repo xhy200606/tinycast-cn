@@ -20,7 +20,7 @@ struct CameraStage: View {
     private func unavailable(_ message: String) -> some View {
         VStack(spacing: Theme.Spacing.md) {
             SymbolImage(name: "video.slash", size: Theme.Size.dialogIcon)
-            Text(message)
+            Text(message.localizedUI)
                 .font(Theme.Typography.rowTrailing)
                 .multilineTextAlignment(.center)
         }

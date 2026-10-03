@@ -89,7 +89,7 @@ struct CustomCommandEditorPanel: View {
             }
 
             if let errorMessage {
-                Text(errorMessage)
+                Text(errorMessage.localizedUI)
                     .font(.caption)
                     .foregroundStyle(.orange)
             }
@@ -129,7 +129,7 @@ struct CustomCommandEditorPanel: View {
             } label: {
                 HStack(spacing: Theme.Spacing.sm) {
                     SymbolImage(name: iconSymbol ?? CustomCommand.sfSymbol, size: 14)
-                    Text(iconSymbol == nil ? "Automatic" : "Custom")
+                    Text((iconSymbol == nil ? "Automatic" : "Custom").localizedUI)
                         .lineLimit(1)
                     Spacer(minLength: 0)
                 }
@@ -236,8 +236,8 @@ struct CustomCommandEditorPanel: View {
     ) -> some View {
         Toggle(isOn: isOn) {
             VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
-                Text(title)
-                Text(detail)
+                Text(title.localizedUI)
+                Text(detail.localizedUI)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
