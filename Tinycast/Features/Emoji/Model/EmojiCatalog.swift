@@ -22,14 +22,14 @@ enum EmojiCategory: String, CaseIterable, Sendable {
         case .smileysAndPeople: return "Smileys & People"
         case .animalsAndNature: return "Animals & Nature"
         case .foodAndDrink: return "Food & Drink"
-        case .activity: return "Activity"
+        case .activity: return String(localized: "Activity")
         case .travelAndPlaces: return "Travel & Places"
-        case .objects: return "Objects"
-        case .symbols: return "Symbols"
-        case .flags: return "Flags"
-        case .arrows: return "Arrows"
-        case .currency: return "Currency"
-        case .math: return "Math"
+        case .objects: return String(localized: "Objects")
+        case .symbols: return String(localized: "Symbols")
+        case .flags: return String(localized: "Flags")
+        case .arrows: return String(localized: "Arrows")
+        case .currency: return String(localized: "Currency")
+        case .math: return String(localized: "Math")
         case .shapesAndPunctuation: return "Shapes & Punctuation"
         case .cjk: return "CJK Symbols"
         case .keysAndTechnical: return "Keys & Technical"
@@ -147,12 +147,12 @@ enum EmojiSkinTone: String, CaseIterable, Identifiable, Sendable {
 
     var title: String {
         switch self {
-        case .none: return "Default"
-        case .light: return "Light"
-        case .mediumLight: return "Medium Light"
-        case .medium: return "Medium"
-        case .mediumDark: return "Medium Dark"
-        case .dark: return "Dark"
+        case .none: return String(localized: "Default")
+        case .light: return String(localized: "Light")
+        case .mediumLight: return String(localized: "Medium Light")
+        case .medium: return String(localized: "Medium")
+        case .mediumDark: return String(localized: "Medium Dark")
+        case .dark: return String(localized: "Dark")
         }
     }
 
@@ -186,14 +186,15 @@ enum EmojiCatalog {
         return String(scalars)
     }
 
-    /// Parse the generated `glyph|name|category|tone|keywords` records, dropping malformed lines.
+    /// Parse the generated `glyph|name|category|tone|keywords|localizedName` records, dropping
+    /// malformed lines.
     nonisolated static func parse(_ raw: String, localized: [String] = []) -> [EmojiEntry] {
         let localizedTerms = terms(in: localized)
         var result: [EmojiEntry] = []
         result.reserveCapacity(2200)
         for line in raw.split(separator: "\n") {
-            let fields = line.split(separator: "|", maxSplits: 4, omittingEmptySubsequences: false)
-            guard fields.count == 5, let category = EmojiCategory(rawValue: String(fields[2]))
+            let fields = line.split(separator: "|", maxSplits: 5, omittingEmptySubsequences: false)
+            guard fields.count == 6, let category = EmojiCategory(rawValue: String(fields[2]))
             else { continue }
             let glyph = String(fields[0])
             var keywords = String(fields[4])

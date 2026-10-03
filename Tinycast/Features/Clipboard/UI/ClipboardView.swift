@@ -382,14 +382,14 @@ private struct ClipboardInfoSection: View {
                 ForEach(rows) { row in
                     if row.id != rows.first?.id { Divider() }
                     HStack(spacing: metrics.spacing.sm) {
-                        Text(row.label).foregroundStyle(.secondary)
+                        Text(row.label.localizedUI).foregroundStyle(.secondary)
                         Spacer(minLength: metrics.spacing.lg)
                         if let icon = row.icon {
                             Image(nsImage: icon)
                                 .resizable()
                                 .frame(width: 20, height: 20)
                         }
-                        Text(row.value).lineLimit(1).truncationMode(.middle)
+                        Text(row.value.localizedUI).lineLimit(1).truncationMode(.middle)
                     }
                     .font(.callout)
                     .padding(.vertical, metrics.spacing.sm)
@@ -403,7 +403,7 @@ private struct ClipboardInfoSection: View {
     private var rows: [InfoRow] {
         var rows: [InfoRow] = []
         if let source {
-            rows.append(InfoRow(label: "Source", value: source.name, icon: source.icon))
+            rows.append(InfoRow(label: "Source".localizedUI, value: source.name, icon: source.icon))
         }
         switch item.kind {
         case .text:
@@ -420,10 +420,10 @@ private struct ClipboardInfoSection: View {
                 }
             }
         case .image:
-            rows.append(InfoRow(label: "Type", value: "Image"))
+            rows.append(InfoRow(label: "Type".localizedUI, value: "Image".localizedUI))
             if let size = details.pixelSize {
                 rows.append(
-                    InfoRow(label: "Dimensions", value: "\(Int(size.width))×\(Int(size.height))"))
+                    InfoRow(label: "Dimensions".localizedUI, value: "\(Int(size.width))×\(Int(size.height))"))
             }
             if let bytes = details.fileBytes {
                 rows.append(
@@ -444,7 +444,7 @@ private struct ClipboardInfoSection: View {
             }
         }
         rows.append(
-            InfoRow(label: "Copied", value: Self.copiedFormatter.string(from: item.createdAt)))
+            InfoRow(label: "Copied".localizedUI, value: Self.copiedFormatter.string(from: item.createdAt)))
         return rows
     }
 
