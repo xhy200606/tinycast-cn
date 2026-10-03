@@ -64,7 +64,9 @@ struct TinycastApp: App {
     @CommandsBuilder
     private var menuBarCommands: some Commands {
         CommandGroup(replacing: .appInfo) {
-            Button("About \(appName)") { AppCore.shared.settingsCoordinator.showAbout() }
+            Button(String(localized: "About \(appName)")) {
+                AppCore.shared.settingsCoordinator.showAbout()
+            }
             Button("Check for Updates…") { AppCore.shared.updateCoordinator.checkForUpdates() }
         }
         CommandGroup(replacing: .appSettings) {
