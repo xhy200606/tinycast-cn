@@ -205,7 +205,7 @@ extension CalendarLauncherLimit: SettingsFileToken {
 extension MeetingSpan: SettingsFileToken {
     var settingsToken: SettingsFileJSON {
         switch self {
-        case .today: String(localized: "today")
+        case .today: "today"
         case .todayAndTomorrow: "todayAndTomorrow"
         case .nextSevenDays: "nextSevenDays"
         }
@@ -225,7 +225,7 @@ extension CalendarMenuBarDisplay: SettingsFileToken {
 extension MenuBarEvents: SettingsFileToken {
     var settingsToken: SettingsFileJSON {
         switch self {
-        case .today: String(localized: "today")
+        case .today: "today"
         case .two: 2
         case .five: 5
         case .ten: 10

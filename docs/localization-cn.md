@@ -59,9 +59,10 @@ gh workflow run release.yml --repo xhy200606/tinycast-cn \
 Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载构建日志。
 此流程不会发布正式 Release、修改上游 Homebrew 仓库或发送 Discord 公告。
 
-应用名为 `Tinycast CN.app`，bundle ID 为 `com.tinycast.app.cn`，设置及文件与上游版分开。
-配置镜像位于 `~/.config/tinycast-cn/settings.json`。目前没有签名证书，构建使用 ad-hoc 签名，
-没有 Apple 公证；它不具备应用内自动升级资格，后续版本需手动下载。更新源指向本 fork，避免
+应用名为 `Tinycast.app`，Debug 和 Release 的 bundle ID 均为 `com.tinycast.app`，与上游版共用设置。
+配置镜像位于 `~/.config/tinycast/settings.json`。目前没有签名证书，构建使用 ad-hoc 签名，
+没有 Apple 公证；Info.plist 的 `TinycastManualUpdatesOnly` 标记关闭应用内升级，后续版本需手动下载。
+更新源指向本 fork，避免
 把汉化版替换成上游英文包。不要删除上游的签名验证，也不要把临时签名当作可信自动更新证书。
 每次重新安装后，macOS 可能要求重新授予辅助功能等权限。
 如要长期自动升级，应另行配置稳定签名身份，并验证同一身份的升级链，再启用独立中文发布通道。
@@ -89,3 +90,22 @@ Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载�
 
 上游增加新工作流时，也要检查其触发条件，避免把上游发布、外部通知或自动构建带到中文分支。
 旧文案应在确认没有源码使用后再移除，避免把键名改变误当成可以覆盖翻译的依据。
+
+## Homebrew 发布维护
+
+本仓库同时作为自定义 tap，默认分支的 `Casks/tinycast-cn.rb` 是安装入口。应用保持正式名称
+`Tinycast.app`。cask 根据机器架构选择 arm64 或 Universal DMG，不自动移除 Gatekeeper 隔离标记。
+
+两个架构均构建成功后，下载相同源码提交对应的包，发布到本 fork 的 `cn-v版本号` GitHub Release。
+每次使用实际 DMG 重新生成 cask 的校验值，不使用占位值，也不沿用上个版本的哈希：
+
+```sh
+node Scripts/generate-homebrew-cask.js --version 0.11.12 \
+  --arm64 /path/to/Tinycast-arm64-0.11.12.dmg \
+  --universal /path/to/Tinycast-universal-0.11.12.dmg \
+  --output Casks/tinycast-cn.rb
+ruby -c Casks/tinycast-cn.rb
+```
+
+核对 Release 中两份 DMG 的 SHA-256 与 cask 一致，再将 cask 提交到默认分支和汉化维护分支。
+tap 的默认分支只需同步工作流入口、维护工具和 cask，无需改变其上游源码基线。

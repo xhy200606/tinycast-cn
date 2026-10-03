@@ -4359,8 +4359,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tinycast.app.dev;
-				PRODUCT_NAME = "Tinycast Dev";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tinycast.app;
+				PRODUCT_NAME = Tinycast;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -4377,6 +4377,7 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tinycast.app;
+				PRODUCT_NAME = Tinycast;
 				SDKROOT = macosx;
 			};
 			name = Release;

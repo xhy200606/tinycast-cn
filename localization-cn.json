@@ -7,7 +7,8 @@
   "maintenance_branch": "cn-localization-v0.11.12",
   "build_workflow": ".github/workflows/release.yml",
   "build_requires_manual_confirmation": true,
-  "bundle_identifier": "com.tinycast.app.cn",
+  "bundle_identifier": "com.tinycast.app",
+  "application_name": "Tinycast.app",
   "distribution": "ad-hoc-artifacts",
   "automatic_updates": false
 }

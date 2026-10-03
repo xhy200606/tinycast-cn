@@ -3,6 +3,12 @@ import Foundation
 
 extension ExtensionTests {
     @MainActor
+    static func settleUntil(_ ready: @MainActor () -> Bool) async {
+        let deadline = ContinuousClock.now + .seconds(3)
+        while !ready(), ContinuousClock.now < deadline { await settle(20) }
+    }
+
+    @MainActor
     static func runInstalledMenuBar(_ owner: InstalledExtension, command: ExtensionCommand) async {
         _ = NSApplication.shared
         NSApp.setActivationPolicy(.accessory)
@@ -585,6 +591,7 @@ extension ExtensionTests {
         check("install does not run a menu command", boots.isEmpty && metadata.menuBarCommands().isEmpty)
         manager.run(first, command: first.manifest.commands[0])
         await settle(400)
+        await settleUntil { !manager.isRunning && lastRuntime == nil }
         check("settled menu keeps only a snapshot", !manager.isRunning && lastRuntime == nil)
         check("manual launch snapshots title", snapshot(firstRef)?.title == "userInitiated")
         check(
@@ -665,6 +672,7 @@ extension ExtensionTests {
                 && storage.localStorageValue(extension: "first", key: "completed") == .number(2))
         secondController.menuDidClose(secondController.menu)
         await settle(200)
+        await settleUntil { !manager.isRunning && lastRuntime == nil }
         check("reopened action sessions unload after closing", !manager.isRunning && lastRuntime == nil)
 
         controller.menuWillOpen(controller.menu)
@@ -715,6 +723,7 @@ extension ExtensionTests {
             controller.menuDidClose(controller.menu)
             controller.menu.performActionForItem(at: index)
             await settle(400)
+            await settleUntil { !manager.isRunning && lastRuntime == nil }
             check(
                 "clicking immediately after opening runs the fresh action and unloads",
                 storage.localStorageValue(extension: "first", key: "confirmed") == .bool(true)
@@ -726,6 +735,7 @@ extension ExtensionTests {
         makeOverdue(firstRef)
         manager.synchronize(installed)
         await settle(450)
+        await settleUntil { !manager.isRunning && lastRuntime == nil }
         check("overdue refresh runs with background launch type", boots.last?.1 == .background)
         check("background refresh unloads", !manager.isRunning && lastRuntime == nil)
         metadata.flush()
@@ -782,6 +792,7 @@ extension ExtensionTests {
             !metadata.metadata(extension: "job", command: "bar").menuBarEnabled)
         manager.run(first, command: first.manifest.commands[0], type: .background)
         await settle(300)
+        await settleUntil { recorder.trees.count > foregroundRenders + 3 && !manager.isRunning }
         check(
             "foreground keeps rendering during background commands",
             recorder.trees.count > foregroundRenders + 3

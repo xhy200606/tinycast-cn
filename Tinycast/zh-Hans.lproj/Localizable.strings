@@ -2506,5 +2506,12 @@
 "Search windows, or type an app to add…" = "搜索窗口，或输入要添加的应用…";
 "Meeting details" = "会议详情";
 "After %lld seconds" = "%lld 秒后";
+"Suggestions" = "建议";
+"No Chats Yet" = "暂无对话";
+"History Unavailable" = "无法读取历史记录";
+"Reveals the snippets folder in Finder." = "在访达中显示文本片段文件夹。";
+"Select a provider" = "选择服务商";
+"—  %@" = "—  %@";
+"%@ · %lld failed" = "%@ · %lld 项失败";
 
 "The credentials could not be removed from your login Keychain." = "无法从登录钥匙串中移除凭据。";

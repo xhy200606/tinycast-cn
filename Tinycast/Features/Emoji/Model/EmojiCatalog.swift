@@ -186,15 +186,14 @@ enum EmojiCatalog {
         return String(scalars)
     }
 
-    /// Parse the generated `glyph|name|category|tone|keywords|localizedName` records, dropping
-    /// malformed lines.
+    /// Parse the generated `glyph|name|category|tone|keywords` records, dropping malformed lines.
     nonisolated static func parse(_ raw: String, localized: [String] = []) -> [EmojiEntry] {
         let localizedTerms = terms(in: localized)
         var result: [EmojiEntry] = []
         result.reserveCapacity(2200)
         for line in raw.split(separator: "\n") {
-            let fields = line.split(separator: "|", maxSplits: 5, omittingEmptySubsequences: false)
-            guard fields.count == 6, let category = EmojiCategory(rawValue: String(fields[2]))
+            let fields = line.split(separator: "|", maxSplits: 4, omittingEmptySubsequences: false)
+            guard fields.count == 5, let category = EmojiCategory(rawValue: String(fields[2]))
             else { continue }
             let glyph = String(fields[0])
             var keywords = String(fields[4])
