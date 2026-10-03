@@ -59,9 +59,9 @@ struct OnboardingView: View {
         VStack(spacing: Theme.Spacing.md) {
             heroMark
             VStack(spacing: Theme.Spacing.xs) {
-                Text(title)
+                Text(title.localizedUI)
                     .font(.title2.weight(.bold))
-                Text(subtitle)
+                Text(subtitle.localizedUI)
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -121,9 +121,9 @@ struct OnboardingView: View {
 
     private var readyMessage: String {
         if let caps = hotKeys.binding(for: .togglePalette)?.keycaps {
-            return "Press \(caps.joined()) anytime to start using Tinycast."
+            return String(localized: "Press \(caps.joined()) anytime to start using Tinycast.")
         }
-        return "Tinycast is ready. Set a shortcut in Settings to summon it."
+        return String(localized: "Tinycast is ready. Set a shortcut in Settings to summon it.")
     }
 
     // MARK: - Step content
@@ -195,7 +195,7 @@ struct OnboardingView: View {
                     subtitle: "The password you set when exporting from Raycast.",
                     systemImage: "key", tint: .gray
                 ) {
-                    RevealableSecureField(title: "Passphrase", text: $model.passphrase)
+                    SecureField("Passphrase", text: $model.passphrase)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 150)
                         .onSubmit { model.run(core: core) }
@@ -255,7 +255,7 @@ struct OnboardingView: View {
                     .controlSize(.large)
                     .disabled(true)
                 } else {
-                    Button(primaryTitle, action: primaryAction)
+                    Button(primaryTitle.localizedUI, action: primaryAction)
                         .buttonStyle(.borderedProminent)
                         .controlSize(.large)
                         .disabled(primaryDisabled)
@@ -309,7 +309,7 @@ struct OnboardingView: View {
     // MARK: - Shared bits
 
     private func caption(_ text: String) -> some View {
-        Text(text)
+        Text(text.localizedUI)
             .font(.caption)
             .foregroundStyle(.tertiary)
             .padding(.horizontal, Theme.Spacing.xs)
@@ -339,7 +339,7 @@ struct OnboardingView: View {
             Image(
                 systemName: accessibilityTrusted
                     ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-            Text(accessibilityTrusted ? "Granted" : "Not granted")
+            Text((accessibilityTrusted ? "Granted" : "Not granted").localizedUI)
         }
         .font(.caption.weight(.semibold))
         .foregroundStyle(accessibilityTrusted ? Color.green : Color.orange)
@@ -387,9 +387,9 @@ final class OnboardingModel {
 
     var fileSubtitle: String {
         guard let name = file?.lastPathComponent else {
-            return "Choose a .rayconfig file exported from Raycast v2.0 or newer."
+            return String(localized: "Choose a .rayconfig file exported from Raycast v2.0 or newer.")
         }
-        return "\(name) — \(isRaycastExport ? "Raycast export" : "not a Raycast export")"
+        return "\(name) — \((isRaycastExport ? "Raycast export" : "not a Raycast export").localizedUI)"
     }
 
     func chooseFile() {
