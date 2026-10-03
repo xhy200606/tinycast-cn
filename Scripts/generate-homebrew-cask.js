@@ -28,15 +28,23 @@ function digest(architecture) {
 }
 const arm64 = digest("arm64");
 const universal = digest("universal");
-const cask = `cask "tinycast-cn" do
-  arch arm: "arm64", intel: "universal"
+const variants = [
+  { token: "tinycast-cn", architecture: null, label: "" },
+  { token: "tinycast-cn-arm64", architecture: "arm64", label: "ARM64" },
+  { token: "tinycast-cn-universal", architecture: "universal", label: "Universal" },
+];
+fs.mkdirSync(path.dirname(options["--output"]), { recursive: true });
+for (const { token, architecture, label } of variants) {
+  const fields = architecture
+    ? `  version "${version}"\n  sha256 "${architecture === "arm64" ? arm64 : universal}"`
+    : `  arch arm: "arm64", intel: "universal"\n\n  version "${version}"\n  sha256 arm:   "${arm64}",\n         intel: "${universal}"`;
+  const conflicts = variants.filter(item => item.token !== token)
+    .map(item => JSON.stringify("xhy200606/tinycast-cn/" + item.token)).join(", ");
+  const cask = `cask "${token}" do
+${fields}
 
-  version "${version}"
-  sha256 arm:   "${arm64}",
-         intel: "${universal}"
-
-  url "https://github.com/xhy200606/tinycast-cn/releases/download/cn-v#{version}/Tinycast-#{arch}-#{version}.dmg"
-  name "Tinycast 简体中文版"
+  url "https://github.com/xhy200606/tinycast-cn/releases/download/cn-v#{version}/Tinycast-${architecture ?? "#{arch}"}-#{version}.dmg"
+  name "Tinycast 简体中文版${label ? " (" + label + ")" : ""}"
   desc "Native macOS launcher with a Simplified Chinese interface"
   homepage "https://github.com/xhy200606/tinycast-cn"
 
@@ -46,10 +54,13 @@ const cask = `cask "tinycast-cn" do
   end
 
   depends_on macos: :tahoe
+${architecture === "arm64" ? "  depends_on arch: :arm64\n" : ""}  conflicts_with cask: [${conflicts}]
 
   app "Tinycast.app"
 end
 `;
-fs.mkdirSync(path.dirname(options["--output"]), { recursive: true });
-fs.writeFileSync(options["--output"], cask);
-console.log(`Generated ${options["--output"]} with verified package SHA-256 values.`);
+  const output = architecture
+    ? path.join(path.dirname(options["--output"]), token + ".rb") : options["--output"];
+  fs.writeFileSync(output, cask);
+  console.log(`Generated ${output} with verified package SHA-256 values.`);
+}

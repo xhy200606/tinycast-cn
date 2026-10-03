@@ -95,8 +95,9 @@ Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载�
 
 ## Homebrew 发布维护
 
-本仓库同时作为自定义 tap，默认分支的 `Casks/tinycast-cn.rb` 是安装入口。应用保持正式名称
-`Tinycast.app`。cask 根据机器架构选择 arm64 或 Universal DMG，不自动移除 Gatekeeper 隔离标记。
+本仓库同时作为自定义 tap，默认分支提供三个安装入口：`tinycast-cn-arm64` 安装 M 芯片包，
+`tinycast-cn-universal` 安装供 Intel 和 Apple 芯片使用的 Universal 包，`tinycast-cn` 自动选择架构。
+应用均保持正式名称 `Tinycast.app`，配方相互声明冲突，不自动移除 Gatekeeper 隔离标记。
 
 两个架构均构建成功后，下载相同源码提交对应的包，发布到本 fork 的 `cn-v版本号` GitHub Release。
 每次使用实际 DMG 重新生成 cask 的校验值，不使用占位值，也不沿用上个版本的哈希：
@@ -106,8 +107,9 @@ node Scripts/generate-homebrew-cask.js --version 0.11.12 \
   --arm64 /path/to/Tinycast-arm64-0.11.12.dmg \
   --universal /path/to/Tinycast-universal-0.11.12.dmg \
   --output Casks/tinycast-cn.rb
-ruby -c Casks/tinycast-cn.rb
+for cask in Casks/tinycast-cn*.rb; do ruby -c "$cask"; done
 ```
 
-核对 Release 中两份 DMG 的 SHA-256 与 cask 一致，再将 cask 提交到默认分支和汉化维护分支。
+生成脚本一次更新三个配方。核对 Release 中两份 DMG 的 SHA-256 与各配方一致，
+再将配方提交到默认分支和汉化维护分支。
 tap 的默认分支只需同步工作流入口、维护工具和 cask，无需改变其上游源码基线。
