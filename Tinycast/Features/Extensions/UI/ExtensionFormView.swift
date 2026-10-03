@@ -170,7 +170,7 @@ struct ExtensionFormView: View {
 
         default:
             labelled(field) {
-                Text("\(field.type) isn't supported yet")
+                Text(String(localized: "\(field.type) isn't supported yet"))
                     .font(metrics.typography.rowTrailing)
                     .foregroundStyle(.secondary)
             }
@@ -422,7 +422,7 @@ private struct ExtensionFilePicker: View {
     @State private var hovered = false
 
     private var label: String {
-        guard !paths.isEmpty else { return "Choose…" }
+        guard !paths.isEmpty else { return String(localized: "Choose…") }
         return paths.map { ($0 as NSString).lastPathComponent }.joined(separator: ", ")
     }
 

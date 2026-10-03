@@ -44,7 +44,7 @@ struct ExtensionListView: View {
                     resolved: ExtensionImage.resolve(
                         empty.props["icon"], assetsPath: assetsPath, isDark: isDark),
                     size: 42)
-                Text(empty.string("title") ?? "Nothing here")
+                Text(empty.string("title") ?? String(localized: "Nothing here"))
                     .font(metrics.typography.rowTitle)
                 if let description = empty.string("description") {
                     Text(description)
