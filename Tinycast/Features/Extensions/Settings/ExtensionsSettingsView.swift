@@ -240,7 +240,7 @@ struct ExtensionsSettingsView: View {
         } footer: {
             if let error {
                 // Under the buttons that caused it.
-                Label(error, systemImage: "exclamationmark.triangle")
+                Label(error.localizedUI, systemImage: "exclamationmark.triangle")
                     .font(.caption)
                     .foregroundStyle(.orange)
             }
@@ -270,9 +270,13 @@ struct ExtensionsSettingsView: View {
     }
 
     private var reclaimableSubtitle: String {
-        guard !reclaimable.isEmpty else { return "Nothing to clean up." }
-        let items = reclaimable.items == 1 ? "1 item" : "\(reclaimable.items) items"
-        return "Reclaims \(ExtensionCleanup.formatted(bytes: reclaimable.bytes)) from \(items)."
+        guard !reclaimable.isEmpty else { return String(localized: "Nothing to clean up.") }
+        let items =
+            reclaimable.items == 1
+            ? String(localized: "1 item") : String(localized: "\(reclaimable.items) items")
+        return String(
+            localized:
+                "Reclaims \(ExtensionCleanup.formatted(bytes: reclaimable.bytes)) from \(items).")
     }
 
     /// Off-main: measuring walks a `node_modules`, which is tens of thousands of files.
@@ -286,7 +290,8 @@ struct ExtensionsSettingsView: View {
 
     private var importSubtitle: String {
         if let importProgress {
-            return "Importing \(importProgress.done) of \(importProgress.total)…"
+            return String(
+                localized: "Importing \(importProgress.done) of \(importProgress.total)…")
         }
         if let importSummary { return importSummary }
         guard raycastAvailable else {
@@ -325,7 +330,7 @@ struct ExtensionsSettingsView: View {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = true
-        panel.prompt = "Add"
+        panel.prompt = String(localized: "Add")
         guard panel.runModal() == .OK else { return }
         Task {
             error = nil
@@ -350,10 +355,13 @@ struct ExtensionsSettingsView: View {
         await findPending()
         let imported = chosen.count - failed.count
         if failed.isEmpty {
-            importSummary = "Imported \(imported) extension\(imported == 1 ? "" : "s")."
+            importSummary =
+                imported == 1
+                ? String(localized: "Imported 1 extension.")
+                : String(localized: "Imported \(imported) extensions.")
         } else {
-            importSummary = "Imported \(imported); \(failed.count) failed."
-            error = "Couldn't import \(failed.joined(separator: ", "))."
+            importSummary = String(localized: "Imported \(imported); \(failed.count) failed.")
+            error = String(localized: "Couldn't import \(failed.joined(separator: ", ")).")
         }
     }
 
@@ -621,7 +629,7 @@ private struct ExtensionRefreshRow: View {
 
     var body: some View {
         let info = core.extensions.backgroundInfo(extension: extensionName, command: command.name)
-        SettingsCardRow(title: "Background refresh", detail: detail(for: info), indent: indent) {
+        SettingsCardRow(title: "Background refresh".localizedUI, detail: detail(for: info), indent: indent) {
             Toggle(
                 "",
                 isOn: Binding(
@@ -632,14 +640,14 @@ private struct ExtensionRefreshRow: View {
     }
 
     private func detail(for info: ExtensionCommandMetadata) -> String {
-        var detail = "Every \(schedule)."
+        var detail = String(localized: "Every \(schedule).")
         if let lastRun = info.lastRun {
-            detail += " Last refresh \(Self.relative.localizedString(for: lastRun, relativeTo: Date()))."
+            detail += " " + String(localized: "Last refresh \(Self.relative.localizedString(for: lastRun, relativeTo: Date())).")
         } else {
-            detail += " Hasn't refreshed yet."
+            detail += " " + "Hasn't refreshed yet.".localizedUI
         }
         if let error = info.lastError {
-            detail += " Last error: \(ExtensionRefreshPolicy.headline(error))."
+            detail += " " + String(localized: "Last error: \(ExtensionRefreshPolicy.headline(error)).")
         }
         return detail
     }
@@ -657,7 +665,10 @@ private struct ExtensionLauncherRow: View {
     var body: some View {
         let entries = installed.manifest.commands.map(installed.launcherEntry)
         let visibleCount = entries.count(where: visibility.isItemVisible)
-        SettingsCardRow(title: "Show in launcher", detail: detail(visible: visibleCount, of: entries.count)) {
+        SettingsCardRow(
+            title: String(localized: "Show in launcher"),
+            detail: detail(visible: visibleCount, of: entries.count)
+        ) {
             // A closure, not `set: setVisible`: an actor-isolated method as a setter crashes IRGen.
             Toggle(
                 "",
@@ -691,8 +702,8 @@ private struct ExtensionIconRow: View {
 
     var body: some View {
         SettingsCardRow(
-            title: "Launcher icon",
-            detail: appearance == nil ? nil : "Custom icon."
+            title: String(localized: "Launcher icon"),
+            detail: appearance == nil ? nil : String(localized: "Custom icon.")
         ) {
             HStack(spacing: Theme.Spacing.md) {
                 preview
@@ -743,7 +754,8 @@ private struct ExtensionPreferenceRow: View {
     private var detail: String? {
         let description = schema.description ?? ""
         guard schema.required else { return description }
-        return description.isEmpty ? "Required." : description + " Required."
+        return description.isEmpty
+            ? String(localized: "Required.") : description + " " + String(localized: "Required.")
     }
 
     @ViewBuilder
@@ -772,10 +784,13 @@ private struct ExtensionPreferenceRow: View {
                 .onChange(of: text) { _, value in save(value) }
         case .file, .directory, .appPicker:
             HStack(spacing: Theme.Spacing.sm) {
-                Text(text.isEmpty ? "Not set" : (text as NSString).lastPathComponent)
-                    .foregroundStyle(text.isEmpty ? .secondary : .primary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
+                Text(
+                    text.isEmpty
+                        ? String(localized: "Not set") : (text as NSString).lastPathComponent
+                )
+                .foregroundStyle(text.isEmpty ? .secondary : .primary)
+                .lineLimit(1)
+                .truncationMode(.middle)
                 Button("Choose…", action: choosePath)
             }
         case .textfield:
@@ -886,7 +901,7 @@ private struct ExtensionImportPanel: View {
 
             HStack {
                 // Reads against what is selected, so it is never a button that does nothing.
-                Button(allChosen ? "Deselect All" : "Select All") {
+                Button((allChosen ? "Deselect All" : "Select All").localizedUI) {
                     chosen = allChosen ? [] : Set(candidates.map(\.installed.manifest.name))
                 }
                 .buttonStyle(
@@ -897,7 +912,11 @@ private struct ExtensionImportPanel: View {
                 Button("Cancel", action: onCancel)
                     .buttonStyle(ExtensionSettingsEditorButtonStyle(role: .cancel))
                     .keyboardShortcut(.cancelAction)
-                Button("Import \(chosen.isEmpty ? "" : "(\(chosen.count))")") {
+                Button(
+                    chosen.isEmpty
+                        ? String(localized: "Import")
+                        : String(localized: "Import (\(chosen.count))")
+                ) {
                     onImport(
                         candidates.map(\.installed).filter { chosen.contains($0.manifest.name) })
                 }
@@ -921,20 +940,30 @@ private struct ExtensionImportPanel: View {
 
     private var subtitle: String {
         guard !candidates.isEmpty else {
-            return "No built extensions found in ~/.config/raycast/extensions."
+            return String(localized: "No built extensions found in ~/.config/raycast/extensions.")
         }
         guard !fresh.isEmpty else {
-            return "Everything Raycast has built is already here. Import one again to update it."
+            return String(
+                localized:
+                    "Everything Raycast has built is already here. Import one again to update it.")
         }
-        let count = fresh.count == 1 ? "one" : "\(fresh.count)"
-        return "The \(count) you don't have yet \(fresh.count == 1 ? "is" : "are") already ticked. "
-            + "Ticking one you have updates it."
+        return fresh.count == 1
+            ? String(
+                localized:
+                    "The one you don't have yet is already ticked. Ticking one you have updates it.")
+            : String(
+                localized:
+                    "The \(fresh.count) you don't have yet are already ticked. Ticking one you have updates it."
+            )
     }
 
     private func detail(for candidate: RaycastImportCandidate) -> String {
         let count = candidate.installed.manifest.commands.count
-        let commands = "\(count) command\(count == 1 ? "" : "s")"
-        return candidate.isInstalled ? "\(commands) · installed — tick to update" : commands
+        let commands =
+            count == 1
+            ? String(localized: "1 command") : String(localized: "\(count) commands")
+        return candidate.isInstalled
+            ? String(localized: "\(commands) · installed — tick to update") : commands
     }
 
     private func binding(for candidate: RaycastImportCandidate) -> Binding<Bool> {

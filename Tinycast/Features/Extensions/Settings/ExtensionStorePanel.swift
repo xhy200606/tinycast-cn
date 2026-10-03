@@ -22,7 +22,9 @@ struct ExtensionStorePanel: View {
                 subtitle: "The Raycast Store's extensions arrive built, so they install as they are.")
             // The same borderless field the panes use, rather than a bordered capsule of its own.
             SettingsFilterField(prompt: "Search extensions…", query: $query)
-            content
+            GeometryReader { _ in
+                content
+            }
             // The list scrolls right up to the footer without it, cutting the last row.
             Divider()
             footer
@@ -47,7 +49,7 @@ struct ExtensionStorePanel: View {
         } else if let searchFailure {
             placeholder(searchFailure)
         } else if results.isEmpty && searched {
-            placeholder("Nothing matches “\(query)”.")
+            placeholder(String(localized: "Nothing matches “\(query)”."))
         } else {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
@@ -253,7 +255,7 @@ private struct StoreRow: View {
         case .installing(let message):
             HStack(spacing: Theme.Spacing.sm) {
                 ProgressView().controlSize(.small)
-                Text(message).font(.caption).foregroundStyle(.secondary)
+                Text(message.localizedUI).font(.caption).foregroundStyle(.secondary)
             }
             .fixedSize()
         case .installed:
