@@ -38,7 +38,6 @@ enum MCPTransportError: LocalizedError, Equatable {
 /// What a Settings row shows, and what decides whether a server's tools are on offer.
 enum MCPServerStatus: Equatable, Sendable {
     case stopped
-    case signInRequired
     case connecting
     case ready(tools: Int)
     case failed(String)
@@ -50,10 +49,10 @@ enum MCPServerStatus: Equatable, Sendable {
 
     var label: String {
         switch self {
-        case .stopped: return "Stopped"
-        case .signInRequired: return "Sign-in required"
-        case .connecting: return "Connecting…"
-        case .ready(let tools): return tools == 1 ? "1 tool" : "\(tools) tools"
+        case .stopped: return String(localized: "Stopped")
+        case .connecting: return String(localized: "Connecting…")
+        case .ready(let tools):
+            return tools == 1 ? String(localized: "1 tool") : String(localized: "\(tools) tools")
         case .failed(let message): return message
         }
     }
