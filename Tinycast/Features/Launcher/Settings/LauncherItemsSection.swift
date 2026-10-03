@@ -1,29 +1,6 @@
 import SwiftUI
 
-/// A category's master switch stays available while its list is disabled.
-struct LauncherCategorySwitchSection: View {
-    let kind: AppEntry.Kind
-    let anchor: SettingsAnchor
-
-    @Environment(VisibilityStore.self) private var visibility
-
-    var body: some View {
-        Section {
-            Toggle(
-                isOn: Binding(
-                    get: { visibility.isKindEnabled(kind) },
-                    set: { visibility.setKindEnabled($0, for: kind) }
-                )
-            ) {
-                SettingsFeatureToggleLabel(
-                    anchor: anchor, title: "Enable \(anchor.title)",
-                    subtitle: "Off hides all of them and stops their shortcuts.")
-            }
-        }
-    }
-}
-
-/// One category's Settings list; never filters by visibility, so hidden rows stay listed.
+/// One category's Settings sections; never filters by visibility, so hidden rows stay listed.
 struct LauncherItemsSection: View {
     let kind: AppEntry.Kind
     let anchor: SettingsAnchor
@@ -43,13 +20,27 @@ struct LauncherItemsSection: View {
 
     var body: some View {
         Section {
-            SettingsFilterField(prompt: searchPrompt, query: $query)
-            LauncherItemsList(
-                entries: entries, query: query, isEnabled: visibility.isKindEnabled(kind))
+            Toggle(isOn: enabledBinding) {
+                SettingsRowTitle(anchor, "Enable \(anchor.title)")
+                Text("Off hides all of them and stops their shortcuts.")
+            }
         } header: {
             SettingsSectionHeader(anchor)
         }
+
+        Section {
+            SettingsFilterField(prompt: searchPrompt, query: $query)
+            LauncherItemsList(
+                entries: entries, query: query, isEnabled: visibility.isKindEnabled(kind))
+        }
         .settingsEnabled(visibility.isKindEnabled(kind))
+    }
+
+    private var enabledBinding: Binding<Bool> {
+        Binding(
+            get: { visibility.isKindEnabled(kind) },
+            set: { visibility.setKindEnabled($0, for: kind) }
+        )
     }
 }
 
@@ -66,11 +57,9 @@ struct LauncherItemsList: View {
 
     var body: some View {
         if entries.isEmpty {
-            Text(query.isEmpty ? "Nothing here yet." : "No matches for “\(query)”.")
+            Text(query.isEmpty ? String(localized: "Nothing here yet.") : String(localized: "No matches for “\(query)”."))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
-        } else if entries.first?.kind != .application && entries.first?.kind != .appleShortcut {
-            ForEach(entries) { entry in LauncherItemRow(entry: entry) }
         } else {
             // One row holding the table: a `Form` realizes every row it is handed.
             LauncherItemsTable(
@@ -101,14 +90,9 @@ struct LauncherItemRow: View {
     @Environment(VisibilityStore.self) private var visibility
 
     var body: some View {
-        SettingsRow(
-            title: entry.name,
-            labelOpacity: visibility.isItemVisible(entry) ? 1 : 0.45
-        ) {
+        SettingsRow(title: entry.name) {
             // Keyed so a reused cell seeds the new entry's icon on its first frame.
-            AppIconView(app: entry)
-                .frame(width: SettingsListMetrics.iconSize, height: SettingsListMetrics.iconSize)
-                .id(entry.iconKey)
+            AppIconView(app: entry).frame(width: 18, height: 18).id(entry.iconKey)
         } trailing: {
             AliasField(entry: entry)
             if let action = entry.hotKeyAction {

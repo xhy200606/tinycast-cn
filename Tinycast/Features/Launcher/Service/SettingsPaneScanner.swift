@@ -8,8 +8,8 @@ enum SettingsPaneScanner {
 
     /// Panes whose bundle carries a junk or missing display name; keyed by CFBundleIdentifier.
     private static let nameOverrides: [String: String] = [
-        "com.apple.Battery-Settings.extension": "Battery",
-        "com.apple.HeadphoneSettings": "Headphones"
+        "com.apple.Battery-Settings.extension": String(localized: "Battery"),
+        "com.apple.HeadphoneSettings": String(localized: "Headphones")
     ]
 
     /// Panes whose bundle icon is ExtensionKit's placeholder brick; keyed by CFBundleIdentifier.
@@ -50,18 +50,16 @@ enum SettingsPaneScanner {
                 !skippedBundleIDs.contains(bundleID),
                 let base = AppDisplayName.inInfo(info)
             else { continue }
-            let names =
-                nameOverrides[bundleID].map { [$0] }
-                ?? BundleLocalization.names(
-                    for: url, base: base,
-                    developmentRegion: info["CFBundleDevelopmentRegion"] as? String,
-                    languages: languages)
+            let names = BundleLocalization.names(
+                for: url, base: base,
+                developmentRegion: info["CFBundleDevelopmentRegion"] as? String,
+                languages: languages)
             result.append(
                 AppEntry(
-                    id: url.path, name: names.first ?? base, url: url,
+                    id: url.path, name: nameOverrides[bundleID] ?? names.first ?? base, url: url,
                     bundleID: bundleID, kind: .systemSettings,
                     // `EntryNaming` drops whatever repeats the name, so the whole list can go in.
-                    alternateTitles: names, iconOverride: iconOverrides[bundleID]))
+                    alternateNames: names, iconOverride: iconOverrides[bundleID]))
         }
         let panes = result.sorted {
             $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending

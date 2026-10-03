@@ -36,7 +36,7 @@ struct DisabledApplicationsSection: View {
         } header: {
             SettingsSectionHeader(anchor)
         } footer: {
-            Text(footer)
+            Text(footer.localizedUI)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -65,7 +65,7 @@ private struct DisabledAppRow: View {
             } icon: {
                 Image(nsImage: icon)
                     .resizable()
-                    .frame(width: SettingsListMetrics.iconSize, height: SettingsListMetrics.iconSize)
+                    .frame(width: 18, height: 18)
             }
         }
     }
