@@ -1,16 +1,21 @@
-# Tinycast
+# Tinycast · Simplified Chinese
 
-> **简体中文维护分支**：请先阅读 [中文版使用说明](README.zh-CN.md) 和
-> [汉化维护与手动云编译流程](docs/localization-cn.md)。下文保留上游项目说明，
-> 其中的上游下载与 Homebrew 安装命令安装的是上游版本。
+**English** · [简体中文](README.zh-CN.md)
+
+This is the Simplified Chinese fork of [abue-ammar/tinycast](https://github.com/abue-ammar/tinycast),
+maintained in [xhy200606/tinycast-cn](https://github.com/xhy200606/tinycast-cn).
+The current Chinese release is **0.11.12**, based on the same upstream version, with Chinese UI,
+permission descriptions, Pinyin search aliases and both Chinese and English command search.
+Localized source lives on [`cn-localization-v0.11.12`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.12);
+`main` provides the Homebrew cask and maintenance entry points.
 
 **A tiny, fully native macOS launcher. One hotkey, everything you reach for all day, under 100 MB of
 RAM.**
 
 <p align="center">
-  <a href="https://github.com/abue-ammar/tinycast/releases/latest">
+  <a href="https://github.com/xhy200606/tinycast-cn/releases/latest">
     <img alt="Latest release"
-         src="https://img.shields.io/github/v/release/abue-ammar/tinycast?sort=semver&style=flat&label=release&color=1F6FEB"></a>
+         src="https://img.shields.io/github/v/release/xhy200606/tinycast-cn?style=flat&label=release&color=1F6FEB"></a>
   <img alt="Swift 6.0"
        src="https://img.shields.io/badge/Swift-6.0-F05138?style=flat&logo=swift&logoColor=white">
   <img alt="macOS 26 or later"
@@ -19,17 +24,18 @@ RAM.**
     <img alt="License: AGPL-3.0"
          src="https://img.shields.io/badge/License-AGPL--3.0-3DA639?style=flat"></a>
   <a href="https://discord.gg/v2Eeb4QQy3">
-    <img alt="Join the Tinycast Discord"
+    <img alt="Join the upstream Tinycast Discord"
          src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat&logo=discord&logoColor=white"></a>
   <a href="https://tinycast.dev/support">
-    <img alt="Support Tinycast"
+    <img alt="Support the upstream Tinycast developer"
          src="https://img.shields.io/badge/Support-Tip%20the%20dev-EA4AAA?style=flat&logo=polar&logoColor=white"></a>
 </p>
 
 SwiftUI and AppKit, **zero third-party dependencies**, no Electron and no telemetry. It also **runs
 real Raycast extensions**, rendered as native SwiftUI. Free, open source, and staying that way.
 
-For anything private, email [iabueammar@gmail.com](mailto:iabueammar@gmail.com).
+Report Chinese translation or packaging issues in [this repository](https://github.com/xhy200606/tinycast-cn/issues).
+The upstream author's private contact is [iabueammar@gmail.com](mailto:iabueammar@gmail.com).
 
 <p align="center">
   <img src="docs/screenshot.png" alt="Tinycast command palette" width="720">
@@ -37,8 +43,8 @@ For anything private, email [iabueammar@gmail.com](mailto:iabueammar@gmail.com).
 
 ## Support
 
-Tinycast is **free, and it stays that way**. If it earns a place in your daily flow, a one-off tip helps
-keep it actively maintained. GitHub Sponsors isn't available in my country, so please support here:
+Tinycast is **free and open source**. The following donation link supports the original upstream
+developer. If Tinycast earns a place in your daily flow, a one-off tip helps support their work:
 
 <p align="center">
   <a href="https://tinycast.dev/support">
@@ -67,6 +73,7 @@ keep it actively maintained. GitHub Sponsors isn't available in my country, so p
 - **Custom commands** — run named shell commands through fuzzy search or their own global hotkeys.
 - **Window management** — 34 Rectangle-style actions: halves, quarters, thirds, sizing, nudging,
   display moves, fullscreen and Spaces.
+- **Workspaces** — save and switch window arrangements for different tasks.
 - **System actions** — lock, sleep, restart, empty trash, toggle appearance, Bluetooth, mute, hidden
   files, and more.
 - **Calendar and meetings** — your next meeting on the empty palette and in the menu bar, one key to
@@ -83,30 +90,65 @@ keep it actively maintained. GitHub Sponsors isn't available in my country, so p
 
 ## Install
 
-First, add the tap:
+Requires **macOS 26 or later**. Intel Macs must support macOS 26.
+Use this repository as the Homebrew tap. Homebrew 7 requires explicit trust for third-party taps:
 
 ```sh
-brew trust --tap abue-ammar/tinycast   # required for third-party taps
-brew tap abue-ammar/tinycast
+brew tap xhy200606/tinycast-cn https://github.com/xhy200606/tinycast-cn.git
+brew trust --tap xhy200606/tinycast-cn
 ```
 
-Then run the one line that matches your Mac:
+Choose the explicit package for your processor:
 
-| Your Mac                         | Install                                  |
-| -------------------------------- | ---------------------------------------- |
-| Apple silicon, macOS 26 or newer | `brew install --cask tinycast`           |
-| Intel, macOS 26                  | `brew install --cask tinycast-universal` |
+| Your Mac | Homebrew installation |
+| --- | --- |
+| Apple silicon (M series), arm64 | `brew install --cask xhy200606/tinycast-cn/tinycast-cn-arm64` |
+| Intel, using the Universal package | `brew install --cask xhy200606/tinycast-cn/tinycast-cn-universal` |
 
-Not sure which you have? **Apple menu → About This Mac.** Homebrew checks too, and refuses the
-wrong one.
+Universal contains both x86_64 and arm64, so it also runs on Apple silicon. For automatic selection,
+use `brew install --cask xhy200606/tinycast-cn/tinycast-cn`.
+These casks install the same `Tinycast.app`; install one of them. To switch, uninstall the current
+cask without `--zap`, then install the desired one.
 
-Want early builds? `brew install --cask tinycast@beta` puts `Tinycast Beta.app` beside the stable
-app, with its own settings and permissions. Apple silicon, macOS 26+.
+For manual installation, download a DMG
+from [this repository's releases](https://github.com/xhy200606/tinycast-cn/releases):
 
-Homebrew clears the macOS quarantine flag on every install and update, so there is nothing else to
-run. Downloading a DMG from [Releases](https://github.com/abue-ammar/tinycast/releases) instead?
-Tinycast is self-signed, so clear the flag once:
-`xattr -dr com.apple.quarantine "/Applications/Tinycast.app"`.
+| Your Mac | Package |
+| --- | --- |
+| Apple silicon (M series) | [arm64 DMG](https://github.com/xhy200606/tinycast-cn/releases/download/cn-v0.11.12/Tinycast-arm64-0.11.12.dmg) |
+| Intel, or a package containing both architectures | [Universal DMG](https://github.com/xhy200606/tinycast-cn/releases/download/cn-v0.11.12/Tinycast-universal-0.11.12.dmg) |
+
+Open the DMG and drag **Tinycast.app** into **Applications**. Both packages use the app name
+`Tinycast.app` and bundle ID `com.tinycast.app`, sharing settings with the upstream stable app.
+ZIP packages and `SHA256SUMS.txt` are also available on the release page.
+
+To enable Chinese, set Simplified Chinese as your preferred system language, or choose it for
+Tinycast in **System Settings → General → Language & Region → Applications**.
+
+These packages use **ad-hoc signing and are not notarized by Apple**. The cask does not automatically
+remove the quarantine flag. If macOS blocks the first launch, verify the download and checksum,
+then allow it in **System Settings → Privacy & Security**. If needed, remove the flag manually:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/Tinycast.app"
+```
+
+### Updates
+
+In-app automatic updates are disabled for this Chinese build. Update through Homebrew:
+
+```sh
+brew update
+```
+
+| Installed package | Upgrade |
+| --- | --- |
+| ARM64 | `brew upgrade --cask tinycast-cn-arm64` |
+| Universal / Intel | `brew upgrade --cask tinycast-cn-universal` |
+| Automatic selection | `brew upgrade --cask tinycast-cn` |
+
+You can also install a newer DMG from this repository's releases. Each release keeps both
+architectures and their checksums; Homebrew uses the cask on this repository's default branch.
 
 ## Permissions
 
@@ -125,17 +167,39 @@ disabled, and keystrokes are matched locally, never stored and never sent anywhe
 
 ## Building from source
 
-See **[docs/development.md](docs/development.md)** for the toolchain, build, packaging, release and
-website workflows. **[docs/](docs/README.md)** indexes everything else — architecture, engineering
+Clone the Chinese maintenance branch to build the localized app:
+
+```sh
+git clone --branch cn-localization-v0.11.12 https://github.com/xhy200606/tinycast-cn.git
+cd tinycast-cn
+```
+
+The toolchain is **Xcode 26+, Swift 6 and XcodeGen**. See
+**[docs/development.md](docs/development.md)** for local builds and
+**[docs/localization-cn.md](docs/localization-cn.md)** for Chinese release packaging and upstream merges.
+**[docs/](docs/README.md)** indexes everything else — architecture, engineering
 standards, the design system and one document per feature.
+
+### Cloud builds and upstream updates
+
+Cloud builds are manual: select the Chinese branch, version and `arm64` or `universal` architecture
+in GitHub Actions, then explicitly check the confirmation input. Pushes and PRs do not start builds.
+The workflow runs lint, localization checks, all 86 regression harnesses, Debug compilation,
+Xcode localization extraction and Release compilation, then verifies Chinese resources,
+the main executable and the OCR helper before packaging.
+
+For a new upstream version, create a new Chinese maintenance branch and merge the upstream tag.
+Keep the Chinese resources and search aliases, translate new strings, review the merge, then confirm
+the build manually. Generate the updated cask from the actual DMG checksums and publish it on `main`.
+The [maintenance guide](docs/localization-cn.md) and `Scripts/prepare-upstream-cn.sh` describe this process.
 
 ## Contributing
 
 > [!IMPORTANT]
-> **Open an issue before you write code — this is mandatory.** Get the bug or the feature agreed on
-> first; discussing it in the issue (or on [Discord](https://discord.gg/v2Eeb4QQy3)) is strongly
-> encouraged. A PR that doesn't close an issue marked `approved` is closed automatically however good
-> the patch is, and the work is wasted. Docs-only fixes are the one exception.
+> For translation and packaging changes, open an issue in this fork first.
+> For contributions intended for upstream, **open an upstream issue before writing code** and follow
+> its approval process. Upstream requires an `approved` issue for code PRs; documentation-only fixes
+> are the exception.
 >
 > Tinycast's feature set is deliberately closed, and "another launcher has it" is not a reason on its
 > own. Ask whether a feature is wanted before you ask for it.
@@ -145,9 +209,10 @@ the before/after video requirement for visual changes, and why features get decl
 in the **[pull request template](.github/PULL_REQUEST_TEMPLATE.md)**. Security issues go through
 [SECURITY.md](SECURITY.md), not the issue tracker.
 
-Questions, ideas, or just want to follow along? **[Join the Discord](https://discord.gg/v2Eeb4QQy3)**.
+Questions about the Chinese build belong in [this repository's issues](https://github.com/xhy200606/tinycast-cn/issues).
+For the upstream community, **[join the Discord](https://discord.gg/v2Eeb4QQy3)**.
 
-## Star History
+## Upstream Star History
 
 <a href="https://www.star-history.com/?repos=abue-ammar%2Ftinycast&type=date&legend=top-left">
  <picture>

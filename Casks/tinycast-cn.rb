@@ -16,6 +16,7 @@ cask "tinycast-cn" do
   end
 
   depends_on macos: :tahoe
+  conflicts_with cask: ["xhy200606/tinycast-cn/tinycast-cn-arm64", "xhy200606/tinycast-cn/tinycast-cn-universal"]
 
   app "Tinycast.app"
 end
