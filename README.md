@@ -1,5 +1,9 @@
 # Tinycast
 
+> **简体中文维护分支**：请先阅读 [中文版使用说明](README.zh-CN.md) 和
+> [汉化维护与手动云编译流程](docs/localization-cn.md)。下文保留上游项目说明，
+> 其中的上游下载与 Homebrew 安装命令安装的是上游版本。
+
 **A tiny, fully native macOS launcher. One hotkey, everything you reach for all day, under 100 MB of
 RAM.**
 

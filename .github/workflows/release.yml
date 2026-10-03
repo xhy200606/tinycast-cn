@@ -1,5 +1,5 @@
-name: Tinycast CN · 手动云编译
-run-name: "Tinycast CN ${{ inputs.version }} · ${{ inputs.architecture }}"
+name: Tinycast · 中文版手动云编译
+run-name: "Tinycast ${{ inputs.version }} · ${{ inputs.architecture }}"
 
 on:
   workflow_dispatch:
@@ -24,7 +24,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: tinycast-cn-${{ github.ref }}
+  group: tinycast-cn-${{ github.ref }}-${{ inputs.architecture }}
   cancel-in-progress: false
 
 jobs:
@@ -35,8 +35,8 @@ jobs:
     env:
       BUILD_VERSION: ${{ inputs.version }}
       BUILD_ARCHITECTURE: ${{ inputs.architecture }}
-      APP_NAME: Tinycast CN
-      APP_BUNDLE_ID: com.tinycast.app.cn
+      APP_NAME: Tinycast
+      APP_BUNDLE_ID: com.tinycast.app
     steps:
       - uses: actions/checkout@v4
 
@@ -76,6 +76,9 @@ jobs:
           fi
 
       - name: Run regression harnesses
+        env:
+          TMPDIR: ${{ runner.temp }}
+          TINYCAST_TEST_JOBS: '3'
         run: ./Scripts/run-tests.sh
 
       - name: Build Debug
@@ -119,7 +122,7 @@ jobs:
       - name: Package application
         run: |
           APP="$RUNNER_TEMP/Release/Build/Products/Release/$APP_NAME.app"
-          NAME="Tinycast-CN-$BUILD_ARCHITECTURE-$BUILD_VERSION"
+          NAME="Tinycast-$BUILD_ARCHITECTURE-$BUILD_VERSION"
           STAGE="$RUNNER_TEMP/dmg-stage"
           mkdir -p "$STAGE" dist
           ditto "$APP" "$STAGE/$APP_NAME.app"
@@ -137,15 +140,15 @@ jobs:
           {
             echo '### 中文版安装包'
             echo "源码提交：\`$SOURCE_SHA\`"
-            echo '下载本次运行的 Artifacts，解压后将 Tinycast CN.app 拖到“应用程序”。'
+            echo '下载本次运行的 Artifacts，解压后将 Tinycast.app 拖到“应用程序”。'
             echo '本包使用临时签名，未公证；更新需手动下载。若系统阻止首次打开：'
-            echo '`xattr -dr com.apple.quarantine "/Applications/Tinycast CN.app"`'
+            echo '`xattr -dr com.apple.quarantine "/Applications/Tinycast.app"`'
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload install packages
         uses: actions/upload-artifact@v4
         with:
-          name: Tinycast-CN-${{ inputs.architecture }}-${{ inputs.version }}-${{ github.run_number }}
+          name: Tinycast-${{ inputs.architecture }}-${{ inputs.version }}-${{ github.run_number }}
           path: dist/
           retention-days: 90
           if-no-files-found: error
@@ -154,9 +157,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Tinycast-CN-logs-${{ github.run_number }}
+          name: Tinycast-logs-${{ inputs.architecture }}-${{ github.run_number }}
           path: |
             build/logs/
-            /tmp/tinycast-harness/*.log
+            ${{ runner.temp }}/tinycast-harness/*.log
           retention-days: 14
           if-no-files-found: ignore
