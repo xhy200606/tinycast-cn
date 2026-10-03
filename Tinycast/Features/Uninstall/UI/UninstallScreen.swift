@@ -23,7 +23,7 @@ struct UninstallScreen: PaletteScreen {
     private var summary: String {
         let total = session.plan?.removableIDs.count ?? 0
         let size = MeasuredSize(bytes: session.selectedBytes).formatted
-        return "\(session.selectedCount) of \(total) files selected · \(size)"
+        return String(localized: "\(session.selectedCount) of \(total) files selected · \(size)")
     }
 
     private func candidate(at selection: Int) -> UninstallCandidate? {
