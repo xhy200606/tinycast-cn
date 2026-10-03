@@ -601,6 +601,7 @@ extension ExtensionTests {
         let controller = manager.controller(for: firstRef, owner: first)
         controller.menuWillOpen(controller.menu)
         await settle(300)
+        await settleUntil { controller.menu.items.contains { $0.title == "Refresh" && $0.representedObject != nil } }
         check("opening a menu reloads its runtime", boots.count == 2 && manager.isRunning)
         let items = controller.menu.items
         check("native section header", items.first?.isSectionHeader == true && items.first?.title == "Usage")
@@ -630,6 +631,7 @@ extension ExtensionTests {
             await settle(150)
             check("closing menu does not cancel an async action", manager.isRunning)
             await settle(400)
+            await settleUntil { !manager.isRunning && lastRuntime == nil }
             check(
                 "action writes into its own extension",
                 storage.localStorageValue(extension: "first", key: "clicked")
@@ -645,6 +647,7 @@ extension ExtensionTests {
 
         controller.menuWillOpen(controller.menu)
         await settle(200)
+        await settleUntil { controller.menu.items.contains { $0.title == "Refresh" && $0.representedObject != nil } }
         let beforeReopen = boots.count
         if let index = controller.menu.items.firstIndex(where: { $0.title == "Refresh" }) {
             controller.menuDidClose(controller.menu)
@@ -681,6 +684,7 @@ extension ExtensionTests {
 
         controller.menuWillOpen(controller.menu)
         await settle(200)
+        await settleUntil { controller.menu.items.contains { $0.title == "Refresh" && $0.representedObject != nil } }
         manager.run(
             second, command: second.manifest.commands[0], arguments: ["value": "kept"],
             type: .background, context: ["origin": .string("payload")])
@@ -689,6 +693,7 @@ extension ExtensionTests {
         await settle(100)
         controller.menuDidClose(controller.menu)
         await settle(550)
+        await settleUntil { !manager.isRunning && lastRuntime == nil }
         check(
             "scheduled refresh preserves an explicit background launch's payload",
             storage.localStorageValue(extension: "second", key: "launch")
@@ -700,6 +705,7 @@ extension ExtensionTests {
         check("background hosts begin without interactive prompts", hosts.last?.isInteractive == false)
         controller.menuWillOpen(controller.menu)
         await settle(200)
+        await settleUntil { controller.menu.items.contains { $0.title == "Confirm" && $0.representedObject != nil } }
         check(
             "opening promotes the existing background host",
             boots.count == backgroundBoots
@@ -708,6 +714,7 @@ extension ExtensionTests {
             controller.menuDidClose(controller.menu)
             controller.menu.performActionForItem(at: index)
             await settle(250)
+            await settleUntil { !manager.isRunning && lastRuntime == nil }
             check(
                 "actions can confirm after opening a background refresh",
                 storage.localStorageValue(extension: "first", key: "confirmed") == .bool(true)
@@ -763,6 +770,7 @@ extension ExtensionTests {
             boots.suffix(2).map(\.0) == ["first", "second"] && !manager.isRunning)
         manager.run(empty, command: empty.manifest.commands[0])
         await settle(300)
+        await settleUntil { !manager.isRunning && lastRuntime == nil }
         check(
             "null removes item without forgetting activation",
             metadata.metadata(extension: "empty", command: "bar").menuBarEnabled
@@ -788,6 +796,7 @@ extension ExtensionTests {
         manager.run(
             job, command: job.manifest.commands[0], type: .background, context: ["origin": .string("menu")])
         await settle(300)
+        await settleUntil { !manager.isRunning && lastRuntime == nil }
         check(
             "background no-view receives scoped context",
             storage.localStorageValue(extension: "job", key: "context")
@@ -808,12 +817,14 @@ extension ExtensionTests {
         await settle(150)
         manager.disable("extension:hanging/bar")
         await settle(150)
+        await settleUntil { hosts.last?.didCancel == true && lastRuntime == nil }
         check("disable cancels host requests", hosts.last?.didCancel == true && lastRuntime == nil)
         check(
             "disable removes snapshot and schedule",
             !metadata.metadata(extension: "hanging", command: "bar").menuBarEnabled)
         manager.run(hanging, command: hanging.manifest.commands[0])
         await settle(1250)
+        await settleUntil { !manager.isRunning && lastRuntime == nil }
         check(
             "loading timeout releases runtime",
             !manager.isRunning && lastRuntime == nil
