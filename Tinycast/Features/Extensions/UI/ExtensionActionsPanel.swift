@@ -76,7 +76,7 @@ struct ExtensionActionsPanel: View {
                 .frame(height: hairline)
                 .accessibilityHidden(true)
             ExtensionMenuSearchField(
-                placeholder: "Search for actions…", height: panel.rowHeight,
+                placeholder: "Search for actions…".localizedUI, height: panel.rowHeight,
                 verticalOffset: -metrics.spacing.xxs / 2)
         }
         .frame(width: panel.width)
