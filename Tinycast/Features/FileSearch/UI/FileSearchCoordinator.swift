@@ -51,7 +51,7 @@ final class FileSearchCoordinator {
                     result.url, configuration: NSWorkspace.OpenConfiguration())
             } catch {
                 await core.showNotice(
-                    title: "Couldn’t Open \(result.name)",
+                    title: String(localized: "Couldn’t Open \(result.name)"),
                     message: error.localizedDescription,
                     symbol: result.isDirectory ? "folder" : "doc", tone: .danger)
             }
@@ -109,7 +109,7 @@ final class FileSearchCoordinator {
                 core.showMessage("Moved to Trash")
             } catch {
                 await core.showNotice(
-                    title: "Couldn’t Move \(result.name) to Trash",
+                    title: String(localized: "Couldn’t Move \(result.name) to Trash"),
                     message: error.localizedDescription,
                     symbol: "trash", tone: .danger)
             }
