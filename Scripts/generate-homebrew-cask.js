@@ -45,7 +45,7 @@ const cask = `cask "tinycast-cn" do
     regex(/^cn-v(\\d+(?:\\.\\d+)+)$/i)
   end
 
-  depends_on macos: ">= :tahoe"
+  depends_on macos: :tahoe
 
   app "Tinycast.app"
 end

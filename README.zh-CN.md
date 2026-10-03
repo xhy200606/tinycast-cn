@@ -7,8 +7,8 @@ Tinycast 是原生 macOS 菜单栏启动器，提供应用搜索、快捷键、�
 要求 **macOS 26 或更高版本**。默认云构建为 Universal，同时包含 Apple 芯片和 Intel 架构；
 Intel 设备须支持 macOS 26。将系统首选语言设为简体中文，或在 macOS 的应用语言设置中指定简体中文。
 
-云编译完成后，在对应 GitHub Actions 运行的 **Artifacts** 下载 `Tinycast-arm64-...` 或
-`Tinycast-universal-...`，解压并打开 DMG，将 `Tinycast.app` 拖到“应用程序”。构建前必须手动确认。
+从[本仓库发行页](https://github.com/xhy200606/tinycast-cn/releases)下载 arm64 或 Universal DMG，
+打开后将 `Tinycast.app` 拖到“应用程序”。GitHub Actions 的 Artifacts 也保留构建包。构建前必须手动确认。
 应用使用正式 bundle ID `com.tinycast.app`，与上游版本使用相同的设置目录。
 
 安装包采用 ad-hoc 签名，未经过 Apple 公证。下载后如系统阻止打开，核对来源及 `SHA256SUMS.txt` 后执行：
@@ -21,7 +21,7 @@ xattr -dr com.apple.quarantine "/Applications/Tinycast.app"
 
 ## Homebrew 安装
 
-中文版发行包和 cask 发布后，可使用本仓库作为自定义 tap：
+使用你的仓库 `xhy200606/tinycast-cn` 作为自定义 tap：
 
 ```sh
 brew tap xhy200606/tinycast-cn https://github.com/xhy200606/tinycast-cn.git
