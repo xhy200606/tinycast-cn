@@ -251,7 +251,7 @@ enum BackupActions {
         return text
     }
 
-    static let nothingImportedText = "Nothing to import from this file."
+    static let nothingImportedText = String(localized: "Nothing to import from this file.")
 
     /// No import may grant keystroke listening, so say the switch an imported keyword needs is off.
     private static let snippetsNeedEnablingText =
@@ -307,7 +307,29 @@ enum BackupActions {
             parts.append("\(s.customWindowSizes) custom window sizes")
         }
         guard !parts.isEmpty else { return nil }
-        return "Applied " + parts.joined(separator: ", ") + "."
+        return String(format: "Applied %@.".localizedUI, parts.joined(separator: ", "))
+    }
+
+    static func raycastSummaryText(_ outcome: RaycastOutcome) -> String {
+        var parts: [String] = []
+        if let applied = appliedText(outcome.summary) { parts.append(applied) }
+        if outcome.clipboardImported > 0 {
+            parts.append(String(localized: "Imported \(outcome.clipboardImported) clipboard entries."))
+        }
+        if outcome.snippetsImported == 1 {
+            parts.append(String(localized: "Imported 1 snippet."))
+        } else if outcome.snippetsImported > 1 {
+            parts.append(String(localized: "Imported \(outcome.snippetsImported) snippets."))
+        }
+        if let snippetsError = outcome.snippetsError {
+            parts.append(String(localized: "Couldn’t import snippets: \(snippetsError)"))
+        }
+        var message = parts.isEmpty ? nothingImportedText : parts.joined(separator: " ")
+        if outcome.missingImages > 0 {
+            message += " "
+                + String(localized: "\(outcome.missingImages) images were unavailable and skipped.")
+        }
+        return message
     }
 
     // MARK: - Settings file
@@ -352,16 +374,24 @@ enum BackupActions {
         -> Bool
     {
         guard commands > 0 || shortcuts > 0 else { return true }
-        let commandText = commands == 1 ? "1 custom command" : "\(commands) custom commands"
+        let commandText = commands == 1
+            ? String(localized: "1 custom command")
+            : String(localized: "\(commands) custom commands")
         let shortcutText =
-            shortcuts == 1 ? "1 global shortcut" : "\(shortcuts) global shortcuts"
-        // Red glyph for a real warning, plain button: importing destroys nothing.
+            shortcuts == 1
+            ? String(localized: "1 global shortcut")
+            : String(localized: "\(shortcuts) global shortcuts")
+        // Red glyph because this is a real security warning, but a plain button: importing a file
+        // destroys nothing, so the confirm action isn't destructive.
         return await core.confirm(
-            title: "Import executable commands?",
-            message:
-                "This backup contains \(commandText) and \(shortcutText). Custom commands can run "
-                + "arbitrary shell code. Only import files you trust.",
-            symbol: importSymbol, confirmTitle: "Import", confirmRole: .standard)
+            title: String(localized: "Import executable commands?"),
+            message: String(
+                format:
+                    "This backup contains %@ and %@. Custom commands can run arbitrary shell code. Only import files you trust."
+                    .localizedUI,
+                commandText, shortcutText),
+            symbol: importSymbol, confirmTitle: String(localized: "Import"),
+            confirmRole: .standard)
     }
 
     private static func dateStamp() -> String {
