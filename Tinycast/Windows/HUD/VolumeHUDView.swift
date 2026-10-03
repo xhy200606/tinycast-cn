@@ -23,7 +23,7 @@ struct VolumeHUDView: View {
                 }
                 .frame(height: Theme.Size.volumeTrackHeight)
                 // Muted prints the word: the bar is empty, and a number would contradict it.
-                Text(state.muted ? "Muted" : VolumeLevel.percentage(state.level))
+                Text(state.muted ? "Muted".localizedUI : VolumeLevel.percentage(state.level))
                     .font(Theme.Typography.rowTrailing)
                     .foregroundStyle(Theme.Colors.textSecondary)
                     .monospacedDigit()
@@ -35,7 +35,7 @@ struct VolumeHUDView: View {
         .padding(.horizontal, Theme.Spacing.xl)
         .frame(width: Theme.Size.hudWidth, height: Theme.Size.hudHeight)
         .background(Theme.Colors.panelScrim)
-        .background(GlassEffectView())
+        .background(VisualEffectView())
         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.dialog, style: .continuous))
         .panelEntrance()
         // A repeat command slides the bar to its new value instead of cutting to it.
