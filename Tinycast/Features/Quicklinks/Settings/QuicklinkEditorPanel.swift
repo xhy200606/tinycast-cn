@@ -66,10 +66,10 @@ struct QuicklinkEditorPanel: View {
             VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
                 optionToggle(
                     "Show in root search", isOn: $showsInRootSearch,
-                    detail: "List this quicklink alongside apps and commands.")
+                    detail: "List this quicklink alongside apps and commands.".localizedUI)
                 optionToggle(
                     "Pin to top", isOn: $isPinned,
-                    detail: "Keep it above the other quicklinks.")
+                    detail: "Keep it above the other quicklinks.".localizedUI)
             }
 
             if let errorMessage {
@@ -102,7 +102,7 @@ struct QuicklinkEditorPanel: View {
         if value.isEmpty {
             EmptyView()
         } else if QuicklinkDestination.containsPlaceholder(value) {
-            Text("Resolved when you open it — placeholders are filled in first.")
+            Text(String(localized: "Resolved when you open it — placeholders are filled in first."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         } else if let destination = QuicklinkDestination.detect(value) {
@@ -155,7 +155,9 @@ struct QuicklinkEditorPanel: View {
             } label: {
                 HStack(spacing: Theme.Spacing.sm) {
                     SymbolImage(name: resolvedSymbol, size: 14)
-                    Text(iconSymbol == nil ? "Automatic" : "Custom")
+                    Text(iconSymbol == nil
+                        ? String(localized: "Automatic")
+                        : String(localized: "Custom"))
                         .lineLimit(1)
                     Spacer(minLength: 0)
                 }
@@ -202,7 +204,8 @@ struct QuicklinkEditorPanel: View {
     private func optionToggle(_ title: String, isOn: Binding<Bool>, detail: String) -> some View {
         Toggle(isOn: isOn) {
             VStack(alignment: .leading, spacing: Theme.Spacing.xxs) {
-                Text(title)
+                // The callers pass a String, which takes Text's verbatim overload.
+                Text(title.localizedUI)
                 Text(detail)
                     .font(.caption)
                     .foregroundStyle(.secondary)

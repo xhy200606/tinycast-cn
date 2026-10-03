@@ -173,7 +173,7 @@ final class QuicklinkCoordinator {
         let symbol = quicklink.iconSymbol ?? Quicklink.sfSymbol
         guard let bundleID = failure.missingApplicationBundleID else {
             await core.showNotice(
-                title: "Couldn’t Open \(quicklink.name)",
+                title: String(localized: "Couldn’t Open \(quicklink.name)"),
                 message: failure.localizedDescription, symbol: symbol, tone: .danger)
             return
         }
@@ -181,8 +181,8 @@ final class QuicklinkCoordinator {
         let name = applicationName(forBundleID: bundleID) ?? bundleID
         guard
             await core.reportFailure(
-                title: "Couldn’t Open \(quicklink.name)",
-                message: "\(name) isn’t installed any more.", symbol: symbol,
+                title: String(localized: "Couldn’t Open \(quicklink.name)"),
+                message: String(localized: "\(name) isn’t installed any more."), symbol: symbol,
                 recovery: "Open with Default")
         else { return }
         performQuicklinkOpen(quicklink, link: link, forcingDefaultApp: true)
@@ -298,7 +298,7 @@ final class QuicklinkCoordinator {
         }
         do {
             try QuicklinkArchive.encode(store.quicklinks).write(to: url, options: .atomic)
-            core.showMessage("Exported \(store.quicklinks.count) Quicklinks")
+            core.showMessage(String(localized: "Exported \(store.quicklinks.count) Quicklinks"))
         } catch {
             await core.showNotice(
                 title: "Export Failed", message: error.localizedDescription,
@@ -329,8 +329,11 @@ final class QuicklinkCoordinator {
             let skipped = incoming.count - added.count
             let summary =
                 skipped == 0
-                ? "Imported \(added.count) quicklinks."
-                : "Imported \(added.count) quicklinks. Skipped \(skipped) already in your library."
+                ? String(localized: "Imported \(added.count) quicklinks.")
+                : String(
+                    localized:
+                        "Imported \(added.count) quicklinks. Skipped \(skipped) already in your library."
+                )
             await core.showNotice(
                 title: "Quicklinks Imported", message: summary, symbol: Quicklink.sfSymbol,
                 tone: .success)

@@ -15,11 +15,8 @@ struct QuicklinksSettingsView: View {
             FeatureSwitchSection(
                 anchor: .quicklinksQuicklinks,
                 enableTitle: "Enable quicklinks",
-                enableSubtitle: "Open saved links and searches from the launcher.",
                 isEnabled: $settings.quicklinksEnabled,
-                showsInLauncher: $settings.quicklinksShowInLauncher,
-                showsIcon: true,
-                showsHeader: false)
+                showsInLauncher: $settings.quicklinksShowInLauncher)
 
             Group {
                 if !store.isAvailable { storageNotice }
@@ -74,8 +71,8 @@ struct QuicklinksSettingsView: View {
             if results.isEmpty {
                 Text(
                     store.quicklinks.isEmpty
-                        ? "No quicklinks yet."
-                        : "No quicklink matches “\(query)”."
+                        ? String(localized: "No quicklinks yet.")
+                        : String(localized: "No quicklink matches “\(query)”.")
                 )
                 .foregroundStyle(.secondary)
             } else {
@@ -108,7 +105,7 @@ struct QuicklinksSettingsView: View {
             }
             Picker(selection: $settings.quicklinkSelectionFallback) {
                 ForEach(QuicklinkSelectionFallback.allCases) { option in
-                    Text(option.title).tag(option)
+                    Text(option.title.localizedUI).tag(option)
                 }
             } label: {
                 SettingsRowTitle(.quicklinksBehaviour, "When there's no selected text")
@@ -162,11 +159,7 @@ private struct QuicklinkSettingsRow: View {
 
     var body: some View {
         SettingsRow(title: quicklink.name, subtitle: quicklink.link) {
-            SymbolImage(
-                name: quicklink.symbol,
-                size: Theme.Size.settingsRowIcon - Theme.Spacing.xs
-            )
-            .frame(width: SettingsListMetrics.iconSize, height: SettingsListMetrics.iconSize)
+            SymbolImage(name: quicklink.symbol, size: 13)
         } trailing: {
             if quicklink.isPinned {
                 Image(systemName: "pin.fill")
