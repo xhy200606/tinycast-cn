@@ -179,7 +179,7 @@ struct PopoverMenu: View {
             .lineLimit(1)
             .background(alignment: .leading) {
                 if palette.menuQuery.isEmpty {
-                    Text(placeholder)
+                    Text(placeholder.localizedUI)
                         .font(metrics.typography.menuRow)
                         .foregroundStyle(Theme.Colors.textTertiary)
                         .lineLimit(1)
@@ -191,7 +191,7 @@ struct PopoverMenu: View {
             .frame(height: metrics.size.menuRowHeight)
             .offset(y: search.placement == .bottom ? -metrics.spacing.xxs / 2 : 0)
             .padding(.vertical, metrics.spacing.xxs / 2)
-            .accessibilityLabel(placeholder)
+            .accessibilityLabel(placeholder.localizedUI)
             .onAppear { searchFocused = true }
     }
 
@@ -203,7 +203,7 @@ struct PopoverMenu: View {
     }
 
     private func headerLabel(_ text: String) -> some View {
-        Text(text)
+        Text(text.localizedUI)
             .font(metrics.typography.sectionHeader)
             .foregroundStyle(.secondary)
             .lineLimit(1)
@@ -311,7 +311,7 @@ struct PopoverMenu: View {
 
     /// Tighter below than above, so a header belongs to the rows under it, not between two groups.
     private func sectionLabel(_ title: String, isFirst: Bool) -> some View {
-        Text(title)
+        Text(title.localizedUI)
             .font(metrics.typography.sectionHeader)
             .foregroundStyle(.secondary)
             .lineLimit(1)
@@ -379,7 +379,7 @@ private struct PopoverMenuRow: View {
                         MenuThumbnail(id: id, data: data)
                     }
                 }
-                Text(item.title)
+                Text(item.title.localizedUI)
                     .font(metrics.typography.menuRow)
                     .foregroundStyle(item.isDestructive ? Color.red : Color.primary)
                     .lineLimit(1)

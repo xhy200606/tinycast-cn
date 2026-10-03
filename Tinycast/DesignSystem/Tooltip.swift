@@ -56,7 +56,7 @@ private struct TooltipModifier: ViewModifier {
     @ViewBuilder private func chip(_ label: TooltipLabel) -> some View {
         switch label {
         case .text(let text):
-            Text(text)
+            Text(text.localizedUI)
                 .font(metrics.typography.keyCap)
                 .foregroundStyle(Theme.Colors.textSecondary)
                 .padding(.horizontal, metrics.spacing.xs)

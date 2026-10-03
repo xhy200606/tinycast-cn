@@ -68,18 +68,18 @@ struct SettingsRow<Icon: View, Trailing: View>: View {
                     if let anchor {
                         SettingsRowTitle(anchor, title)
                     } else {
-                        Text(title)
+                        Text(title.localizedUI)
                     }
                 }
                 .lineLimit(1)
                 if let subtitle {
-                    Text(subtitle)
+                    Text(subtitle.localizedUI)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(subtitleLineLimit)
                         .fixedSize(horizontal: false, vertical: true)
                         .truncationMode(.middle)
-                        .help(subtitle)
+                        .help(subtitle.localizedUI)
                 }
             }
             .opacity(labelOpacity)
@@ -235,7 +235,7 @@ struct SettingsEditorField<Content: View>: View {
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         } label: {
-            Text(title).font(labelFont)
+            Text(title.localizedUI).font(labelFont)
         }
     }
 }
@@ -312,7 +312,7 @@ struct FeatureSwitchSection: View {
                         anchor: anchor, title: enableTitle, subtitle: enableSubtitle)
                 } else {
                     SettingsRowTitle(anchor, enableTitle)
-                    if let enableSubtitle { Text(enableSubtitle) }
+                    if let enableSubtitle { Text(enableSubtitle.localizedUI) }
                 }
             }
             Toggle("Show in launcher", isOn: $showsInLauncher)
@@ -336,7 +336,7 @@ struct SettingsFilterField: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
             // `prompt:` + `labelsHidden`, or the form makes the placeholder a left-column heading.
-            TextField("", text: $query, prompt: Text(prompt))
+            TextField("", text: $query, prompt: Text(prompt.localizedUI))
                 .textFieldStyle(.plain)
                 .labelsHidden()
                 .focused($focused)
