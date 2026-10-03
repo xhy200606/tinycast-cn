@@ -25,9 +25,7 @@ final class SystemActionCoordinator {
         case .computed:
             await quitAllApps()
             return
-        case .followsFinder where !SystemActionRunner.finderWarnsBeforeEmptyingTrash:
-            break
-        case .required(let title, let message), .followsFinder(let title, let message):
+        case .required(let title, let message):
             guard
                 await core.confirm(
                     title: title, message: message, symbol: action.sfSymbol,
@@ -73,9 +71,9 @@ final class SystemActionCoordinator {
     private func presentFailure(action: SystemAction, failure: SystemActionFailure) async {
         guard
             await core.reportFailure(
-                title: "“\(action.name)” Failed", message: failure.message,
+                title: String(localized: "“\(action.name)” Failed"), message: failure.message,
                 symbol: action.sfSymbol,
-                recovery: failure.settings == nil ? nil : "Open System Settings…"),
+                recovery: failure.settings == nil ? nil : String(localized: "Open System Settings…")),
             let settings = failure.settings
         else { return }
         let pane: String
@@ -95,10 +93,11 @@ final class SystemActionCoordinator {
         guard !targets.isEmpty,
             await core.confirm(
                 title: targets.count == 1
-                    ? "Quit 1 application?" : "Quit \(targets.count) applications?",
-                message: "Applications with unsaved changes will ask you to save.",
+                    ? String(localized: "Quit 1 application?")
+                    : String(localized: "Quit \(targets.count) applications?"),
+                message: String(localized: "Applications with unsaved changes will ask you to save."),
                 symbol: SystemActionCatalog.action(id: .quitAllApps).sfSymbol,
-                confirmTitle: "Quit All")
+                confirmTitle: String(localized: "Quit All"))
         else { return }
         for app in targets { app.terminate() }
     }
