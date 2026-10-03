@@ -46,7 +46,7 @@ enum CalcQuantity {
             if let code = parser.currencyCodes.first(where: { rates.rate(for: $0) == nil }) {
                 return CalcResult(
                     expression: query,
-                    payload: .error(message: "No exchange rate for \(code)."))
+                    payload: .error(message: String(localized: "No exchange rate for \(code).")))
             }
         }
 
@@ -138,7 +138,7 @@ enum CalcQuantity {
 
     private static func currencyResult(
         _ amount: Double, definition: CurrencyDef, expression: String,
-        sourceBadge: String = "Expression"
+        sourceBadge: String = String(localized: "Expression")
     ) -> CalcResult {
         let formatted = CalcFormatter.currency(amount)
         return CalcResult(

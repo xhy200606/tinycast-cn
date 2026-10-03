@@ -61,7 +61,7 @@ struct CalculatorCard: View {
                 HStack(spacing: metrics.spacing.md) {
                     Image(systemName: "exclamationmark.triangle")
                         .symbolRenderingMode(.hierarchical)
-                    Text(message)
+                    Text(message.localizedUI)
                         .lineLimit(1)
                 }
                 .font(.body)

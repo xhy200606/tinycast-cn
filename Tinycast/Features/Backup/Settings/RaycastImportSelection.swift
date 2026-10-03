@@ -43,13 +43,13 @@ struct RaycastImportSelection: View {
                             Image(systemName: category.symbol)
                                 .foregroundStyle(.secondary)
                                 .frame(width: 16)
-                            Text(category.label).lineLimit(1)
+                            Text(category.label.localizedUI).lineLimit(1)
                         }
                     }
                     .toggleStyle(.checkbox)
                 }
             }
-            Button(selection == .all ? "Deselect All" : "Select All") {
+            Button((selection == .all ? "Deselect All" : "Select All").localizedUI) {
                 selection = selection == .all ? [] : .all
             }
             .buttonStyle(.link)
