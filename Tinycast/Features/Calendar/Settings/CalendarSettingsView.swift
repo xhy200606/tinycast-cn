@@ -22,7 +22,7 @@ struct CalendarSettingsView: View {
             Section {
                 Picker(selection: $settings.calendarLauncherLimit) {
                     ForEach(CalendarLauncherLimit.allCases) { limit in
-                        Text(limit.title).tag(limit)
+                        Text(limit.title.localizedUI).tag(limit)
                     }
                 } label: {
                     SettingsRowTitle(.calendarCalendar, "Upcoming meetings in launcher")
@@ -55,7 +55,7 @@ struct CalendarSettingsView: View {
             Section {
                 Picker(selection: $settings.joinWindowMinutes) {
                     ForEach(JoinWindow.allCases) { window in
-                        Text(window.title).tag(window)
+                        Text(window.title.localizedUI).tag(window)
                     }
                 } label: {
                     SettingsRowTitle(.calendarJoining, "Show the join card")
@@ -83,7 +83,7 @@ struct CalendarSettingsView: View {
             Section {
                 Picker(selection: $settings.calendarMenuBarDisplay) {
                     ForEach(CalendarMenuBarDisplay.allCases) { display in
-                        Text(display.title).tag(display)
+                        Text(display.title.localizedUI).tag(display)
                     }
                 } label: {
                     SettingsRowTitle(.calendarMenuBar, "Calendar in Menu Bar")
@@ -99,7 +99,7 @@ struct CalendarSettingsView: View {
                 }
                 Picker(selection: $settings.menuBarEvents) {
                     ForEach(MenuBarEvents.allCases) { lead in
-                        Text(lead.title).tag(lead)
+                        Text(lead.title.localizedUI).tag(lead)
                     }
                 } label: {
                     SettingsRowTitle(.calendarMenuBar, "Show Upcoming Events")
@@ -118,7 +118,7 @@ struct CalendarSettingsView: View {
                 .settingsEnabled(settings.calendarMenuBarDisplay != .disabled)
                 Picker(selection: $settings.hideCurrentEvent) {
                     ForEach(HideCurrentEvent.allCases) { hide in
-                        Text(hide.title).tag(hide)
+                        Text(hide.title.localizedUI).tag(hide)
                     }
                 } label: {
                     SettingsRowTitle(.calendarMenuBar, "Hide Current Event")
@@ -197,7 +197,7 @@ private struct CalendarPickerSection: View {
             SettingsFilterField(prompt: "Search calendars…", query: $query)
 
             if calendars.isEmpty {
-                Text(emptyMessage)
+                Text(emptyMessage.localizedUI)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
             } else {
@@ -211,7 +211,7 @@ private struct CalendarPickerSection: View {
     }
 
     private var emptyMessage: String {
-        if !query.isEmpty { return "No matches for “\(query)”." }
+        if !query.isEmpty { return String(localized: "No matches for “\(query)”.") }
         return store.access == .granted ? "No calendars on this Mac." : "Nothing to show yet."
     }
 }
