@@ -6,7 +6,6 @@ struct WindowManagementSettingsView: View {
     @State private var editor: WindowLayoutEditRequest?
     @State private var pendingDeletion: WindowLayout?
     @State private var customSizeEdit: CustomWindowSizeEditRequest?
-    @State private var chosenPreset: WindowShortcutPreset?
 
     var body: some View {
         @Bindable var settings = settings
@@ -16,16 +15,13 @@ struct WindowManagementSettingsView: View {
                 enableTitle: "Enable window management",
                 enableSubtitle: "Moves the last window you used. Needs Accessibility.",
                 isEnabled: $settings.windowManagementEnabled,
-                showsInLauncher: $settings.windowManagementShowInLauncher,
-                showsIcon: true,
-                showsHeader: false)
+                showsInLauncher: $settings.windowManagementShowInLauncher)
 
             Group {
                 options
                 WindowLayoutsSection(
                     onEdit: { editor = WindowLayoutEditRequest(layout: $0) },
                     onDelete: { pendingDeletion = $0 })
-                RoomsSection()
                 FeatureCommandsSection(
                     owner: .windowManagement, anchor: .windowManagementLayoutCommands)
                 CustomWindowSizesSection(onEdit: {
@@ -64,11 +60,11 @@ struct WindowManagementSettingsView: View {
         return Section {
             Picker(selection: $settings.windowCycle) {
                 ForEach(WindowCycle.allCases) { cycle in
-                    Text(cycle.title).tag(cycle)
+                    Text(cycle.title.localizedUI).tag(cycle)
                 }
             } label: {
                 SettingsRowTitle(.windowManagementOptions, "Cycling")
-                Text(settings.windowCycle.detail)
+                Text(settings.windowCycle.detail.localizedUI)
             }
 
             LabeledContent {
@@ -76,39 +72,12 @@ struct WindowManagementSettingsView: View {
                     Text("\(settings.windowGap) pt")
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
-                    Stepper(
-                        "Gap between windows", value: $settings.windowGap,
-                        in: WindowPlacementEngine.gapRange, step: 2
-                    )
-                    .labelsHidden()
+                    Stepper("Gap between windows", value: $settings.windowGap, in: 0...64, step: 2)
+                        .labelsHidden()
                 }
             } label: {
                 SettingsRowTitle(.windowManagementOptions, "Gap between windows")
                 Text("Between tiled windows and screen edges.")
-            }
-
-            LabeledContent {
-                HStack(spacing: Theme.Spacing.sm) {
-                    Picker("Shortcut preset", selection: $chosenPreset) {
-                        Text("Choose…").tag(WindowShortcutPreset?.none)
-                        ForEach(WindowShortcutPreset.allCases) { preset in
-                            Text(preset.title).tag(Optional(preset))
-                        }
-                    }
-                    .labelsHidden()
-                    .fixedSize()
-                    Button("Apply") {
-                        guard let chosenPreset else { return }
-                        Task { await core.windowShortcutPresetCoordinator.apply(chosenPreset) }
-                    }
-                    // Live bindings decide, so one edit to an applied preset re-enables it.
-                    .disabled(
-                        chosenPreset == nil
-                            || chosenPreset == core.windowShortcutPresetCoordinator.matchingPreset)
-                }
-            } label: {
-                SettingsRowTitle(.windowManagementOptions, "Shortcut preset")
-                Text("Fills in another app's shortcuts. Others stay as they are.")
             }
         } header: {
             SettingsSectionHeader(.windowManagementOptions)
@@ -123,7 +92,7 @@ struct WindowManagementSettingsView: View {
                     WindowCommandSettingsRow(command: command)
                 }
             } header: {
-                Text(section.group.title)
+                Text(section.group.title.localizedUI)
             }
         }
     }
