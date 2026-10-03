@@ -78,6 +78,7 @@ jobs:
       - name: Run regression harnesses
         env:
           TMPDIR: ${{ runner.temp }}
+          TINYCAST_TEST_JOBS: '3'
         run: ./Scripts/run-tests.sh
 
       - name: Build Debug

@@ -1,5 +1,9 @@
 # Release
 
+本 fork 的中文版发布流程见 [localization-cn.md](localization-cn.md)：仅手动确认后构建
+arm64 或 Universal，应用名为 `Tinycast.app`，使用 ad-hoc 签名，安装包发布到本仓库。
+Homebrew 配方位于默认分支 `Casks/tinycast-cn.rb`。以下内容保留上游发行机制的说明。
+
 How a build reaches a user. The local development loop is in [development.md](development.md);
 the signing identity itself is in [signing.md](signing.md).
 
