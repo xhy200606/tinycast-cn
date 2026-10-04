@@ -2,13 +2,6 @@
 
 **English** · [简体中文](README.zh-CN.md)
 
-This is the Simplified Chinese fork of [abue-ammar/tinycast](https://github.com/abue-ammar/tinycast),
-maintained in [xhy200606/tinycast-cn](https://github.com/xhy200606/tinycast-cn).
-The current Chinese release is **0.11.12**, based on the same upstream version, with Chinese UI,
-permission descriptions, Pinyin search aliases and both Chinese and English command search.
-Localized source lives on [`cn-localization-v0.11.12`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.12);
-`main` provides the Homebrew cask and maintenance entry points.
-
 **A tiny, fully native macOS launcher. One hotkey, everything you reach for all day, under 100 MB of
 RAM.**
 
