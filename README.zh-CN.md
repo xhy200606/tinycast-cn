@@ -1,4 +1,4 @@
-# Tinycast · 简体中文版
+# Tinycast-cn
 
 [English](README.md) · **简体中文**
 
