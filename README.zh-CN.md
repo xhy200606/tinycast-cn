@@ -2,12 +2,6 @@
 
 [English](README.md) · **简体中文**
 
-这是 [abue-ammar/tinycast](https://github.com/abue-ammar/tinycast) 的简体中文分支，
-由 [xhy200606/tinycast-cn](https://github.com/xhy200606/tinycast-cn) 仓库维护。
-当前中文版为 **0.11.12**，基于上游同版本，提供中文界面、权限说明、拼音搜索别名，以及中英文命令搜索。
-汉化源码位于 [`cn-localization-v0.11.12`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.12)；
-`main` 提供 Homebrew 配方和维护入口。
-
 **一个小巧、完全原生的 macOS 启动器。只需一个快捷键，就能调用日常所需功能，内存占用低于 100 MB。**
 
 <p align="center">
