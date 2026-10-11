@@ -1,14 +1,16 @@
 {
   "language": "zh-Hans",
   "upstream_repository": "abue-ammar/tinycast",
-  "upstream_tag": "v0.11.12",
-  "upstream_commit": "fa1c2bb2849dd826abc43b9343abad835607bdcf",
+  "upstream_tag": "v0.11.19",
+  "upstream_commit": "126c998d87cd7e93bd5e3437098d9c646eb6a714",
   "localization_start_commit": "0d4645d6fdfbd85b3610033996988a87455afe1a",
-  "maintenance_branch": "cn-localization-v0.11.12",
+  "maintenance_branch": "cn-localization-v0.11.19",
   "build_workflow": ".github/workflows/release.yml",
   "build_requires_manual_confirmation": true,
   "bundle_identifier": "com.tinycast.app",
   "application_name": "Tinycast.app",
   "distribution": "ad-hoc-artifacts",
-  "automatic_updates": false
+  "automatic_updates": false,
+  "automatic_update_checks": true,
+  "release_repository": "xhy200606/tinycast-cn"
 }

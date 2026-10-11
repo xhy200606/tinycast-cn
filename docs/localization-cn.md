@@ -1,6 +1,6 @@
 # 中文版维护与云编译
 
-中文维护分支 `cn-localization-v0.11.12` 基于上游 `abue-ammar/tinycast` 的 v0.11.12 源码及已有汉化提交。
+中文维护分支 `cn-localization-v0.11.19` 基于上游 `abue-ammar/tinycast` 的 v0.11.19 源码及已有汉化提交。
 本次开始维护时的分支提交为 `0d4645d6fdfbd85b3610033996988a87455afe1a`。
 对应上游基线详见 `localization-cn.json`。汉化使用简体中文资源，系统首选语言为简体中文时启用；
 英文原文继续保留，应用、文件名、第三方扩展自己的内容和用户输入不做强制翻译。
@@ -32,12 +32,25 @@ git diff --check
 ```
 
 检查包括重复键、空译文、格式参数、动态标题目录、直接显示的字符串、SwiftUI 字面量、原始字符串、
-多行字符串及相关回归用例。源码检查通过签名匹配识别参数文本，不推断 Swift 参数的具体类型。
+多行字符串及相关回归用例。自定义设置控件的标题、副标题、筛选提示、菜单标题也纳入资源检查；
+页面顶部、通用选项、权限状态和原生分段控件的已知动态显示路径另有回归检查。
+插值中的内置功能名也必须先翻译，例如 `String(localized: "Enable \(anchor.title.localizedUI)")`，
+否则只会翻译“启用”，功能名仍是英文。源码检查通过签名匹配识别参数文本，不推断 Swift 参数的具体类型。
 这不是完整的 Swift 语义分析，不能证明每条动态渲染路径都正确，也不能替代编译和界面检查。
 
 得到编译许可后，使用 `./Scripts/check-localization.sh --extract` 对照 Xcode 导出的真实资源键，
 核对 `%@`、`%lld` 等具体类型。之后运行完整回归测试、Debug/Release 编译和原生界面检查。
 中文可能需要更宽的控件，重点检查设置页、AI 服务商、工作空间、操作菜单和 VoiceOver 标签。
+
+## 设置界面的复查重点
+
+- 每个页面的顶部导航标题、功能开关名称和开关说明。
+- 通用页的窗口模式、紧凑/展开选项、显示建议及搜索灵敏度的各档位。
+- 编辑面板的标题、副标题，以及原生分段选择器的标签和宽度。
+- 权限页的授权状态，以及 AI 服务商的检查状态、模型数量、用量周期和密钥状态。
+
+共享控件接收 `String` 时不会自动翻译。资源键存在并不代表显示路径已本地化；
+上游更换控件或引入新的动态标题后，应同时核查资源键与渲染处的本地化调用。
 
 ## 手动 GitHub 云编译
 
@@ -47,23 +60,26 @@ git diff --check
 
 1. 先完成翻译和静态检查，检查并提交具体改动。
 2. 得到用户的明确编译确认。
-3. 在 Actions 选择本工作流，选择 `cn-localization-v0.11.12` 分支，核对版本号和架构，勾选确认。
+3. 在 Actions 选择本工作流，选择 `cn-localization-v0.11.19` 分支，核对版本号和架构，勾选确认。
 4. 或使用 CLI（同样只在明确确认之后）：
 
 ```sh
 gh workflow run release.yml --repo xhy200606/tinycast-cn \
-  --ref cn-localization-v0.11.12 \
-  -f version=0.11.12 -f architecture=universal -f confirmed=true
+  --ref cn-localization-v0.11.19 \
+  -f version=0.11.19 -f architecture=arm64 -f confirmed=true
 ```
 
 构建使用 macOS 26 / Xcode 26，先做翻译检查、lint、回归测试、Debug 编译及 Xcode 文案导出，
-再生成 Release。默认 universal 同时支持 Apple 芯片和 Intel，并检查主程序与 OCR 辅助程序架构。
+再生成 Release。默认构建 arm64；本次只准备 ARM 版，等待明确确认后启动云编译。Universal 可供后续单独确认。
+同时检查主程序、OCR 辅助程序和听写辅助程序的架构。
 Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载构建日志。
-此流程不会发布正式 Release、修改上游 Homebrew 仓库或发送 Discord 公告。
+`publish` 默认开启：构建通过后发布到本仓库的 `v版本号` Release，并记录源码提交；
+同名 Release 指向其他源码时拒绝覆盖。不会修改上游 Homebrew 仓库或发送 Discord 公告。
 
 应用名为 `Tinycast.app`，Debug 和 Release 的 bundle ID 均为 `com.tinycast.app`，与上游版共用设置。
 配置镜像位于 `~/.config/tinycast/settings.json`。目前没有签名证书，构建使用 ad-hoc 签名，
-没有 Apple 公证；Info.plist 的 `TinycastManualUpdatesOnly` 标记关闭应用内升级，后续版本需手动下载。
+没有 Apple 公证；Info.plist 的 `TinycastManualUpdatesOnly` 标记关闭自动安装；检查更新仍可读取本 fork 的正式 Release，
+更新按钮打开该版本的 GitHub 页面，后续版本需手动下载安装。
 更新源指向本 fork，避免
 把汉化版替换成上游英文包。不要删除上游的签名验证，也不要把临时签名当作可信自动更新证书。
 每次重新安装后，macOS 可能要求重新授予辅助功能等权限。
@@ -77,7 +93,7 @@ Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载�
 维护时请使用包含真实 Git 历史的完整克隆，不要从 ZIP 或 tarball 初始化的新仓库执行合并。
 
 ```sh
-./Scripts/prepare-upstream-cn.sh v0.11.13
+./Scripts/prepare-upstream-cn.sh v0.11.20
 ```
 
 此脚本只准备分支和待提交的合并，保留本 fork 的手动构建工作流，执行不编译的翻译检查，
@@ -99,17 +115,17 @@ Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载�
 `tinycast-cn-universal` 安装供 Intel 和 Apple 芯片使用的 Universal 包，`tinycast-cn` 自动选择架构。
 应用均保持正式名称 `Tinycast.app`，配方相互声明冲突，不自动移除 Gatekeeper 隔离标记。
 
-两个架构均构建成功后，下载相同源码提交对应的包，发布到本 fork 的 `cn-v版本号` GitHub Release。
+安装包发布到本 fork 的 `v版本号` GitHub Release。本次仅发布 ARM，Universal 配方保留已验证的旧版。
 每次使用实际 DMG 重新生成 cask 的校验值，不使用占位值，也不沿用上个版本的哈希：
 
 ```sh
-node Scripts/generate-homebrew-cask.js --version 0.11.12 \
-  --arm64 /path/to/Tinycast-arm64-0.11.12.dmg \
-  --universal /path/to/Tinycast-universal-0.11.12.dmg \
+node Scripts/generate-homebrew-cask.js --version 0.11.19 \
+  --arm64 /path/to/Tinycast-arm64-0.11.19.dmg \
   --output Casks/tinycast-cn.rb
 for cask in Casks/tinycast-cn*.rb; do ruby -c "$cask"; done
 ```
 
-生成脚本一次更新三个配方。核对 Release 中两份 DMG 的 SHA-256 与各配方一致，
+只提供 `--arm64` 时，脚本更新 ARM 配方及自动选择入口，并保留 Intel 的版本、下载地址和哈希。
+同时提供 `--universal` 时才更新三个配方。核对 Release 中 DMG 的 SHA-256 与各配方一致，
 再将配方提交到默认分支和汉化维护分支。
 tap 的默认分支只需同步工作流入口、维护工具和 cask，无需改变其上游源码基线。

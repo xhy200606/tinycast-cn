@@ -1,6 +1,14 @@
-# Tinycast-cn
+# Tinycast · Simplified Chinese
 
 **English** · [简体中文](README.zh-CN.md)
+
+This is the Simplified Chinese fork of [abue-ammar/tinycast](https://github.com/abue-ammar/tinycast),
+maintained in [xhy200606/tinycast-cn](https://github.com/xhy200606/tinycast-cn).
+The published Chinese release is **0.11.12**. Source for upstream **0.11.19** is prepared for an ARM-only
+cloud build, pending the maintainer’s approval. It includes Chinese UI,
+permission descriptions, Pinyin search aliases and both Chinese and English command search.
+Localized source lives on [`cn-localization-v0.11.19`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.19);
+`main` provides the Homebrew cask and maintenance entry points.
 
 **A tiny, fully native macOS launcher. One hotkey, everything you reach for all day, under 100 MB of
 RAM.**
@@ -49,6 +57,8 @@ developer. If Tinycast earns a place in your daily flow, a one-off tip helps sup
 
 - **App launcher** — fuzzy-search and launch anything, pin favorites, see what's running, quit an app
   or every app at once.
+- **Dictation (0.11.19 source)** — transcribe locally with Parakeet or Qwen, then paste or copy
+  the text; use a held shortcut, a toggle, or the AI composer’s microphone button.
 - **Global hotkey** — one shortcut summons the palette from anywhere.
 - **Per-app hotkeys** — bind a key to an app; press it to toggle (focus/hide).
 - **Search Files** — open files and folders from the folders you choose, through Spotlight, with no
@@ -128,7 +138,8 @@ xattr -dr com.apple.quarantine "/Applications/Tinycast.app"
 
 ### Updates
 
-In-app automatic updates are disabled for this Chinese build. Update through Homebrew:
+The 0.11.19 source checks this fork’s GitHub Releases. Updates are downloaded from GitHub and installed
+manually; ad-hoc packages never replace themselves. Published Homebrew packages can be updated with:
 
 ```sh
 brew update
@@ -163,7 +174,7 @@ disabled, and keystrokes are matched locally, never stored and never sent anywhe
 Clone the Chinese maintenance branch to build the localized app:
 
 ```sh
-git clone --branch cn-localization-v0.11.12 https://github.com/xhy200606/tinycast-cn.git
+git clone --branch cn-localization-v0.11.19 https://github.com/xhy200606/tinycast-cn.git
 cd tinycast-cn
 ```
 
@@ -177,7 +188,7 @@ standards, the design system and one document per feature.
 
 Cloud builds are manual: select the Chinese branch, version and `arm64` or `universal` architecture
 in GitHub Actions, then explicitly check the confirmation input. Pushes and PRs do not start builds.
-The workflow runs lint, localization checks, all 86 regression harnesses, Debug compilation,
+The workflow runs lint, localization checks, all 95 regression harnesses, Debug compilation,
 Xcode localization extraction and Release compilation, then verifies Chinese resources,
 the main executable and the OCR helper before packaging.
 
