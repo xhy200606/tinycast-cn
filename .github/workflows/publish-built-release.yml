@@ -1,0 +1,53 @@
+name: Tinycast · 重试 ARM 安装包发布
+on:
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: 已完成编译、签名和打包检查的运行 ID
+        type: string
+        required: true
+      version:
+        description: 安装包版本
+        type: string
+        default: '0.11.19'
+        required: true
+      confirmed:
+        description: 我确认发布已验证的 ARM 安装包（不重新编译）
+        type: boolean
+        default: false
+        required: true
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    if: inputs.confirmed == true
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUILD_VERSION: ${{ inputs.version }}
+      BUILD_ARCHITECTURE: arm64
+      BUILD_RUN_ID: ${{ inputs.build_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify the producing build
+        run: |
+          set -euo pipefail
+          [[ "$BUILD_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$BUILD_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN_ID" > "$RUNNER_TEMP/run.json"
+          test "$(jq -r .path "$RUNNER_TEMP/run.json")" = .github/workflows/release.yml
+          test "$(jq -r .event "$RUNNER_TEMP/run.json")" = workflow_dispatch
+          test "$(jq -r .status "$RUNNER_TEMP/run.json")" = completed
+          echo "SOURCE_SHA=$(jq -r .head_sha "$RUNNER_TEMP/run.json")" >> "$GITHUB_ENV"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN_ID/jobs?per_page=100" > "$RUNNER_TEMP/jobs.json"
+          for STEP in 'Run regression harnesses' 'Build Debug' 'Verify Xcode localization extraction' \
+            'Build Release' 'Verify resources and architectures, then sign locally' 'Package application' 'Upload install packages'; do
+            jq -e --arg step "$STEP" '[.jobs[].steps[] | select(.name == $step and .conclusion == "success")] | length == 1' "$RUNNER_TEMP/jobs.json"
+          done
+          ARTIFACT="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$BUILD_RUN_ID/artifacts" \
+            --jq ".artifacts[] | select(.name | startswith(\"Tinycast-arm64-${BUILD_VERSION}-\")) | .name")"
+          test -n "$ARTIFACT"
+          gh run download "$BUILD_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT" --dir dist
+      - name: Publish verified packages
+        run: ./Scripts/publish-built-release.sh
