@@ -1,14 +1,6 @@
-# Tinycast · Simplified Chinese
+# Tinycast-cn
 
 **English** · [简体中文](README.zh-CN.md)
-
-This is the Simplified Chinese fork of [abue-ammar/tinycast](https://github.com/abue-ammar/tinycast),
-maintained in [xhy200606/tinycast-cn](https://github.com/xhy200606/tinycast-cn).
-The published Chinese release is **0.11.12**. Source for upstream **0.11.19** is prepared for an ARM-only
-cloud build, pending the maintainer’s approval. It includes Chinese UI,
-permission descriptions, Pinyin search aliases and both Chinese and English command search.
-Localized source lives on [`cn-localization-v0.11.19`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.19);
-`main` provides the Homebrew cask and maintenance entry points.
 
 **A tiny, fully native macOS launcher. One hotkey, everything you reach for all day, under 100 MB of
 RAM.**
@@ -185,6 +177,9 @@ The toolchain is **Xcode 26+, Swift 6 and XcodeGen**. See
 standards, the design system and one document per feature.
 
 ### Cloud builds and upstream updates
+
+Upstream **0.11.19** is localized on [`cn-localization-v0.11.19`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.19).
+The published packages remain **0.11.12**; this update will build **ARM only**, after explicit approval.
 
 Cloud builds are manual: select the Chinese branch, version and `arm64` or `universal` architecture
 in GitHub Actions, then explicitly check the confirmation input. Pushes and PRs do not start builds.

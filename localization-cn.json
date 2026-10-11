@@ -9,7 +9,7 @@
   "build_requires_manual_confirmation": true,
   "bundle_identifier": "com.tinycast.app",
   "application_name": "Tinycast.app",
-  "distribution": "ad-hoc-artifacts",
+  "distribution": "ad-hoc-github-release",
   "automatic_updates": false,
   "automatic_update_checks": true,
   "release_repository": "xhy200606/tinycast-cn"
