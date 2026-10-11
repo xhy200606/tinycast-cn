@@ -49,7 +49,7 @@ developer. If Tinycast earns a place in your daily flow, a one-off tip helps sup
 
 - **App launcher** — fuzzy-search and launch anything, pin favorites, see what's running, quit an app
   or every app at once.
-- **Dictation (0.11.19 source)** — transcribe locally with Parakeet or Qwen, then paste or copy
+- **Dictation (ARM 0.11.19)** — transcribe locally with Parakeet or Qwen, then paste or copy
   the text; use a held shortcut, a toggle, or the AI composer’s microphone button.
 - **Global hotkey** — one shortcut summons the palette from anywhere.
 - **Per-app hotkeys** — bind a key to an app; press it to toggle (focus/hide).
@@ -110,7 +110,7 @@ from [this repository's releases](https://github.com/xhy200606/tinycast-cn/relea
 
 | Your Mac | Package |
 | --- | --- |
-| Apple silicon (M series) | [arm64 DMG](https://github.com/xhy200606/tinycast-cn/releases/download/cn-v0.11.12/Tinycast-arm64-0.11.12.dmg) |
+| Apple silicon (M series) | [arm64 DMG](https://github.com/xhy200606/tinycast-cn/releases/download/v0.11.19/Tinycast-arm64-0.11.19.dmg) |
 | Intel, or a package containing both architectures | [Universal DMG](https://github.com/xhy200606/tinycast-cn/releases/download/cn-v0.11.12/Tinycast-universal-0.11.12.dmg) |
 
 Open the DMG and drag **Tinycast.app** into **Applications**. Both packages use the app name
@@ -179,7 +179,8 @@ standards, the design system and one document per feature.
 ### Cloud builds and upstream updates
 
 Upstream **0.11.19** is localized on [`cn-localization-v0.11.19`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.19).
-The published packages remain **0.11.12**; this update will build **ARM only**, after explicit approval.
+The published ARM package is **0.11.19**. Intel continues to use **Universal 0.11.12**;
+this update includes only an ARM build.
 
 Cloud builds are manual: select the Chinese branch, version and `arm64` or `universal` architecture
 in GitHub Actions, then explicitly check the confirmation input. Pushes and PRs do not start builds.
