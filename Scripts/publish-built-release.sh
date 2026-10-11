@@ -23,6 +23,12 @@ if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
     exit 1
   }
 else
+  target_args=(--target "$source_sha")
+  if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
+    tagged_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq .sha)
+    test "$tagged_sha" = "$source_sha"
+    target_args=()
+  fi
   notes=$(mktemp)
   trap 'rm -f "$notes"' EXIT
   {
@@ -32,7 +38,7 @@ else
     echo '<!-- tinycast:install -->'
     echo '下载与你的 Mac 架构匹配的 DMG，将 Tinycast.app 拖入应用程序文件夹。'
   } > "$notes"
-  gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$source_sha" \
+  gh release create "$tag" --repo "$GITHUB_REPOSITORY" "${target_args[@]}" \
     --draft --title "Tinycast ${BUILD_VERSION} · 简体中文版" --notes-file "$notes"
 fi
 gh release upload "$tag" dist/* --repo "$GITHUB_REPOSITORY" --clobber
