@@ -177,29 +177,7 @@ jobs:
         if: inputs.publish
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          TAG="v$BUILD_VERSION"
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            git fetch --no-tags origin "refs/tags/$TAG:refs/tags/$TAG"
-            test "$(git rev-parse "$TAG^{commit}")" = "$SOURCE_SHA" || {
-              echo '::error::This release belongs to another source commit.'
-              exit 1
-            }
-          else
-            {
-              echo "同步上游 Tinycast v$BUILD_VERSION，保留简体中文界面与拼音搜索。"
-              echo "源码：$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$SOURCE_SHA"
-              echo '检查更新指向本仓库；安装包使用 ad-hoc 签名，需手动下载安装。'
-              echo '<!-- tinycast:install -->'
-              echo '下载与你的 Mac 架构匹配的 DMG，将 Tinycast.app 拖入应用程序文件夹。'
-            } > "$RUNNER_TEMP/release-notes.md"
-            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$SOURCE_SHA" \
-              --draft --title "Tinycast $BUILD_VERSION · 简体中文版" \
-              --notes-file "$RUNNER_TEMP/release-notes.md"
-          fi
-          gh release upload "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+        run: ./Scripts/publish-built-release.sh
 
       - name: Upload build diagnostics
         if: always()
