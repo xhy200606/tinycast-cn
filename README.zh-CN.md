@@ -1,13 +1,6 @@
-# Tinycast · 简体中文版
+# Tinycast-cn
 
 [English](README.md) · **简体中文**
-
-这是 [abue-ammar/tinycast](https://github.com/abue-ammar/tinycast) 的简体中文分支，
-由 [xhy200606/tinycast-cn](https://github.com/xhy200606/tinycast-cn) 仓库维护。
-已发布的中文版为 **0.11.12**。上游 **0.11.19** 的汉化源码已准备，只构建 ARM 版，云编译等待维护者确认。
-提供中文界面、权限说明、拼音搜索别名，以及中英文命令搜索。
-汉化源码位于 [`cn-localization-v0.11.19`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.19)；
-`main` 提供 Homebrew 配方和维护入口。
 
 **一个小巧、完全原生的 macOS 启动器。只需一个快捷键，就能调用日常所需功能，内存占用低于 100 MB。**
 
@@ -171,6 +164,9 @@ cd tinycast-cn
 **[docs/](docs/README.md)** 提供其他文档索引，涵盖架构、工程规范、设计系统和各项功能。
 
 ### 云编译与上游更新
+
+上游 **0.11.19** 已同步并汉化，源码位于 [`cn-localization-v0.11.19`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.19)。
+已发布的安装包仍为 **0.11.12**；本次仅编译 **ARM 版**，等待明确同意后启动云编译。
 
 云编译必须手动触发：在 GitHub Actions 中选择中文分支、版本号，以及 `arm64` 或 `universal` 架构，
 再显式勾选确认选项。推送和 PR 不会触发编译。
