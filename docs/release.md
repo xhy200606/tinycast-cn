@@ -1,7 +1,7 @@
 # Release
 
 本 fork 的中文版发布流程见 [localization-cn.md](localization-cn.md)：仅手动确认后构建
-arm64 或 Universal，应用名为 `Tinycast.app`，使用 ad-hoc 签名，安装包发布到本仓库。
+本次仅 arm64，Universal 留待单独确认；应用名为 `Tinycast.app`，使用 ad-hoc 签名，安装包发布到本仓库。
 Homebrew 配方位于默认分支 `Casks/tinycast-cn.rb`。以下内容保留上游发行机制的说明。
 
 How a build reaches a user. The local development loop is in [development.md](development.md);
@@ -79,10 +79,14 @@ A stable run then fans out to a second job, `universal`, which rebuilds the same
 `ARCHS="arm64 x86_64"` and attaches `Tinycast-Universal-<version>.dmg` / `.zip` to the release the
 first job created, then bumps `tinycast-universal`. macOS 26 is the last release that boots on Intel,
 and those Macs need both slices. Both jobs pin `ARCHS` explicitly and assert the slices on *every*
-shipping binary — the app and the bundled `ClipboardTextHelper`: trusting `ARCHS_STANDARD` is what
+shipping binary — the app, `ClipboardTextHelper` and `Tinycast Dictation`: trusting `ARCHS_STANDARD` is what
 shipped a thin arm64 build to Intel users once already, and it also keeps the Apple silicon download
 from silently gaining a slice it never needs. A thin helper inside a universal app is the quiet form
-of the same bug: the app boots on Intel and only clipboard OCR stops working.
+of the same bug: the app boots on Intel and only clipboard OCR or dictation stops working.
+
+Channel builds override `TINYCAST_BUNDLE_IDENTIFIER`, not the target-wide `PRODUCT_BUNDLE_IDENTIFIER`.
+The Dictation helper derives its own identifier with a `.dictation` suffix; signature verification
+checks that its bundle and signing identifiers agree and remain distinct from the main app.
 
 ### Release notes
 

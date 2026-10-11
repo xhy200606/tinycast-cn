@@ -34,11 +34,22 @@ final class UpdateCoordinator {
     }
 
     var channel: ReleaseChannel { store.channel }
+    var manualUpdatesOnly: Bool {
+        Bundle.main.object(forInfoDictionaryKey: "TinycastManualUpdatesOnly") as? Bool == true
+    }
     var runningVersion: String { store.runningVersion?.description ?? String(localized: "unknown") }
 
     /// A local build has no release stream, so it does not advertise the command either.
     func applyEnabled() {
         core.appIndex.setCommandsVisible([.checkForUpdates], store.channel.updatesItself)
+    }
+
+    func applyAutomaticChecking() {
+        if core.settings.automaticallyCheckForUpdates {
+            store.start()
+        } else {
+            store.stop()
+        }
     }
 
     func focusExisting() -> Bool {
@@ -81,6 +92,7 @@ final class UpdateCoordinator {
 
     /// The automatic path: `false` answers that it withheld the prompt, so the store re-offers it.
     func presentIfAvailable(_ release: AvailableRelease) -> Bool {
+        guard core.settings.automaticallyCheckForUpdates else { return false }
         switch stage {
         // Already in hand: re-offering would throw away a download or the relaunch it earned.
         case .installing, .readyToRelaunch:
@@ -97,6 +109,10 @@ final class UpdateCoordinator {
 
     func install() {
         guard let release = pendingRelease else { return }
+        if manualUpdatesOnly {
+            NSWorkspace.shared.open(ReleaseFeed.releasePage(for: release))
+            return
+        }
         // Re-asked at the moment of the click, never read from a flag that could have gone stale.
         if let blocker = UpdateReadiness.evaluate(core.currentActivity) {
             stage = .blocked(blocker, release)

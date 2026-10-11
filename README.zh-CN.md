@@ -4,8 +4,9 @@
 
 这是 [abue-ammar/tinycast](https://github.com/abue-ammar/tinycast) 的简体中文分支，
 由 [xhy200606/tinycast-cn](https://github.com/xhy200606/tinycast-cn) 仓库维护。
-当前中文版为 **0.11.12**，基于上游同版本，提供中文界面、权限说明、拼音搜索别名，以及中英文命令搜索。
-汉化源码位于 [`cn-localization-v0.11.12`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.12)；
+已发布的中文版为 **0.11.12**。上游 **0.11.19** 的汉化源码已准备，只构建 ARM 版，云编译等待维护者确认。
+提供中文界面、权限说明、拼音搜索别名，以及中英文命令搜索。
+汉化源码位于 [`cn-localization-v0.11.19`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.19)；
 `main` 提供 Homebrew 配方和维护入口。
 
 **一个小巧、完全原生的 macOS 启动器。只需一个快捷键，就能调用日常所需功能，内存占用低于 100 MB。**
@@ -53,6 +54,8 @@ Tinycast **免费且开源**。以下捐助链接用于支持原项目的上游�
 ## 功能
 
 - **应用启动器**：模糊搜索并启动应用、固定常用应用、查看运行状态，以及退出单个或全部应用。
+- **听写（0.11.19 源码）**：使用本地 Parakeet 或 Qwen 模型转写语音，并粘贴或复制文字；
+  支持按住说话、按键切换及 AI 输入框的麦克风按钮。
 - **全局快捷键**：随时按下一个快捷键，唤出命令面板。
 - **应用专属快捷键**：为应用绑定快捷键，按下即可在聚焦和隐藏之间切换。
 - **文件搜索**：通过 Spotlight 搜索并打开所选目录中的文件和文件夹，不额外建立自己的索引。
@@ -123,7 +126,8 @@ xattr -dr com.apple.quarantine "/Applications/Tinycast.app"
 
 ### 更新
 
-本中文版已关闭应用内自动升级。通过 Homebrew 更新：
+0.11.19 源码的检查更新指向本仓库的 GitHub Release，并引导手动下载安装；ad-hoc 安装包不会自行替换应用。
+已发布的 Homebrew 安装包可通过以下命令更新：
 
 ```sh
 brew update
@@ -157,7 +161,7 @@ Homebrew 使用本仓库默认分支中的配方。
 克隆中文维护分支，以构建汉化应用：
 
 ```sh
-git clone --branch cn-localization-v0.11.12 https://github.com/xhy200606/tinycast-cn.git
+git clone --branch cn-localization-v0.11.19 https://github.com/xhy200606/tinycast-cn.git
 cd tinycast-cn
 ```
 
@@ -170,7 +174,7 @@ cd tinycast-cn
 
 云编译必须手动触发：在 GitHub Actions 中选择中文分支、版本号，以及 `arm64` 或 `universal` 架构，
 再显式勾选确认选项。推送和 PR 不会触发编译。
-工作流依次执行 lint、汉化检查、全部 86 项回归测试、Debug 编译、Xcode 本地化文案导出和 Release 编译，
+工作流依次执行 lint、汉化检查、全部 95 项回归测试、Debug 编译、Xcode 本地化文案导出和 Release 编译，
 再核对中文资源、主程序及 OCR 辅助程序的架构，最后打包。
 
 上游发布新版本后，从当前中文版创建新的维护分支，合并上游标签。

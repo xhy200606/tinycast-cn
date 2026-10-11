@@ -1,8 +1,13 @@
 # Updates
 
-Tinycast checks GitHub Releases once a day, offers the newest release for its own channel in a native
-window with its release notes, installs it and relaunches. There is no Sparkle and no appcast: the
-release feed the website already reads is the feed the app reads.
+本 fork 的检查更新读取 `xhy200606/tinycast-cn` 的正式 Release。`TinycastManualUpdatesOnly` 只限制安装：
+更新按钮打开对应的 GitHub Release 页面，ad-hoc 包不会调用应用替换流程。Release 标签使用 `v版本号`；
+ARM 包使用 `Tinycast-arm64-版本号.zip`，Universal 包名不区分大小写。本次只准备 ARM 包。
+
+
+By default, Tinycast checks GitHub Releases once a day and offers the newest release for its own
+channel in a native window with its release notes, installs it and relaunches. There is no Sparkle and
+no appcast: the release feed the website already reads is the feed the app reads.
 
 ## Invariants
 
@@ -46,8 +51,11 @@ release feed the website already reads is the feed the app reads.
   have found the desktop idle. The window itself still appears at most once per version per launch:
   `announcedVersion` is set the moment an offer lands, so re-offering can never turn into nagging.
   Readiness is asked again at the click.
-- **Nothing about updates is persisted in `AppSettings`.** The feature owns one cache file, so no
-  `AppSettingsKey` and no `SettingsBackupCoverage` entry exist for it.
+- **Automatic checking is optional; manual checking stays available.** Settings → General →
+  Automatically check for updates defaults on. Turning it off stops the background task and any
+  in-flight automatic request, so neither a response nor a cached release can raise a new prompt.
+  The preference travels through settings backups and `general.automaticallyCheckForUpdates` in
+  settings.json; release metadata and skipped versions stay in the feature's own cache file.
 - **The window shows the changelog and nothing else.** CI writes install instructions below
   `<!-- tinycast:install -->`, and `ReleaseNotes.summary` — the single reader of that marker, called
   where the feed is parsed so the cache holds the cut text too — drops them. An app that installs its
@@ -94,6 +102,10 @@ It holds `lastCheckedAt`, the newest release seen, and the version the user dism
 measured from `lastCheckedAt`, so relaunching never re-asks GitHub; the interval is 24 h, dropping to
 2 h after a failed attempt, and the first check waits 30 s so it never lands in the login rush. The
 request carries a `User-Agent`, which the GitHub API rejects requests without.
+
+Disabling automatic checks takes effect immediately and survives relaunch. Turning them back on
+resumes the same schedule, with the startup delay and cached check time respected. Check for Updates
+always works independently of this preference, including while automatic checking is disabled.
 
 **Later means skip.** It records the version, so that release stops asking; a newer one still asks.
 Check for Updates ignores the record and always offers whatever is newer than what is running.

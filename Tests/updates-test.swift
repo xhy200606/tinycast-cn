@@ -161,6 +161,13 @@ struct UpdatesTests {
             stable?.assetURL.absoluteString.hasSuffix(".zip") == true,
             "and selects the zip asset")
         expect(stable?.publishedAt != nil, "and parses the ISO-8601 timestamp")
+        expect(ReleaseFeed.repository == "xhy200606/tinycast-cn", "Chinese updates use the owner's fork")
+        if let stable {
+            expect(
+                ReleaseFeed.releasePage(for: stable).absoluteString
+                    == "https://github.com/xhy200606/tinycast-cn/releases/tag/v0.3.0",
+                "manual downloads open the matching release in the owner's fork")
+        }
 
         let beta = ReleaseFeed.newest(from: body, channel: .beta, architecture: .appleSilicon)
         expect(beta?.version == AppVersion("0.4.0-beta.2"), "beta takes the newest prerelease")
@@ -218,6 +225,18 @@ struct UpdatesTests {
 
     /// Stable carries a thin arm64 zip and a universal one; each Mac gets what it runs.
     static func picksTheZipThisMacCanRun() {
+        let chineseAssets = feed(
+            entry(
+                tag: "v0.11.19", prerelease: false,
+                assets: ["Tinycast-arm64-0.11.19.zip", "Tinycast-universal-0.11.19.zip"]))
+        expect(
+            ReleaseFeed.newest(from: chineseAssets, channel: .stable, architecture: .intel)?
+                .assetURL.lastPathComponent == "Tinycast-universal-0.11.19.zip",
+            "Intel recognizes the lowercase Universal filename used by the Chinese workflow")
+        expect(
+            ReleaseFeed.newest(from: chineseAssets, channel: .stable, architecture: .appleSilicon)?
+                .assetURL.lastPathComponent == "Tinycast-arm64-0.11.19.zip",
+            "Apple silicon selects the Chinese ARM package")
         let both = feed(
             entry(
                 tag: "v0.3.0", prerelease: false,

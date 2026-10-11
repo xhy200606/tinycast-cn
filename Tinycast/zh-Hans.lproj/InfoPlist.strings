@@ -3,3 +3,5 @@
 "NSCalendarsFullAccessUsageDescription" = "Tinycast 会读取所选时间范围内的日历事件，方便你直接从启动器加入会议。";
 "NSCameraUsageDescription" = "Tinycast 会显示摄像头预览，方便你查看自己的画面，并可拍照到剪贴板。";
 "NSRemindersFullAccessUsageDescription" = "Tinycast 允许你运行的扩展读取和编辑提醒事项。";
+
+"NSMicrophoneUsageDescription" = "Tinycast 需要麦克风权限，以在本机将听写语音转为文字。";

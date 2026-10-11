@@ -8,6 +8,7 @@ struct ExtensionsSettingsView: View {
     @State private var filter = ""
     @State private var importCandidates: ImportCandidates?
     @State private var browsingStore = false
+    @State private var storeInstall: ExtensionDeepLink.StoreInstall?
     @State private var installingFromGitHub = false
     @State private var error: String?
     @State private var updateError: String?
@@ -62,6 +63,9 @@ struct ExtensionsSettingsView: View {
         .settingsEditorPanel(isPresented: $browsingStore) {
             ExtensionStorePanel(onClose: { browsingStore = false })
         }
+        .settingsEditorPanel(item: $storeInstall) { install in
+            ExtensionStorePanel(storeInstall: install, onClose: { storeInstall = nil })
+        }
         .settingsEditorPanel(isPresented: $installingFromGitHub) {
             ExtensionGitHubPanel(onClose: { installingFromGitHub = false })
         }
@@ -69,6 +73,11 @@ struct ExtensionsSettingsView: View {
             if case .row(.extensionsInstalled, let name)? = navigation.scrollRequest?.target {
                 (expanded, filter) = (name, "")
             }
+        }
+        .onChange(of: core.pendingExtensionStoreInstall, initial: true) { _, request in
+            guard let request else { return }
+            storeInstall = request
+            core.pendingExtensionStoreInstall = nil
         }
         .onChange(of: core.extensions.installed.count) { Task { await measureReclaimable() } }
         .task {
@@ -86,10 +95,7 @@ struct ExtensionsSettingsView: View {
             SettingsRow(
                 title: "What works",
                 subtitle:
-                    String(
-                        localized:
-                            "List, detail, form, grid, no-view and menu-bar commands, plus preferences, storage and OAuth."
-                    ),
+                    "List, detail, form, grid, no-view and menu-bar commands, plus preferences and storage.",
                 subtitleLineLimit: 2
             ) {
                 ExtensionSettingsIcon(systemName: "checkmark.circle")
@@ -98,8 +104,7 @@ struct ExtensionsSettingsView: View {
             }
             SettingsRow(
                 title: "What doesn't, yet",
-                subtitle: String(
-                    localized: "Raycast's OAuth proxy, and its AI, browser and window services."),
+                subtitle: "Raycast's AI, browser and window services.",
                 subtitleLineLimit: 2
             ) {
                 ExtensionSettingsIcon(systemName: "xmark.circle")
@@ -592,7 +597,7 @@ private struct CommandRows: View {
                 )
                 .labelsHidden()
                 .toggleStyle(.checkbox)
-                .help("Show in launcher")
+                .help(String(localized: "Show in launcher"))
                 .accessibilityLabel("Show \(command.title) in launcher")
             }
         }
@@ -907,7 +912,7 @@ private struct ExtensionImportPanel: View {
             }
             .overflowFade()
             .thinScrollbar()
-            .frame(minHeight: 220)
+            .frame(minHeight: 220, maxHeight: 360)
 
             HStack {
                 // Reads against what is selected, so it is never a button that does nothing.

@@ -113,7 +113,14 @@ struct UpdateWindowView: View {
     }
 
     private func notes(_ release: AvailableRelease) -> some View {
-        ReleaseNotesView(text: release.notes)
+        VStack(alignment: .leading, spacing: Theme.Spacing.lg) {
+            ReleaseNotesView(text: release.notes)
+            if updates.manualUpdatesOnly {
+                Text("Updates are downloaded from GitHub and installed manually.")
+                    .font(.callout)
+                    .foregroundStyle(Theme.Colors.textSecondary)
+            }
+        }
     }
 
     private func report(_ failure: UpdateFailure) -> some View {
@@ -171,7 +178,10 @@ struct UpdateWindowView: View {
             case .available:
                 Button("Later") { updates.skip() }
                     .keyboardShortcut(.cancelAction)
-                Button("Update Now") { updates.install() }
+                Button(
+                    updates.manualUpdatesOnly
+                        ? String(localized: "Download from GitHub") : String(localized: "Update Now")
+                ) { updates.install() }
                     .keyboardShortcut(.defaultAction)
             case .blocked:
                 Button("Later") { updates.skip() }

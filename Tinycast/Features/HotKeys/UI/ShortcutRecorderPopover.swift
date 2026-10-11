@@ -21,6 +21,17 @@ struct ShortcutRecorderPopover: View {
         let label: String
         var isExample = false
         var tint: Color?
+        var prefix: String?
+
+        @MainActor static func binding(
+            _ binding: HotKeyBinding, label: String, tint: Color? = nil
+        )
+            -> Self
+        {
+            Self(
+                caps: binding.recorderKeycaps, label: label, tint: tint,
+                prefix: binding.recorderPrefix)
+        }
     }
 
     var body: some View {
@@ -28,13 +39,13 @@ struct ShortcutRecorderPopover: View {
         VStack(spacing: Theme.Spacing.sm) {
             HStack(spacing: Theme.Spacing.sm) {
                 ForEach(Array(state.caps.enumerated()), id: \.offset) { _, cap in
-                    KeyCapChip(text: cap, scale: .hero)
+                    KeyCapChip(text: cap, scale: .hero, prefix: state.prefix)
                 }
             }
             .frame(height: Theme.Size.heroKeyCap)
             .opacity(state.isExample ? 0.5 : 1)
 
-            Text(state.label)
+            Text(state.label.localizedUI)
                 .font(Theme.Typography.compactKeyCap)
                 .foregroundStyle(state.tint ?? Theme.Colors.textSecondary)
                 .lineLimit(1)
@@ -64,16 +75,16 @@ struct ShortcutRecorderPopover: View {
 
     private var state: State {
         if let conflict = capture.conflict {
-            return State(caps: conflict.binding.keycaps, label: conflict.owner, tint: .orange)
+            return .binding(conflict.binding, label: conflict.owner, tint: .orange)
         }
-        if capture.awaitingSecondGlobe {
-            let secondPress = capture.heldGlobe
-            return State(
-                caps: secondPress ? HotKeyBinding.doubleGlobe.keycaps : HotKeyBinding.globe.keycaps,
-                label: secondPress ? String(localized: "Release Globe") : "Press Globe again")
+        if let key = capture.awaitingSecondModifier {
+            let secondPress = capture.heldModifier == key
+            return .binding(
+                secondPress ? key.doubleBinding : key.singleBinding,
+                label: secondPress ? "Release to record".localizedUI : "Tap again for double".localizedUI)
         }
-        if capture.heldGlobe && capture.heldModifiers.isEmpty {
-            return State(caps: HotKeyBinding.globe.keycaps, label: String(localized: "Release Globe"))
+        if let key = capture.heldModifier {
+            return .binding(key.singleBinding, label: "Release or add a key".localizedUI)
         }
         let flags =
             capture.heldGlobe

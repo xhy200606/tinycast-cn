@@ -10,7 +10,7 @@ for (let index = 2; index < process.argv.length; index += 2) {
   const flag = process.argv[index];
   const value = process.argv[index + 1];
   if (!/^--(?:version|arm64|universal|output)$/.test(flag) || !value || options[flag]) {
-    throw new Error("Usage: generate-homebrew-cask.js --version VERSION --arm64 DMG --universal DMG --output CASK");
+    throw new Error("Usage: generate-homebrew-cask.js --version VERSION --arm64 DMG [--universal DMG] --output CASK");
   }
   options[flag] = value;
 }
@@ -27,7 +27,21 @@ function digest(architecture) {
   return crypto.createHash("sha256").update(bytes).digest("hex");
 }
 const arm64 = digest("arm64");
-const universal = digest("universal");
+const universal = options["--universal"] ? digest("universal") : null;
+let previousUniversal;
+if (!universal) {
+  const file = path.join(path.dirname(options["--output"]), "tinycast-cn-universal.rb");
+  const source = fs.readFileSync(file, "utf8");
+  previousUniversal = {
+    version: /\bversion "(\d+\.\d+\.\d+)"/.exec(source)?.[1],
+    sha256: /\bsha256 "([a-f0-9]{64})"/.exec(source)?.[1],
+    url: /\burl "([^"]+)"/.exec(source)?.[1],
+  };
+  if (!previousUniversal.version || !previousUniversal.sha256
+    || !previousUniversal.url?.startsWith("https://github.com/xhy200606/tinycast-cn/releases/download/")) {
+    throw new Error("ARM-only publication requires the existing verified Universal cask.");
+  }
+}
 const variants = [
   { token: "tinycast-cn", architecture: null, label: "" },
   { token: "tinycast-cn-arm64", architecture: "arm64", label: "ARM64" },
@@ -35,23 +49,46 @@ const variants = [
 ];
 fs.mkdirSync(path.dirname(options["--output"]), { recursive: true });
 for (const { token, architecture, label } of variants) {
+  if (architecture === "universal" && !universal) continue;
   const fields = architecture
     ? `  version "${version}"\n  sha256 "${architecture === "arm64" ? arm64 : universal}"`
-    : `  arch arm: "arm64", intel: "universal"\n\n  version "${version}"\n  sha256 arm:   "${arm64}",\n         intel: "${universal}"`;
+    : universal
+      ? `  arch arm: "arm64", intel: "universal"\n\n  version "${version}"\n  sha256 arm:   "${arm64}",\n         intel: "${universal}"`
+      : `  on_arm do
+    version "${version}"
+    sha256 "${arm64}"
+    url "https://github.com/xhy200606/tinycast-cn/releases/download/v#{version}/Tinycast-arm64-#{version}.dmg"
+  end
+
+  on_intel do
+    version "${previousUniversal.version}"
+    sha256 "${previousUniversal.sha256}"
+    url "${previousUniversal.url}"
+    livecheck do
+      skip "A newer Universal package has not been published"
+    end
+  end`;
+  const url = architecture || universal
+    ? `  url "https://github.com/xhy200606/tinycast-cn/releases/download/v#{version}/Tinycast-${architecture ?? "#{arch}"}-#{version}.dmg"\n`
+    : "";
   const conflicts = variants.filter(item => item.token !== token)
     .map(item => JSON.stringify("xhy200606/tinycast-cn/" + item.token)).join(", ");
+  let livecheck = `  livecheck do
+    url :url
+    regex(/^v(\\d+(?:\\.\\d+)+)$/i)
+  end`;
+  if (!architecture && !universal) {
+    livecheck = "  on_arm do\n" + livecheck.split("\n").map(line => "  " + line).join("\n") + "\n  end";
+  }
   const cask = `cask "${token}" do
 ${fields}
 
-  url "https://github.com/xhy200606/tinycast-cn/releases/download/cn-v#{version}/Tinycast-${architecture ?? "#{arch}"}-#{version}.dmg"
+${url}
   name "Tinycast 简体中文版${label ? " (" + label + ")" : ""}"
   desc "Native macOS launcher with a Simplified Chinese interface"
   homepage "https://github.com/xhy200606/tinycast-cn"
 
-  livecheck do
-    url :url
-    regex(/^cn-v(\\d+(?:\\.\\d+)+)$/i)
-  end
+${livecheck}
 
   depends_on macos: :tahoe
 ${architecture === "arm64" ? "  depends_on arch: :arm64\n" : ""}  conflicts_with cask: [${conflicts}]

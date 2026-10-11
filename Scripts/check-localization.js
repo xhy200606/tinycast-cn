@@ -56,6 +56,9 @@ const catalogs = [
   "Tinycast/Features/Settings/InterfaceSize.swift",
   "Tinycast/Features/WindowManagement/Model/WindowLayoutAnchor.swift",
   "Tinycast/Features/Launcher/Model/CommandID.swift",
+  "Tinycast/Features/Dictation/Model/DictationMode.swift",
+  "Tinycast/Features/Dictation/Model/DictationIdleRelease.swift",
+  "Tinycast/Features/Dictation/Model/DictationDestination.swift",
 ];
 for (const file of catalogs) {
   for (const match of read(file).matchAll(/case\s+[^\n]+:\s*(?:return\s+)?"([^"\\]*)"/g)) {

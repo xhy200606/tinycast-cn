@@ -15,6 +15,9 @@ let checked = 0;
 const runtimeLabels = {
   "Tinycast/DesignSystem/SettingsComponents.swift": ["title", "subtitle"],
   "Tinycast/DesignSystem/BarButton.swift": ["title"],
+  "Tinycast/DesignSystem/FormRow.swift": ["title"],
+  "Tinycast/DesignSystem/FormTextInput.swift": ["label"],
+  "Tinycast/DesignSystem/FormTextArea.swift": ["label"],
   "Tinycast/DesignSystem/SteadySegmentedPicker.swift": ["title"],
   "Tinycast/Features/Settings/Panes/GeneralSettingsView.swift": ["title", "sensitivity.title"],
   "Tinycast/Features/Settings/Panes/PermissionsSettingsView.swift": ["accessibilityStatus.title", "calendarStatus.title"],

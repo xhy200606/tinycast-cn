@@ -7,21 +7,25 @@ on:
       version:
         description: "版本号（不带 v）"
         type: string
-        default: "0.11.12"
+        default: "0.11.19"
         required: true
       architecture:
         description: "目标架构"
         type: choice
-        options: [universal, arm64]
-        default: universal
+        options: [arm64, universal]
+        default: arm64
       confirmed:
         description: "我已检查汉化改动，确认开始编译"
         type: boolean
         default: false
         required: true
+      publish:
+        description: "编译通过后上传到本仓库的 GitHub Release"
+        type: boolean
+        default: true
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: tinycast-cn-${{ github.ref }}-${{ inputs.architecture }}
@@ -39,10 +43,20 @@ jobs:
       APP_BUNDLE_ID: com.tinycast.app
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Validate build parameters
         run: |
           [[ "$BUILD_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
+          MAINTENANCE_BRANCH="$(node -p 'require("./localization-cn.json").maintenance_branch')"
+          if [ "$GITHUB_REF_NAME" != "$MAINTENANCE_BRANCH" ] && [ "$GITHUB_REF_NAME" != "v$BUILD_VERSION" ]; then
+            echo "::error::Choose $MAINTENANCE_BRANCH or the matching release tag; main is the Homebrew tap."
+            exit 1
+          fi
+          test "v$BUILD_VERSION" = "$(node -p 'require("./localization-cn.json").upstream_tag')"
+          test "$GITHUB_REPOSITORY" = "$(node -p 'require("./localization-cn.json").release_repository')"
+          git merge-base --is-ancestor "$(node -p 'require("./localization-cn.json").upstream_commit')" HEAD
           case "$BUILD_ARCHITECTURE" in
             universal) echo 'BUILD_ARCHS=arm64 x86_64' >> "$GITHUB_ENV" ;;
             arm64) echo 'BUILD_ARCHS=arm64' >> "$GITHUB_ENV" ;;
@@ -52,7 +66,10 @@ jobs:
 
       - name: Select Xcode 26
         run: |
-          XCODE_PATH="$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n1)"
+          shopt -s nullglob
+          XCODE_CANDIDATES=(/Applications/Xcode_26*.app)
+          test "${#XCODE_CANDIDATES[@]}" -gt 0
+          XCODE_PATH="$(printf '%s\n' "${XCODE_CANDIDATES[@]}" | sort -V | tail -n1)"
           test -n "$XCODE_PATH"
           echo "DEVELOPER_DIR=$XCODE_PATH/Contents/Developer" >> "$GITHUB_ENV"
 
@@ -98,14 +115,14 @@ jobs:
           xcodebuild -project Tinycast.xcodeproj -scheme Tinycast -configuration Release \
             -derivedDataPath "$RUNNER_TEMP/Release" \
             ARCHS="$BUILD_ARCHS" ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO \
-            PRODUCT_NAME="$APP_NAME" PRODUCT_BUNDLE_IDENTIFIER="$APP_BUNDLE_ID" \
+            PRODUCT_NAME="$APP_NAME" TINYCAST_BUNDLE_IDENTIFIER="$APP_BUNDLE_ID" \
             MARKETING_VERSION="$BUILD_VERSION" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
             build 2>&1 | tee build/logs/release.log
 
       - name: Verify resources and architectures, then sign locally
         run: |
           APP="$RUNNER_TEMP/Release/Build/Products/Release/$APP_NAME.app"
-          for BIN in "$APP/Contents/MacOS/$APP_NAME" "$APP/Contents/Helpers/ClipboardTextHelper"; do
+          for BIN in "$APP/Contents/MacOS/$APP_NAME" "$APP/Contents/Helpers/ClipboardTextHelper" "$APP/Contents/Helpers/Tinycast Dictation.app/Contents/MacOS/Tinycast Dictation"; do
             SLICES="$(lipo -archs "$BIN")"
             for ARCH in $BUILD_ARCHS; do
               [[ " $SLICES " == *" $ARCH "* ]] || exit 1
@@ -114,8 +131,10 @@ jobs:
           done
           test -f "$APP/Contents/Resources/zh-Hans.lproj/Localizable.strings"
           test -f "$APP/Contents/Resources/zh-Hans.lproj/InfoPlist.strings"
+          test -f "$APP/Contents/Helpers/Tinycast Dictation.app/Contents/Resources/zh-Hans.lproj/Localizable.strings"
           plutil -lint "$APP/Contents/Resources/zh-Hans.lproj/Localizable.strings"
           codesign --force --sign - --options runtime "$APP/Contents/Helpers/ClipboardTextHelper"
+          codesign --force --sign - --options runtime "$APP/Contents/Helpers/Tinycast Dictation.app"
           codesign --force --sign - --options runtime --entitlements Tinycast/Tinycast.entitlements "$APP"
           codesign --verify --deep --strict "$APP"
 
@@ -135,13 +154,14 @@ jobs:
             echo "Version: $BUILD_VERSION"
             echo "Architectures: $BUILD_ARCHS"
             echo "Signing: ad-hoc (not notarized; manual updates)"
-          } > dist/BUILD-INFO.txt
-          shasum -a 256 dist/*.dmg dist/*.zip > dist/SHA256SUMS.txt
+          } > "dist/BUILD-INFO-$BUILD_ARCHITECTURE.txt"
+          shasum -a 256 dist/*.dmg dist/*.zip > "dist/SHA256SUMS-$BUILD_ARCHITECTURE.txt"
           {
             echo '### 中文版安装包'
             echo "源码提交：\`$SOURCE_SHA\`"
             echo '下载本次运行的 Artifacts，解压后将 Tinycast.app 拖到“应用程序”。'
             echo '本包使用临时签名，未公证；更新需手动下载。若系统阻止首次打开：'
+            # shellcheck disable=SC2016
             echo '`xattr -dr com.apple.quarantine "/Applications/Tinycast.app"`'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -152,6 +172,34 @@ jobs:
           path: dist/
           retention-days: 90
           if-no-files-found: error
+
+      - name: Publish to this repository's release
+        if: inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="v$BUILD_VERSION"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            git fetch --no-tags origin "refs/tags/$TAG:refs/tags/$TAG"
+            test "$(git rev-parse "$TAG^{commit}")" = "$SOURCE_SHA" || {
+              echo '::error::This release belongs to another source commit.'
+              exit 1
+            }
+          else
+            {
+              echo "同步上游 Tinycast v$BUILD_VERSION，保留简体中文界面与拼音搜索。"
+              echo "源码：$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$SOURCE_SHA"
+              echo '检查更新指向本仓库；安装包使用 ad-hoc 签名，需手动下载安装。'
+              echo '<!-- tinycast:install -->'
+              echo '下载与你的 Mac 架构匹配的 DMG，将 Tinycast.app 拖入应用程序文件夹。'
+            } > "$RUNNER_TEMP/release-notes.md"
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$SOURCE_SHA" \
+              --draft --title "Tinycast $BUILD_VERSION · 简体中文版" \
+              --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi
+          gh release upload "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
 
       - name: Upload build diagnostics
         if: always()

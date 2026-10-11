@@ -15,6 +15,10 @@ enum ReleaseFeed {
     /// Where releases come from, and what every `@handle` and `#304` in their notes points at.
     static let repository = "xhy200606/tinycast-cn"
 
+    static func releasePage(for release: AvailableRelease) -> URL {
+        URL(string: "https://github.com/\(repository)/releases/tag/\(release.tag)")!
+    }
+
     /// The only artifact with an x86_64 slice, so the only one an Intel Mac can install.
     private static let universalMarker = "-Universal-"
 
@@ -61,10 +65,10 @@ enum ReleaseFeed {
         from assets: [Entry.Asset], for architecture: ReleaseArchitecture
     ) -> Entry.Asset? {
         let zips = assets.filter { $0.name.hasSuffix(".zip") }
-        let universal = zips.first { $0.name.contains(universalMarker) }
+        let universal = zips.first { $0.name.localizedCaseInsensitiveContains(universalMarker) }
         switch architecture {
         case .intel: return universal
-        case .appleSilicon: return zips.first { !$0.name.contains(universalMarker) } ?? universal
+        case .appleSilicon: return zips.first { !$0.name.localizedCaseInsensitiveContains(universalMarker) } ?? universal
         }
     }
 

@@ -89,6 +89,8 @@ function customUILiterals(source, strings) {
     FeatureSwitchSection: ["enableTitle", "enableSubtitle"],
     HeaderMenuButton: ["title", "help"],
     PopoverMenuItem: ["title", "detail"],
+    FormTextInput: ["placeholder", "label"],
+    FormTextArea: ["label"],
   };
   const byStart = new Map(strings.map((literal) => [literal.start, literal]));
   const stack = [];
@@ -118,6 +120,9 @@ function customUILiterals(source, strings) {
         const field = /^(\w+):\s*$/.exec(argument)?.[1];
         if (fields[frame.name]?.includes(field)
           || (frame.name === "SettingsRowTitle" && frame.argumentIndex === 1 && !argument)) {
+          found.add(index);
+        }
+        if (frame.name === "FormRow" && frame.argumentIndex === 0 && !argument) {
           found.add(index);
         }
       }

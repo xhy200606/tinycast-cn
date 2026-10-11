@@ -1,6 +1,6 @@
 # 中文版维护与云编译
 
-中文维护分支 `cn-localization-v0.11.12` 基于上游 `abue-ammar/tinycast` 的 v0.11.12 源码及已有汉化提交。
+中文维护分支 `cn-localization-v0.11.19` 基于上游 `abue-ammar/tinycast` 的 v0.11.19 源码及已有汉化提交。
 本次开始维护时的分支提交为 `0d4645d6fdfbd85b3610033996988a87455afe1a`。
 对应上游基线详见 `localization-cn.json`。汉化使用简体中文资源，系统首选语言为简体中文时启用；
 英文原文继续保留，应用、文件名、第三方扩展自己的内容和用户输入不做强制翻译。
@@ -60,23 +60,26 @@ git diff --check
 
 1. 先完成翻译和静态检查，检查并提交具体改动。
 2. 得到用户的明确编译确认。
-3. 在 Actions 选择本工作流，选择 `cn-localization-v0.11.12` 分支，核对版本号和架构，勾选确认。
+3. 在 Actions 选择本工作流，选择 `cn-localization-v0.11.19` 分支，核对版本号和架构，勾选确认。
 4. 或使用 CLI（同样只在明确确认之后）：
 
 ```sh
 gh workflow run release.yml --repo xhy200606/tinycast-cn \
-  --ref cn-localization-v0.11.12 \
-  -f version=0.11.12 -f architecture=universal -f confirmed=true
+  --ref cn-localization-v0.11.19 \
+  -f version=0.11.19 -f architecture=arm64 -f confirmed=true
 ```
 
 构建使用 macOS 26 / Xcode 26，先做翻译检查、lint、回归测试、Debug 编译及 Xcode 文案导出，
-再生成 Release。默认 universal 同时支持 Apple 芯片和 Intel，并检查主程序与 OCR 辅助程序架构。
+再生成 Release。默认构建 arm64；本次只准备 ARM 版，等待明确确认后启动云编译。Universal 可供后续单独确认。
+同时检查主程序、OCR 辅助程序和听写辅助程序的架构。
 Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载构建日志。
-此流程不会发布正式 Release、修改上游 Homebrew 仓库或发送 Discord 公告。
+`publish` 默认开启：构建通过后发布到本仓库的 `v版本号` Release，并记录源码提交；
+同名 Release 指向其他源码时拒绝覆盖。不会修改上游 Homebrew 仓库或发送 Discord 公告。
 
 应用名为 `Tinycast.app`，Debug 和 Release 的 bundle ID 均为 `com.tinycast.app`，与上游版共用设置。
 配置镜像位于 `~/.config/tinycast/settings.json`。目前没有签名证书，构建使用 ad-hoc 签名，
-没有 Apple 公证；Info.plist 的 `TinycastManualUpdatesOnly` 标记关闭应用内升级，后续版本需手动下载。
+没有 Apple 公证；Info.plist 的 `TinycastManualUpdatesOnly` 标记关闭自动安装；检查更新仍可读取本 fork 的正式 Release，
+更新按钮打开该版本的 GitHub 页面，后续版本需手动下载安装。
 更新源指向本 fork，避免
 把汉化版替换成上游英文包。不要删除上游的签名验证，也不要把临时签名当作可信自动更新证书。
 每次重新安装后，macOS 可能要求重新授予辅助功能等权限。
@@ -90,7 +93,7 @@ Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载�
 维护时请使用包含真实 Git 历史的完整克隆，不要从 ZIP 或 tarball 初始化的新仓库执行合并。
 
 ```sh
-./Scripts/prepare-upstream-cn.sh v0.11.13
+./Scripts/prepare-upstream-cn.sh v0.11.20
 ```
 
 此脚本只准备分支和待提交的合并，保留本 fork 的手动构建工作流，执行不编译的翻译检查，
@@ -112,17 +115,17 @@ Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载�
 `tinycast-cn-universal` 安装供 Intel 和 Apple 芯片使用的 Universal 包，`tinycast-cn` 自动选择架构。
 应用均保持正式名称 `Tinycast.app`，配方相互声明冲突，不自动移除 Gatekeeper 隔离标记。
 
-两个架构均构建成功后，下载相同源码提交对应的包，发布到本 fork 的 `cn-v版本号` GitHub Release。
+安装包发布到本 fork 的 `v版本号` GitHub Release。本次仅发布 ARM，Universal 配方保留已验证的旧版。
 每次使用实际 DMG 重新生成 cask 的校验值，不使用占位值，也不沿用上个版本的哈希：
 
 ```sh
-node Scripts/generate-homebrew-cask.js --version 0.11.12 \
-  --arm64 /path/to/Tinycast-arm64-0.11.12.dmg \
-  --universal /path/to/Tinycast-universal-0.11.12.dmg \
+node Scripts/generate-homebrew-cask.js --version 0.11.19 \
+  --arm64 /path/to/Tinycast-arm64-0.11.19.dmg \
   --output Casks/tinycast-cn.rb
 for cask in Casks/tinycast-cn*.rb; do ruby -c "$cask"; done
 ```
 
-生成脚本一次更新三个配方。核对 Release 中两份 DMG 的 SHA-256 与各配方一致，
+只提供 `--arm64` 时，脚本更新 ARM 配方及自动选择入口，并保留 Intel 的版本、下载地址和哈希。
+同时提供 `--universal` 时才更新三个配方。核对 Release 中 DMG 的 SHA-256 与各配方一致，
 再将配方提交到默认分支和汉化维护分支。
 tap 的默认分支只需同步工作流入口、维护工具和 cask，无需改变其上游源码基线。
