@@ -47,7 +47,7 @@ Tinycast **免费且开源**。以下捐助链接用于支持原项目的上游�
 ## 功能
 
 - **应用启动器**：模糊搜索并启动应用、固定常用应用、查看运行状态，以及退出单个或全部应用。
-- **听写（0.11.19 源码）**：使用本地 Parakeet 或 Qwen 模型转写语音，并粘贴或复制文字；
+- **听写（ARM 0.11.19）**：使用本地 Parakeet 或 Qwen 模型转写语音，并粘贴或复制文字；
   支持按住说话、按键切换及 AI 输入框的麦克风按钮。
 - **全局快捷键**：随时按下一个快捷键，唤出命令面板。
 - **应用专属快捷键**：为应用绑定快捷键，按下即可在聚焦和隐藏之间切换。
@@ -99,7 +99,7 @@ Universal 包包含 x86_64 和 arm64，也能在 Apple 芯片上运行。
 
 | 你的 Mac | 安装包 |
 | --- | --- |
-| Apple 芯片（M 系列） | [arm64 DMG](https://github.com/xhy200606/tinycast-cn/releases/download/cn-v0.11.12/Tinycast-arm64-0.11.12.dmg) |
+| Apple 芯片（M 系列） | [arm64 DMG](https://github.com/xhy200606/tinycast-cn/releases/download/v0.11.19/Tinycast-arm64-0.11.19.dmg) |
 | Intel，或需要包含两种架构的安装包 | [Universal DMG](https://github.com/xhy200606/tinycast-cn/releases/download/cn-v0.11.12/Tinycast-universal-0.11.12.dmg) |
 
 打开 DMG，将 **Tinycast.app** 拖到“**应用程序**”。两种安装包的应用名均为 `Tinycast.app`，
@@ -166,7 +166,7 @@ cd tinycast-cn
 ### 云编译与上游更新
 
 上游 **0.11.19** 已同步并汉化，源码位于 [`cn-localization-v0.11.19`](https://github.com/xhy200606/tinycast-cn/tree/cn-localization-v0.11.19)。
-已发布的安装包仍为 **0.11.12**；本次仅编译 **ARM 版**，等待明确同意后启动云编译。
+ARM 安装包已发布为 **0.11.19**；Intel 继续使用 **Universal 0.11.12**，本次仅构建 ARM 版。
 
 云编译必须手动触发：在 GitHub Actions 中选择中文分支、版本号，以及 `arm64` 或 `universal` 架构，
 再显式勾选确认选项。推送和 PR 不会触发编译。

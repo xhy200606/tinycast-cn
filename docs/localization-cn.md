@@ -70,7 +70,7 @@ gh workflow run release.yml --repo xhy200606/tinycast-cn \
 ```
 
 构建使用 macOS 26 / Xcode 26，先做翻译检查、lint、回归测试、Debug 编译及 Xcode 文案导出，
-再生成 Release。默认构建 arm64；本次只准备 ARM 版，等待明确确认后启动云编译。Universal 可供后续单独确认。
+再生成 Release。默认构建 arm64；本次已发布 ARM 0.11.19。Universal 保留 0.11.12，后续构建仍需单独确认。
 同时检查主程序、OCR 辅助程序和听写辅助程序的架构。
 Artifacts 包含 DMG、ZIP、源码提交记录与 SHA-256；失败时可下载构建日志。
 `publish` 默认开启：构建通过后发布到本仓库的 `v版本号` Release，并记录源码提交；
@@ -129,3 +129,11 @@ for cask in Casks/tinycast-cn*.rb; do ruby -c "$cask"; done
 同时提供 `--universal` 时才更新三个配方。核对 Release 中 DMG 的 SHA-256 与各配方一致，
 再将配方提交到默认分支和汉化维护分支。
 tap 的默认分支只需同步工作流入口、维护工具和 cask，无需改变其上游源码基线。
+
+## 发布重试
+
+编译通过但 Release 上传失败时，可使用 `publish-built-release.yml` 重试已验证的 ARM 产物，
+不重新编译。它核对原运行的测试、Debug、文案导出、Release、架构/签名和打包步骤全部成功，
+下载对应 artifact，并再次核对版本、架构、源码 SHA 和 SHA-256。标签必须与安装包的源码一致。
+若 GitHub 默认机器人对历史源码创建 Release 返回 403，由维护者先创建指向产物源码的版本标签，
+再重试；脚本对已验证的标签不再指定历史 `target_commitish`，不需要保存个人登录令牌。
